@@ -1,0 +1,3 @@
+init.c:6:6:VariableInit	40	static
+init.c:137:6:timer_Init	4	static
+init.c:151:6:batt_Check	32	static

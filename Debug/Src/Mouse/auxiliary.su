@@ -1,0 +1,12 @@
+auxiliary.c:12:6:stay	16	static
+auxiliary.c:22:6:ms_wait	16	static
+auxiliary.c:36:6:select_mode	32	static
+auxiliary.c:85:6:timer_start	4	static
+auxiliary.c:98:6:melody	48	static
+auxiliary.c:131:6:start_wait	8	static
+auxiliary.c:153:6:start_ready	8	static
+auxiliary.c:168:6:setting_params	8	static
+auxiliary.c:176:6:setting_gain	8	static
+auxiliary.c:188:6:auto_Calibration	24	static
+auxiliary.c:197:6:ctrl_zero	4	static
+auxiliary.c:204:6:reset_distance	4	static
