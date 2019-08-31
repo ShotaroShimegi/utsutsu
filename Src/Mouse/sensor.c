@@ -61,30 +61,37 @@ void get_wall_info()
 
 }
 
-void enc_test(){
+void EncoderGyroTest(){
 	reset_distance();
 	time = 0;
-/*	R_PG_Timer_StartCount_MTU_U0_C1();
-	R_PG_Timer_StartCount_MTU_U0_C2();
-	R_PG_Timer_StartCount_CMT_U1_C2();
-*/
+	centor.angle = 0;
+
+	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
+	HAL_TIM_Encoder_Start(&htim4,TIM_CHANNEL_ALL);
+
+	__HAL_TIM_CLEAR_FLAG(&htim6, TIM_FLAG_UPDATE);
+	__HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
+	HAL_TIM_Base_Start(&htim6);
+
 	while(1){
-/*
-		totalR_mm += -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi * (dif_pulse_r % 4096) / 4096;
-		totalL_mm += -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi * (dif_pulse_l % 4096) / 4096;
-*/		//printf("R_distance:%4lf L_distance:%4lf\r\n",encoder_r.distance, encoder_l.distance);
+
+//		totalR_mm += -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi * (dif_pulse_r % 4096) / 4096;
+//		totalL_mm += -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi * (dif_pulse_l % 4096) / 4096;
+
+		printf("R_distance:%4lf L_distance:%4lf Gyro:%4lf \n",encoder_r.distance, encoder_l.distance,centor.angle);
 		ms_wait(500);
 	}
 
 }
 
 void sensor_start(){
-/*	R_PG_Timer_StartCount_MTU_U0_C1();	//エンコーダ左右
-	R_PG_Timer_StartCount_MTU_U0_C2();
 
-	R_PG_Timer_StartCount_CMT_U0_C1();	//壁センサ用LED起動タイマ
-	R_PG_Timer_StartCount_CMT_U1_C2();	//エンコーダ処理，PID計算用タイマ
-*/
+	/*Basic Timer Start*/
+	__HAL_TIM_CLEAR_FLAG(&htim6, TIM_FLAG_UPDATE);
+	__HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
+	HAL_TIM_Base_Start(&htim6);
+
+
 }
 void sensor_stop(){
 /*	R_PG_Timer_HaltCount_MTU_U0_C1();
@@ -105,43 +112,45 @@ void sensor_stop(){
 void sensor_check()
 {
 	uint8_t buff;
-	MF.FLAG.CTRL = 1;
-
-//	HAL_TIM_Base_Start_IT(&htim6);
 
 	printf("Timer Start!\n");
 
-//	get_base();
+	__HAL_TIM_CLEAR_FLAG(&htim6, TIM_FLAG_UPDATE);
+	__HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
+	HAL_TIM_Base_Start(&htim6);
+
+
+//	HAL_TIM_Base_Start_IT(&htim6);	<- 何故かこれだと上手くいかない
+
 	while(1){
 		//printf("ad_l: %4d ad_fl:%4d ad_ff:%4d  ad_fr:%4d ad_r:%4d \r\n", wall_l.dif, wall_fl.dif, wall_ff.dif, wall_fr.dif, wall_r.dif);
-		printf("ad_l: %4d ad_ff:%4d ad_r:%4d \r\n", wall_l.val,wall_ff.val,wall_r.val);
+		printf("ad_l: %4d ad_ff:%4d ad_r:%4d \n", wall_l.val,wall_ff.val,wall_r.val);
 		//----LEDが4つの場合----
-		if(wall_fr.dif > wall_fr.threshold){
+		if(wall_fr.val > wall_fr.threshold){
 			buff = buff | 0x10;
 		}
-		if(wall_r.dif > wall_r.threshold){
+		if(wall_r.val > wall_r.threshold){
 			buff = buff | 0x08;
 		}
-		if(wall_ff.dif > wall_ff.threshold){
+		if(wall_ff.val > wall_ff.threshold){
 			buff = buff | 0x04;
 		}
-		if(wall_l.dif > wall_l.threshold){
+		if(wall_l.val > wall_l.threshold){
 			buff = buff | 0x02;
 		}
-		if(wall_fl.dif > wall_fl.threshold){
+		if(wall_fl.val > wall_fl.threshold){
 			buff = buff | 0x01;
 		}
 		LedDisplay(&buff);
 		ms_wait(1000);
 
 		}
-	MF.FLAG.CTRL = 0;
 
 }
 
 void Tim6WaitUs(uint16_t us){
-	uint16_t time = __HAL_TIM_GET_COUNTER(&htim6) + us;
-	while(__HAL_TIM_GET_COUNTER(&htim6) < time);
+	uint16_t delay = __HAL_TIM_GET_COUNTER(&htim6) + us;
+	while(__HAL_TIM_GET_COUNTER(&htim6) < delay);
 
 }
 
@@ -151,9 +160,9 @@ int16_t GetEncoderLeft(void){
 	TIM3->CNT = 0;
 
 	if(enc_val > 32767){
-		count = enc_val - 65535;
+		count = (int16_t)(65536 - enc_val);
 	}else{
-		count = enc_val;
+		count = -(int16_t)enc_val;
 	}
 
 	return count;
@@ -167,22 +176,47 @@ int16_t GetEncoderRight(void)
 	TIM4->CNT = 0;
 
 	if(enc_val > 32767){
-		count = enc_val - 65535;
+		count = -(int16_t)(65536 - enc_val);
 	}else{
-		count = enc_val;
+		count = (int16_t)enc_val;
 	}
 
 	return count;
 
 }
 
-int get_adc_value(ADC_HandleTypeDef *hadc, uint32_t channel)
+void UpdateGyro(void)
+{
+	centor.omega_deg = GyroRead();
+	centor.omega_rad = centor.omega_deg * KW;
+	centor.angle += (centor.omega_deg + centor.pre_omega_deg) * 0.5 * 0.001;
+	centor.pre_omega_deg = centor.omega_deg;
+
+}
+void UpdateEncoder(void)
+{
+	encoder_r.pulse = GetEncoderRight();
+	encoder_l.pulse = GetEncoderLeft();
+
+	encoder_r.sum += encoder_r.pulse;
+	encoder_l.sum += encoder_l.pulse;
+	encoder_r.distance = Kxr * encoder_r.sum;
+	encoder_l.distance = Kxr * encoder_l.sum;
+
+	encoder_r.velocity = Kxr * (float)encoder_r.pulse;
+	encoder_l.velocity = Kxr * (float)encoder_l.pulse;
+
+	centor.distance = (encoder_r.distance + encoder_l.distance) * 0.5;
+	centor.velocity = (encoder_r.velocity + encoder_l.velocity) * 0.5;
+
+}
+int GetADC(ADC_HandleTypeDef *hadc, uint32_t channel)
 {
   ADC_ChannelConfTypeDef sConfig = {0};
 
   sConfig.Channel = channel;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
 
   HAL_ADC_ConfigChannel(hadc, &sConfig);
 

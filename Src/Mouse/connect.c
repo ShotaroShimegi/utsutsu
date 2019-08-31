@@ -32,7 +32,7 @@ float GyroRead(void){
 	int16_t omega_raw_z;
 	float omega;
 	omega_raw_z = (int16_t)(ReadByte(GYRO_ZOUT_H) << 8 | ReadByte(GYRO_ZOUT_L));	//0x47が上位，0x48が下位の16bitデータでジャイロ値を取得
-	omega = (float)((omega_raw_z - gyro_base) / GYRO_FIX);
+	omega = (float)(omega_raw_z / GYRO_FIX);
 	return omega;
 }
 

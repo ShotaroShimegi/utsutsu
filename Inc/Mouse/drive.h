@@ -30,15 +30,15 @@ typedef struct{
 } omega_ctrl;
 
 typedef struct{
-	uint16_t pulse;			//エンコーダ生値
-	int16_t  dif;			//エンコーダ生値差分
-	int8_t over_flag;		//オーバーフローフラグ
-	uint32_t sum; 			//エンコーダ積算値
-	float distance;			//物理量走行距離
+	int16_t pulse;			//Raw Value
+	int16_t  dif;
+	int64_t sum; 			//Raw Integral
+	float distance;			//Converted Value [mm]
+	float velocity;
 } encoder;
 
 typedef struct{
-	float vel;			//重心速度
+	float velocity;			//重心速度
 	float vel_target;		//重心目標速度
 	float omega_deg;		//重心角速度　degree単位
 	float pre_omega_deg;		//角度計算用の保存用
@@ -69,7 +69,7 @@ typedef struct{
 
 
 	//====変数====
-#ifdef MAIN_C_			//対応ファイルでEXTERNが定義されている場合
+#ifdef MAIN_C_
 
 	/*** 重心・位置　構造体 ***/
 	volatile gravity centor;

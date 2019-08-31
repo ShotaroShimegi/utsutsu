@@ -60,19 +60,25 @@
 	//====その他====
 	void stay(unsigned int);
 	void ms_wait(unsigned int);
-	void select_mode(uint8_t *mode);
-	void timer_start();
-	void melody(uint32_t,uint32_t);
-	void start_wait();
-	void start_ready();
+
+	void ModeSelect(uint8_t *mode);
+	void MelodySummer(void);
+	void MelodyMrLawrence(void);
+
+
+	void timer_start(void);
+	void Melody(uint32_t,uint32_t);
+	void StartWaiting(void);
+	void start_ready(void);
 
 	void auto_Calibration(float,float);
-	void setting_params(params);
-	void setting_gain(gain);
+	void setting_params(params *instance);
+	void setting_gain(gain *instance);
 
-	void ctrl_zero();
-	void reset_distance();
+	void ctrl_zero(void);
+	void reset_distance(void);
+	void CheckBattery(void);
 
-	void utsutsu_system();
+	void UtsutsuSystem();
 
 #endif /* AUXILIARY_H_ */

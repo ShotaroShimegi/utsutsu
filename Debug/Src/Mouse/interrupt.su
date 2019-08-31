@@ -1,7 +1,2 @@
-interrupt.c:15:6:HAL_TIM_PeriodElapsedCallback	24	static
-interrupt.c:233:6:Mtu3IcCmDIntFunc	16	static
-interrupt.c:266:6:Mtu3IcCmCIntFunc	4	static
-interrupt.c:284:6:Mtu4IcCmDIntFunc	16	static
-interrupt.c:319:6:Mtu4IcCmCIntFunc	4	static
-interrupt.c:338:6:Cmt1IntFunc	16	static
-interrupt.c:523:6:Cmt2IntFunc	4	static
+interrupt.c:20:6:HAL_TIM_PeriodElapsedCallback	16	static
+interrupt.c:379:6:HAL_ADC_ConvCpltCallback	16	static

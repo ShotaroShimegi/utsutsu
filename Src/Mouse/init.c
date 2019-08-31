@@ -6,6 +6,7 @@
 void VariableInit(void){
 
 	float val1 = 0;
+	uint8_t i;
 	//----壁センサ系----
 	tp = 0;
 	wall_l.dif = wall_r.dif = wall_fl.dif = wall_fr.dif = wall_ff.dif = 0;
@@ -18,16 +19,15 @@ void VariableInit(void){
 	/*** encoder構造体の初期化 ***/
 	encoder_r.pulse = 0;
 	encoder_r.dif = 0;
-	encoder_r.over_flag = 0;
 	encoder_r.sum = 0;
 	encoder_r.distance = 0;
+	encoder_r.velocity = 0.0;
 
 	encoder_l.pulse = 0;
 	encoder_l.dif = 0;
-	encoder_l.over_flag = 0;
 	encoder_l.sum = 0;
 	encoder_l.distance = 0;
-
+	encoder_l.velocity = 0.0;
 
 	/*** vel_ctrl構造体の初期化 ***/
 	vel_ctrl_R.real = 0;
@@ -80,11 +80,11 @@ void VariableInit(void){
 	gain_search1.wall_kp = 0.00f;
 	gain_search1.wall_kd = 0.00f;
 
-	setting_params(params_search1);
-	setting_gain(gain_search1);
+	setting_params(&params_search1);
+	setting_gain(&gain_search1);
 
 	/*** centor 構造体の初期化 ***/
-	centor.vel = 0;
+	centor.velocity = 0;
 	centor.vel_target = 0;
 	centor.omega_deg = 0;
 	centor.pre_omega_deg = 0;
@@ -118,57 +118,22 @@ void VariableInit(void){
 	PRELOC.PLANE = 0x00;			//現在地の初期化
 	m_dir = 0;				//マウス方向の初期化
 
-	Kvolt = MASS / 2 * DIA_SQUR_mm / DIA_PINI_mm * DIA_WHEEL_mm / Ktolk * Rmotor; //電源電圧測定に必要な定数
-	Kxr =  -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi / 4096;	      //エンコーダ値を物理量に変換するのに必要な定数
+	Kvolt = MASS / 2 * DIA_SPUR_mm / DIA_PINI_mm * RADIUS_WHEEL_mm / Ktolk * Rmotor; //電源電圧測定に必要な定数
+	Kxr =  -RADIUS_WHEEL_mm * (DIA_PINI_mm / DIA_SPUR_mm) * 2 * Pi / 4096;	      //Gain for Convert Encoder Pulse to Physical Unit
 
+	printf("Array Delete Start\n");
 	//---テスト用配列初期化
 /*	for(i=0;i<2000;i++){
-		log.test1[i] = 0;
-		log.test2[i] = 0;
-		log.test3[i] = 0;
-		log.test4[i] = 0;
-		log.test5[i] = 0;
-		log.test6[i] = 0;
+		log.test1[i] = 0.0f;
+		log.test2[i] = 0.0f;
+		log.test3[i] = 0.0f;
+		log.test4[i] = 0.0f;
+		log.test5[i] = 0.0f;
+		log.test6[i] = 0.0f;
 	}
-*/
+*/	printf("Array Delete Completed\n");
+
 }
 
-// タイマ初期化
-void timer_Init(void){
-/*
-	R_PG_Timer_Set_CMT_U0_C0();
-	R_PG_Timer_Set_CMT_U0_C1();
-	R_PG_Timer_Set_CMT_U1_C2();
 
-	R_PG_Timer_Set_MTU_U0_C0();		//ブザー用初期設定
-	R_PG_Timer_Set_MTU_U0_C1();		//右エンコーダ
-	R_PG_Timer_Set_MTU_U0_C2();		//左エンコーダ
-	R_PG_Timer_Set_MTU_U0_C3();		//左モータ
-	R_PG_Timer_Set_MTU_U0_C4();		//右モータ
-*/
-}
 
-void batt_Check(uint16_t num){
-	uint16_t i;
-
-	for(i=0;i<num;i++){
-/*		S12AD.ADANS0.WORD = 0x40;
-		R_PG_ADC_12_StartConversionSW_S12AD0();
-		R_PG_ADC_12_GetResult_S12AD0(ad_res);
-		ms_wait(1);
-		volt_bat += ad_res[6];
-*/	}
-
-	volt_bat = volt_bat / num;
-
-	if(volt_bat < 3000 && 1500 < volt_bat){
-		melody(1320,500);
-		melody(1120,500);
-		melody(920,500);
-//		R_PG_Timer_StopModule_MTU_U0();
-//		R_PG_Timer_StopModule_CMT_U0();
-		printf("Voltage Out! volt is %f\r\n",volt_bat);
-		while(1){
-		}
-	}
-}

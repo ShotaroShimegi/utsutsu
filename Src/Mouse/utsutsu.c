@@ -1,16 +1,20 @@
 #include <Mouse/global.h>
 
-void utsutsu_system(){
+void UtsutsuSystem(){
 	uint8_t mode = 0;
 
+	MelodySummer();
 	GyroInit();
 	VariableInit();
 
+	CheckBattery();
+
 	printf("----Start Utsutsu System----\n");
+
 
 	while(1){
 
-	  select_mode(&mode);
+	  ModeSelect(&mode);
 
 	  ms_wait(100);
 	  //----mode action----
@@ -33,7 +37,7 @@ void utsutsu_system(){
 			goal_x = GOAL_X;									//ゴール座標を設定　　GOAL_Xはglobal.hにマクロ定義あり
 			goal_y = GOAL_Y;									//ゴール座標を設定　　GOAL_Yはglobal.hにマクロ定義あり
 
-			start_wait();
+			StartWaiting();
 			start_ready();
 
 			get_wall_info();									//壁情報の初期化     get_wall_info()はsensor.cに関数定義あり
@@ -51,7 +55,7 @@ void utsutsu_system(){
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
-			start_wait();
+			StartWaiting();
 			start_ready();
 
 			searchSA();
@@ -71,7 +75,7 @@ void utsutsu_system(){
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
-			start_wait();
+			StartWaiting();
 			start_ready();
 
 			searchSA_ESNW();
@@ -89,7 +93,7 @@ void utsutsu_system(){
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
-			start_wait();
+			StartWaiting();
 			start_ready();
 
 			searchSLA();
@@ -108,7 +112,7 @@ void utsutsu_system(){
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
-			start_wait();
+			StartWaiting();
 			start_ready();
 
 			searchSLA_ESNW();
@@ -125,7 +129,7 @@ void utsutsu_system(){
 			//----走行テスト----
 		case 11:
 			HAL_Delay(100);
-			start_wait();
+			StartWaiting();
 			set_dir(FORWARD);
 			drive_start();
 			while(1){
@@ -137,16 +141,16 @@ void utsutsu_system(){
 			//----エンコーダテスト----
 		case 12:
 			HAL_Delay(100);
-			start_wait();
-			enc_test();
+			StartWaiting();
+			EncoderGyroTest();
 			ms_wait(100);
 			break;
 
 		case 13:
 			HAL_Delay(100);
-			start_wait();
+			StartWaiting();
 
-			/*宴会芸モード*/
+			/*Mode Stone*/
 			MF.FLAG.ACTRL = 0;
 			MF.FLAG.VCTRL = 1;
 			MF.FLAG.WCTRL = 1;
@@ -168,11 +172,10 @@ void utsutsu_system(){
 			break;
 
 			//----センサ値, 差を確認----
-			//LED点灯は要変更
 		default:
 			HAL_Delay(100);
 			VariableInit();
-//			start_wait();
+//			StartWaiting();
 			sensor_check();
 			ms_wait(100);
 			break;

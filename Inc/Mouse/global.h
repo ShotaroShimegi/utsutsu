@@ -30,8 +30,8 @@
 #define ROT_TIME 355
 #define ROT180_TIME 500
 
-#define GYRO_FIX 16.4			//ジャイロデータを物理量変換する係数，ジャイロデータシート参照
-#define KW 0.01744				//Pi/180　度数→ラジアンに変換する定数
+#define GYRO_FIX 16.4			//Gain for Convert Gyro Value to Physical Unit，ジャイロデータシート参照
+#define KW 0.01744				//Pi/180　degree -> radian に変換する定数
 #define KWP 57.471
 //----DC走行関連----
 #define HALF_MM 90
@@ -42,13 +42,13 @@
 #define SLA_OFFSET_A 53
 
 //----エンコーダ・DCモータ関連----
-#define DIA_WHEEL_mm 11.5f
+#define RADIUS_WHEEL_mm 12.25f
 #define DIA_PINI_mm 4.0f
-#define DIA_SQUR_mm 17.5f
+#define DIA_SPUR_mm 21.0f
 #define Pi 3.1415926f
 #define Ktolk 1.98f
 #define Rmotor 1.07f
-#define TREAD_mm 67.0f
+#define TREAD_mm 68.0f
 #define MASS 0.1f
 #define VOLT_BAT 7.4f
 
@@ -88,11 +88,8 @@
 #define a7h 3729
 #define b7 3951
 
-//----タイマ関連----
-#define DEFGRC 22000		//デフォルトのインターバル
-
 /*------------------------------------------------------------
-		センサ系t
+		センサ系
 ------------------------------------------------------------*/
 //----壁判断基準----			       団活  部室
 #define WALL_BASE_F 100			//前壁 500　　800
@@ -101,7 +98,7 @@
 #define WALL_OFF 200	//尻当て用の補正
 
 #define WALL_OFFSET 0	//閾値のオフセット
-#define WALL_START 3000
+#define WALL_START 300
 
 #define CONT_FIX 0.05f
 
@@ -158,19 +155,16 @@
 	} mouse_flags;
 #endif
 
-#ifdef MAIN_C_							//対応ファイルでEXTERNが定義されている場合
-	/*グローバル変数の定義*/
-	volatile mouse_flags MF;			//モータステータスをまとめた共用・構造体
-#else									//対応ファイルでEXTERNが定義されていない場合
-	/*グローバル変数の宣言*/
+#ifdef MAIN_C_
+	volatile mouse_flags MF;
+#else
 	extern volatile mouse_flags MF;
 #endif
 
-
-
 //----現在地格納共用・構造体----
-#ifndef __MAP_COOR__					//対応ファイルで一度も読み込まれていない場合以下を定義
-	#define __MAP_COOR__				//読み込んだことを表す
+#ifndef __MAP_COOR__
+	#define __MAP_COOR__
+
 	union map_coor{						//共用体の宣言
 		unsigned char PLANE;					//YX座標
 		struct coor_axis{				//構造体の宣言
@@ -178,13 +172,14 @@
 			unsigned char Y:4;					//Y座標
 		}AXIS;
 	};
+
 #endif
 
-#ifdef MAIN_C_							//対応ファイルでEXTERNが定義されている場合
-	/*グローバル変数の定義*/
+#ifdef MAIN_C_
+
 	volatile union map_coor PRELOC;		//現在地の座標を格納する共用・構造体
-#else									//対応ファイルでEXTERNが定義されていない場合
-	/*グローバル変数の宣言*/
+#else
+
 	extern volatile union map_coor PRELOC;
 #endif
 

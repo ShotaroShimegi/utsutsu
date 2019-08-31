@@ -2,4 +2,4 @@ spi.c:30:6:MX_SPI3_Init	8	static
 spi.c:52:6:HAL_SPI_MspInit	48	static
 spi.c:83:6:HAL_SPI_MspDeInit	16	static
 spi.c:114:9:ReadByte	32	static
-spi.c:137:6:WriteByte	32	static
+spi.c:135:6:WriteByte	32	static

@@ -34,7 +34,7 @@ void searchA(){												//一次走行　一番基本的な初期装備
 			//----前進----
 			case 0x88:
 				set_dir(FORWARD);
-				//melody(1120,500);
+				//Melody(1120,500);
 				break;
 			//----右折----
 			case 0x44:
@@ -45,7 +45,7 @@ void searchA(){												//一次走行　一番基本的な初期装備
 				turn_dir(DIR_TURN_R90);						//マイクロマウス内部位置情報でも右回転処理
 				HAL_Delay(100);										//安定するまで待機
 				set_dir(FORWARD);
-				//melody(920,500);
+				//Melody(920,500);
 				break;
 			//----180回転----
 			case 0x22:
@@ -56,7 +56,7 @@ void searchA(){												//一次走行　一番基本的な初期装備
 				turn_dir(DIR_TURN_180);						//マイクロマウス内部位置情報でも180度回転処理
 				HAL_Delay(100);
 				set_dir(FORWARD);
-				//melody(1320,500);
+				//Melody(1320,500);
 				break;
 			//----左折----
 			case 0x11:
@@ -67,7 +67,7 @@ void searchA(){												//一次走行　一番基本的な初期装備
 				turn_dir(DIR_TURN_L90);						//マイクロマウス内部位置情報でも左回転処理
 				HAL_Delay(100);									//安定するまで待機
 				set_dir(FORWARD);
-				//melody(720,500);
+				//Melody(720,500);
 				break;
 		}
 /*		uart_printf("time = %d, wall_l = %d, wall_ff = %d, wall_r = %d\r\n",time2, wall_l.dif, wall_ff.dif, wall_r.dif);
@@ -169,9 +169,9 @@ void searchSA(){											//連続走行の未完成アルゴリズム、完成
 	}while((PRELOC.AXIS.X != goal_x) || (PRELOC.AXIS.Y != goal_y));
 	half_sectionD();
 	ms_wait(2000);
-	melody(g6,300);
-	melody(f6,300);
-	melody(e6,300);
+	Melody(g6,300);
+	Melody(f6,300);
+	Melody(e6,300);
 
 
 }
@@ -264,9 +264,9 @@ void searchSA_ESNW(){											//連続走行の未完成アルゴリズム、�
 	}while((PRELOC.AXIS.X != goal_x) || (PRELOC.AXIS.Y != goal_y));
 	half_sectionD();
 	ms_wait(2000);
-	melody(g6,300);
-	melody(f6,300);
-	melody(e6,300);
+	Melody(g6,300);
+	Melody(f6,300);
+	Melody(e6,300);
 
 }
 
@@ -340,9 +340,9 @@ void searchSLA(){											//連続走行の未完成アルゴリズム、完�
 	}while((PRELOC.AXIS.X != goal_x) || (PRELOC.AXIS.Y != goal_y));
 	half_sectionD();
 	ms_wait(2000);
-	melody(g6,300);
-	melody(f6,300);
-	melody(e6,300);
+	Melody(g6,300);
+	Melody(f6,300);
+	Melody(e6,300);
 
 }
 
@@ -416,9 +416,9 @@ void searchSLA_ESNW(){											//連続走行の未完成アルゴリズム、
 	}while((PRELOC.AXIS.X != goal_x) || (PRELOC.AXIS.Y != goal_y));
 	half_sectionD();
 	ms_wait(2000);
-	melody(g6,300);
-	melody(f6,300);
-	melody(e6,300);
+	Melody(g6,300);
+	Melody(f6,300);
+	Melody(e6,300);
 
 }
 

@@ -1,20 +1,21 @@
 #include <stdint.h>
 #include "adc.h"
-#ifndef SENSOR_H_											//対応ファイルで一度も読み込まれていない場合以下を定義
-	#define SENSOR_H_										//読み込んだことを表す
+
+#ifndef SENSOR_H_
+	#define SENSOR_H_
 
 /*============================================================
 		各種定数･変数宣言
 ============================================================*/
 
 	typedef struct{
-		int16_t val;			//LEDがONの時の値
-		int16_t base;			//LEDがOFFの時の値
-		int16_t dif;			//差分
-		int16_t pre;			//前回のやつ
-		int16_t diff;			//微分
+		uint32_t val;			//Raw Value
+		int16_t base;			//
+		int16_t dif;			//
+		int16_t pre;			//For D-control
+		int16_t diff;			//D-Control
 
-		uint16_t threshold;	//壁判断閾値
+		uint16_t threshold;
 	}wall_sensor;
 
 	typedef struct{
@@ -34,8 +35,7 @@
 		volatile wall_sensor wall_l;
 
 		//----その他----
-		unsigned char tp;											//タスクポインタ
-		volatile uint16_t ad_res[5],ad_pre_res[5];
+		volatile uint8_t tp;											//タスクポインタ
 
 		volatile uint16_t base_l, base_r;								//基準値を格納
 		volatile int16_t dif_l, dif_r;									//AD値と基準との差
@@ -59,8 +59,7 @@
 
 
 		//----その他----
-		extern unsigned char tp;
-		extern volatile uint16_t ad_res[5],ad_pre_res[5];
+		extern volatile uint8_t tp;
 		extern volatile uint16_t base_l, base_r;
 		extern volatile int16_t dif_l, dif_r;
 		extern volatile float volt_bat;
@@ -82,7 +81,7 @@
 	//====センサ系====
 	unsigned char get_base();					//センサ基準値を取得
 	void get_wall_info();				//壁情報を読む
-	void enc_test();
+	void EncoderGyroTest();
 	void sensor_start();
 	void sensor_stop();
 	void sensor_check();
@@ -90,7 +89,10 @@
 	void Tim6WaitUs(uint16_t);
 	int16_t GetEncoderLeft(void);
 	int16_t GetEncoderRight(void);
-	int get_adc_value(ADC_HandleTypeDef *hadc, uint32_t channel);
+	void UpdateEncoder(void);
+	void UpdateGyro(void);
+
+	int GetADC(ADC_HandleTypeDef *hadc, uint32_t channel);
 
 
 #endif /* SENSOR_H_ */

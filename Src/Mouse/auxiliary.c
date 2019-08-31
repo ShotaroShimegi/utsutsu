@@ -33,7 +33,7 @@ void ms_wait(unsigned int ms)
 // 引数1：mode・・・モード番号を格納する変数のアドレス
 // 戻り値：無し
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void select_mode(uint8_t *mode)
+void ModeSelect(uint8_t *mode)
 {
 	uint16_t encR,encL;
 	uint16_t nowR = 0;
@@ -67,18 +67,55 @@ void select_mode(uint8_t *mode)
 		LedDisplay(mode);			//LEDがActiveLowの場合
 		if(nowR - preR != 0){
 			printf(" mode:%2d\r\n", *mode);
-			melody(c6 + (60 * *mode),100);
+			Melody(c6 + (60 * *mode),100);
 		}
 	}while(nowL != 1);
 
 	printf("Finish :  This is mode %2d\r\n", *mode);
-	melody(c6 + + (60 * *mode),500);
+	Melody(c6 + + (60 * *mode),500);
 
 	HAL_TIM_Encoder_Stop(&htim3,TIM_CHANNEL_ALL);
 	HAL_TIM_Encoder_Stop(&htim4,TIM_CHANNEL_ALL);
 
 	TIM3->CNT = 0;
 	TIM4->CNT = 0;
+
+}
+
+void MelodySummer(void)
+{
+	Melody(g6,100);
+	Melody(c7,100);
+	Melody(d7,100);
+	Melody(e7,100);
+	Melody(d7,100);
+	HAL_Delay(50);
+	Melody(c7,50);
+	HAL_Delay(50);
+	Melody(c7,200);
+}
+
+void MelodyMrLawrence()
+{
+	Melody(d7,100);
+	Melody(e7,100);
+	Melody(d7,100);
+	Melody(a6,100);
+	Melody(d7,100);
+
+	HAL_Delay(400);
+
+	Melody(d7,100);
+	Melody(e7,100);
+	Melody(d7,100);
+	Melody(e6,100);
+	Melody(g7,100);
+	Melody(e6,100);
+	Melody(d7,100);
+	Melody(e7,100);
+	Melody(d7,100);
+	Melody(c7,100);
+	Melody(a6,100);
 
 }
 
@@ -95,7 +132,7 @@ void timer_start()
 */
 }
 
-void melody(uint32_t hz, uint32_t ms)
+void Melody(uint32_t hz, uint32_t ms)
 {
 	TIM_OC_InitTypeDef sConfigOC;
 //TIM8 Setting
@@ -128,22 +165,20 @@ void melody(uint32_t hz, uint32_t ms)
 	}
 }
 
-void start_wait()
+void StartWaiting(void)
 {
+	__HAL_TIM_CLEAR_FLAG(&htim6, TIM_FLAG_UPDATE);
+	__HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
+	HAL_TIM_Base_Start(&htim6);
 
-/*	S12AD.ADANS0.WORD = 0x1f;
-	R_PG_ADC_12_StartConversionSW_S12AD0();
-	R_PG_ADC_12_GetResult_S12AD0(ad_res);
-
-	R_PG_Timer_StartCount_CMT_U0_C1();
-*/	printf("Ready???\r\n");
+	printf("Ready???\r\n");
 
 	while(1){
-//		printf("ad_l: %4d ad_fl:%4d ad_ff:%4d  ad_fr:%4d ad_r:%4d\r\n ", wall_l.val,wall_fl.val, wall_ff.val, wall_fr.val, wall_r.val);
+//		printf("ad_l: %4d ad_fl:%4d ad_ff:%4d  ad_fr:%4d ad_r:%4d\n ", wall_l.val,wall_fl.val, wall_ff.val, wall_fr.val, wall_r.val);
 		if(wall_ff.val > WALL_START){
-			melody(e6,300);
-			melody(f6,300);
-			melody(g6,300);
+			Melody(e6,300);
+			Melody(f6,300);
+			Melody(g6,300);
 			ms_wait(1000);
 			break;
 		}
@@ -158,31 +193,30 @@ void start_ready(void)
 	get_base();
 	set_dir(FORWARD);								//前進するようにモータの回転方向を設定
 
-
-	melody(c6,1000);
+	Melody(c6,1000);
 	auto_Calibration(0.30,0.60);
 	time2 = 0;
 	driveA(SET_MM);
 }
 
-void setting_params(params instance)
+void setting_params(params *instance)
 {
-	params_now.vel_max = instance.vel_max;
-	params_now.accel = instance.accel;
-	params_now.omega_max = instance.omega_max;
-	params_now.omega_accel = instance.omega_accel;
+	params_now.vel_max = instance->vel_max;
+	params_now.accel = instance->accel;
+	params_now.omega_max = instance->omega_max;
+	params_now.omega_accel = instance->omega_accel;
 }
 
-void setting_gain(gain instance)
+void setting_gain(gain *instance)
 {
-	gain_now.vel_kpR = instance.vel_kpR;
-	gain_now.vel_kiR = instance.vel_kiR;
-	gain_now.vel_kpL = instance.vel_kpL;
-	gain_now.vel_kiL = instance.vel_kiL;
-	gain_now.omega_kp = instance.omega_kp;
-	gain_now.omega_ki = instance.omega_ki;
-	gain_now.wall_kp = instance.wall_kp;
-	gain_now.wall_kd = instance.wall_kd;
+	gain_now.vel_kpR = instance->vel_kpR;
+	gain_now.vel_kiR = instance->vel_kiR;
+	gain_now.vel_kpL = instance->vel_kpL;
+	gain_now.vel_kiL = instance->vel_kiL;
+	gain_now.omega_kp = instance->omega_kp;
+	gain_now.omega_ki = instance->omega_ki;
+	gain_now.wall_kp = instance->wall_kp;
+	gain_now.wall_kd = instance->wall_kd;
 }
 
 void auto_Calibration(float constant_l, float constant_r)
@@ -211,4 +245,24 @@ void reset_distance()
 	/* エンコーダカウント値初期化 */
 	encoder_r.sum = 0;
 	encoder_l.sum = 0;
+}
+
+void CheckBattery(void)
+{
+	if(HAL_GPIO_ReadPin(BATTERY_GPIO_Port,BATTERY_Pin) == 0)
+	{
+		HAL_TIM_PWM_Stop(&htim1,TIM_CHANNEL_1);
+		HAL_TIM_PWM_Stop(&htim2,TIM_CHANNEL_2);
+		HAL_TIM_PWM_Stop(&htim11,TIM_CHANNEL_1);
+		HAL_TIM_Base_Stop(&htim6);
+
+//		R_PG_Timer_StopModule_CMT_U0();
+		printf("Voltage Out!\n");
+		MelodyMrLawrence();
+		while(1){
+		}
+	}
+
+	printf("Voltage ALL GREEN\n");
+	MelodyMrLawrence();
 }
