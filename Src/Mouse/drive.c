@@ -1,4 +1,5 @@
 #include <Mouse/global.h>
+#include "tim.h"
 
 /*==========================================================
 		走行系関数
@@ -94,14 +95,14 @@ void a_sectionU() {
 
 void turn_R90(){
 	MF.FLAG.CTRL = 0;								//制御を無効にする
-	set_dir(TURN_R);								//右に回転するようモータの回転方向を設定
+	SetMotionDirection(TURN_R);								//右に回転するようモータの回転方向を設定
 	driveAD(ROT_ANGLE_R90);								//超信地するわよぉ！
-	set_dir(FORWARD);								//前進するようにモータの回転方向を設定
+	SetMotionDirection(FORWARD);								//前進するようにモータの回転方向を設定
 }
 
 void turn_SLA_R90(){
 	MF.FLAG.CTRL = 0;
-	set_dir(FORWARD);								//右に回転するようモータの回転方向を設定
+	SetMotionDirection(FORWARD);								//右に回転するようモータの回転方向を設定
 	driveA(params_search1.R90_before);
 
 	time = 0;
@@ -125,9 +126,9 @@ void turn_SLA_R90(){
 void turn_L90()
 {
 	MF.FLAG.CTRL = 0;
-	set_dir(TURN_L);									//左に超信地旋回する向きに設定
+	SetMotionDirection(TURN_L);									//左に超信地旋回する向きに設定
 	driveAD(ROT_ANGLE_L90);									//超信地面するわよぉ！
-	set_dir(FORWARD);									//前進するようにモータの回転方向を設定
+	SetMotionDirection(FORWARD);									//前進するようにモータの回転方向を設定
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
@@ -141,9 +142,8 @@ void turn_SLA_L90(){
 	//time2 = 0;
 
 	MF.FLAG.CTRL = 0;
-	set_dir(FORWARD);
+	SetMotionDirection(FORWARD);
 	driveA(params_search1.L90_before);							//offset　before区間走行
-	//time2 = 0;
 
 	MF.FLAG.CTRL = 0;
 	driveW(90);								//90までスラローム旋回
@@ -168,9 +168,9 @@ void turn_180()
 	MF.FLAG.CTRL = 0;										//制御を無効にする
 	sen_ctrl = 0;
 
-	set_dir(TURN_R);										//左に回転するようモータの回転方向を設定driveAD(ROT_ANGLE_R90);
+	SetMotionDirection(TURN_R);										//左に回転するようモータの回転方向を設定driveAD(ROT_ANGLE_R90);
 	driveAD(-180);
-	set_dir(FORWARD);										//前進するようにモータの回転方向を設定
+	SetMotionDirection(FORWARD);										//前進するようにモータの回転方向を設定
 }
 
 
@@ -184,10 +184,10 @@ void set_position(uint8_t flag)
 {
 	MF.FLAG.CTRL = 0;
 	//制御を無効にする
-	set_dir(BACK);											//後退するようモータの回転方向を設定
+	SetMotionDirection(BACK);											//後退するようモータの回転方向を設定
 	ms_wait(200);
 	driveC(500,0);								//尻を当てる程度に後退。回転後に停止する
-	set_dir(FORWARD);										//前進するようにモータの回転方向を設定
+	SetMotionDirection(FORWARD);										//前進するようにモータの回転方向を設定
 
 	MF.FLAG.CTRL =1;
 	if(flag == 0){			//スラローム
@@ -232,7 +232,7 @@ void driveA(float dist) {					//引数　走行距離　停止の有無（1で�
 
 	omega.target = 0;
 //	kwiG = 0;
-	drive_start();					//走行開始
+	StartMotion();					//走行開始
 
 	time = 0;
 	//----走行----
@@ -277,7 +277,7 @@ void driveD(uint16_t dist, unsigned char rs) {
 	MF.FLAG.ACCL = 1;
 	MF.FLAG.DECL = 0;
 
-	drive_start();								//痩躯開始
+	StartMotion();								//痩躯開始
 	offset = rs * 0.5 * params_now.vel_max * maxindex * 1000;
 	//----走行----
 	while((centor.distance + offset) < (dist + ics)){
@@ -303,7 +303,7 @@ void driveD(uint16_t dist, unsigned char rs) {
 			MF.FLAG.VCTRL = 0;
 		}
 	//----停止措置----
-	drive_stop(rs);											//走行終了、停止許可があれば停止
+	StopMotion();											//走行終了、停止許可があれば停止
 
 }
 
@@ -346,7 +346,7 @@ void driveAD(float theta)
 	centor.vel_target = 0;
 	omega.target = 0;
 
-	drive_start();			//走行開始
+	StartMotion();			//走行開始
 
 	if(theta > 0){
 		//----走行----
@@ -379,7 +379,7 @@ void driveAD(float theta)
 
 
 	//----停止許可があれば停止----
-	drive_stop(1);
+	StopMotion();
 	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
 	omega.i_out = 0;
 	MF.FLAG.REVOL = 0;
@@ -414,7 +414,7 @@ void driveX(uint16_t dist){
 	//----走行----
 
 	//----停止許可があれば停止----
-	drive_stop(1);
+	StopMotion();
 	centor.angle = 0;
 	centor.vel_target = 0;
 }
@@ -443,7 +443,7 @@ void driveC(uint16_t count, unsigned char rs)			//引数　時間　停止許可
 	MF.FLAG.WACCL = 0;
 	MF.FLAG.WDECL = 0;
 
-	drive_start();											//走行開始
+	StartMotion();											//走行開始
 
 	//====回転====
 	while(time < count * 0.5);			//一定時間経過まで待機
@@ -456,7 +456,7 @@ void driveC(uint16_t count, unsigned char rs)			//引数　時間　停止許可
 		ms_wait(100);			//速度がゼロに収束するまで待つ
 	}
 	//----停止許可があれば停止----
-	drive_stop(rs);											//走行終了、停止許可があれば停止
+	StopMotion();											//走行終了、停止許可があれば停止
 
 	centor.vel_target = 0;
 
@@ -496,7 +496,7 @@ void driveW(int16_t theta)			//引数　時間　停止許可
 	MF.FLAG.WACCL = 1;
 	MF.FLAG.WDECL = 0;
 
-	drive_start();
+	StartMotion();
 
 	offset = (0.5 * maxindex_w * params_now.omega_max) * KWP;
 	//====回転====
@@ -530,56 +530,74 @@ void driveW(int16_t theta)			//引数　時間　停止許可
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//drive_start
-//	走行を開始する
-// 引数：なし
-// 戻り値：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
-void drive_start(void){
-/*	time = 0;
-	R_PG_Timer_StartCount_MTU_U0_C3();  //左モータ
-	R_PG_Timer_StartCount_MTU_U0_C4();
-*/
+void StartMotion(void){
+	TIM_OC_InitTypeDef sConfigOC;
+//Config Setting
+	  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	  sConfigOC.Pulse = 100;
+	  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+	  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+	  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+//OUTPUT
+	if(HAL_TIM_PWM_ConfigChannel(&htim1,&sConfigOC,TIM_CHANNEL_1) != HAL_OK){
+		Error_Handler();
+	}
+	if(HAL_TIM_PWM_ConfigChannel(&htim2,&sConfigOC,TIM_CHANNEL_2) != HAL_OK){
+		Error_Handler();
+	}
+
+	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+
+	time = 0;
+
+}
+
+void StopMotion(void)
+{
+	HAL_TIM_PWM_Stop(&htim1,TIM_CHANNEL_1);
+	HAL_TIM_PWM_Stop(&htim2,TIM_CHANNEL_2);
+
+	HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,RESET);
+	HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,RESET);
+
+	HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,RESET);
+	HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,RESET);
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-//drive_stop
-//	走行終了し、停止許可があれば停止する
-// 引数1：rs・・・走行後停止するか　1:する　それ以外:しない
-// 戻り値：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
-void drive_stop(unsigned char rs){
-/*	R_PG_Timer_HaltCount_MTU_U0_C3();
-	R_PG_Timer_HaltCount_MTU_U0_C4();
-
-	pin_write(P54,0);
-	pin_write(P55,0);
-	pin_write(PA4,0);
-	pin_write(PA6,0);
-*/
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//set_dir
+//SetMotionDirection
 //	進行方向を設定する
 // 引数1：d_dir・・・どの方向に進行するか  0桁目で左、1桁目で右の方向設定
 // 戻り値：なし
 //		DC用に改造完了
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void set_dir(unsigned char d_dir)
+void SetMotionDirection(uint8_t d_dir)
 {
+	HAL_GPIO_WritePin(STBY_GPIO_Port, STBY_Pin,SET);
+
 	//====左モータ====
 	switch(d_dir & 0x0f){									//0~3ビット目を取り出す
 		//----正回転----
 		case 0x00:
 			MF.FLAG.L_DIR = 1;				//左を前進方向に設定
 			vel_ctrl_L.dir= 1;
+
+			HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,RESET);
+			HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,SET);
+
 			break;
 		//----逆回転----
 		case 0x01:
 			MF.FLAG.L_DIR = 0;				//左を後進方向に設定
 			vel_ctrl_L.dir = -1;
+
+			HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,SET);
+			HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,RESET);
+
 			break;
 	}
 	//====右モータ====
@@ -587,12 +605,24 @@ void set_dir(unsigned char d_dir)
 		case 0x00:											//0x00の場合
 			MF.FLAG.R_DIR = 1;					//右を前進方向に設定
 			vel_ctrl_R.dir = 1;
+
+			HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,RESET);
+			HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,SET);
+
 			break;
-		case 0x10:											//0x10の場合
+		case 0x10:
 			MF.FLAG.R_DIR = 0;					//右を後進方向に設定
 			vel_ctrl_R.dir = -1;
+
+			HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,SET);
+			HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,RESET);
+
 			break;
 	}
+
+
+
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
@@ -601,28 +631,36 @@ void set_dir(unsigned char d_dir)
 // 引数1：mode・・・モード番号を格納する変数のアドレス
 // 戻り値：なし
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void test_drive(char *mode){
+void DriveTest(uint8_t *mode){
 
 	while(1){
-		uart_printf("test_drive:\n");						//UARTで送信
-		select_mode(mode);									//モード選択をさせる
+		printf("test_drive:\n");						//UARTで送信
+		ModeSelect(mode);									//モード選択をさせる
 		ms_wait(50);
 		switch(*mode){										//モード番号により分岐
 			//----位置の調整----
 			case 0:
-				set_position(1);
+				SetMotionDirection(FORWARD);
+				HAL_Delay(100);
+				StartMotion();
+				HAL_Delay(1000);
+				StopMotion();
+
+				printf("Drive Out\n");
+
+//				set_position(1);
 				break;
 
 			//----一区画定速走行----
 			case 1:
 				sensor_start();
-				set_dir(FORWARD);
-				drive_start();
+				SetMotionDirection(FORWARD);
+				StartMotion();
 
 				while(1){
 				ms_wait(1000);
 				}
-				uart_printf("BREAK \r\n");
+				printf("BREAK \n");
 				break;
 
 			//----右90回転----
@@ -687,18 +725,11 @@ void test_drive(char *mode){
 
 				break;
 
-			//----高速加減速8区画----
 			case 7:
-/*				minindex = MINSPEED_H;
-				maxindex = MAXSPEED_H;
-				stay(DEFWAIT);
-*/				MF.FLAG.CTRL = 1;
-
+				MF.FLAG.CTRL = 1;
 				break;
 
-			//----探索用加減速1区画----
 			case 8:
-
 				a_section();
 				break;
 
@@ -710,6 +741,7 @@ void test_drive(char *mode){
 				return;
 		}
 	}
+
 	printf("drive_Finish: %d\n",*mode);
 
 }

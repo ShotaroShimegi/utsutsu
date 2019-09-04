@@ -120,10 +120,10 @@ typedef struct{
 	void driveX(uint16_t);			//位置・角度制御走行
 	void driveW(int16_t);			//角速度制御走行
 
-	void set_dir(unsigned char);		//進む方向の設定
+	void SetMotionDirection(uint8_t);		//進む方向の設定
 
-	void drive_start();
-	void drive_stop(unsigned char);
+	void StartMotion(void);
+	void StopMotion(void);
 
 	//----簡易上位関数----
 	void half_sectionA();		//加速半区画
@@ -141,7 +141,7 @@ typedef struct{
 	void turn_SLA_L90();
 
 	//----走行試験----
-	void test_drive(char *mode);	//走行試験
+	void DriveTest(uint8_t *mode);	//走行試験
 
 	void start_ready();
 

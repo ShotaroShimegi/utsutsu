@@ -33,7 +33,7 @@ void searchA(){												//一次走行　一番基本的な初期装備
 		switch(route[r_cnt++]){								//route配列によって進行を決定。経路カウンタを進める
 			//----前進----
 			case 0x88:
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 				//Melody(1120,500);
 				break;
 			//----右折----
@@ -44,7 +44,7 @@ void searchA(){												//一次走行　一番基本的な初期装備
 				}
 				turn_dir(DIR_TURN_R90);						//マイクロマウス内部位置情報でも右回転処理
 				HAL_Delay(100);										//安定するまで待機
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 				//Melody(920,500);
 				break;
 			//----180回転----
@@ -55,7 +55,7 @@ void searchA(){												//一次走行　一番基本的な初期装備
 				}
 				turn_dir(DIR_TURN_180);						//マイクロマウス内部位置情報でも180度回転処理
 				HAL_Delay(100);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 				//Melody(1320,500);
 				break;
 			//----左折----
@@ -66,12 +66,13 @@ void searchA(){												//一次走行　一番基本的な初期装備
 				}
 				turn_dir(DIR_TURN_L90);						//マイクロマウス内部位置情報でも左回転処理
 				HAL_Delay(100);									//安定するまで待機
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 				//Melody(720,500);
 				break;
 		}
-/*		uart_printf("time = %d, wall_l = %d, wall_ff = %d, wall_r = %d\r\n",time2, wall_l.dif, wall_ff.dif, wall_r.dif);
-		uart_printf("route is %2x, threshold_l = %d, threthreshold_r = %d\r\n", route[r_cnt - 1], wall_l.threshold, wall_r.threshold);
+/*
+ *		printf("time = %d, wall_l = %d, wall_ff = %d, wall_r = %d\r\n",time2, wall_l.dif, wall_ff.dif, wall_r.dif);
+		printf("route is %2x, threshold_l = %d, threthreshold_r = %d\r\n", route[r_cnt - 1], wall_l.threshold, wall_r.threshold);
 		ms_wait(500);
 */
 		a_section();										//前進する
@@ -103,13 +104,13 @@ void searchSA(){											//連続走行の未完成アルゴリズム、完成
 
 	sensor_start();
 	printf("Michishirube\r\n");
-	set_dir(FORWARD);
+	SetMotionDirection(FORWARD);
 
 	if(wall_ff.dif > wall_ff.threshold){
 		turn_180();
 		HAL_Delay(100);
 		turn_dir(DIR_TURN_180);
-		set_dir(FORWARD);
+		SetMotionDirection(FORWARD);
 	}
 
 	half_sectionA();
@@ -129,7 +130,7 @@ void searchSA(){											//連続走行の未完成アルゴリズム、完成
 				turn_R90();
 				HAL_Delay(100);
 				turn_dir(DIR_TURN_R90);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 				half_sectionA();
 				break;
 			//----180回転----
@@ -141,7 +142,7 @@ void searchSA(){											//連続走行の未完成アルゴリズム、完成
 				turn_180();
 				HAL_Delay(100);
 				turn_dir(DIR_TURN_180);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 
 				if(MF.FLAG.SET){
 					set_position(1);
@@ -157,7 +158,7 @@ void searchSA(){											//連続走行の未完成アルゴリズム、完成
 				turn_L90();
 				HAL_Delay(100);
 				turn_dir(DIR_TURN_L90);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 
 				half_sectionA();
 				break;
@@ -187,13 +188,13 @@ void searchSA_ESNW(){											//連続走行の未完成アルゴリズム、�
 
 	sensor_start();
 	printf("Michishirube\r\n");
-	set_dir(FORWARD);
+	SetMotionDirection(FORWARD);
 
 	if(wall_ff.dif > wall_ff.threshold){
 		turn_180();
 		HAL_Delay(100);
 		turn_dir(DIR_TURN_180);
-		set_dir(FORWARD);
+		SetMotionDirection(FORWARD);
 	}
 
 	half_sectionA();
@@ -216,7 +217,7 @@ void searchSA_ESNW(){											//連続走行の未完成アルゴリズム、�
 				turn_R90();
 				HAL_Delay(100);
 				turn_dir(DIR_TURN_R90);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 				if(MF.FLAG.SET){
 					set_position(1);
 					MF.FLAG.SET = 0;
@@ -232,7 +233,7 @@ void searchSA_ESNW(){											//連続走行の未完成アルゴリズム、�
 				turn_180();
 				HAL_Delay(100);
 				turn_dir(DIR_TURN_180);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 
 				if(MF.FLAG.SET){
 					set_position(1);
@@ -249,7 +250,7 @@ void searchSA_ESNW(){											//連続走行の未完成アルゴリズム、�
 				turn_L90();
 				HAL_Delay(100);
 				turn_dir(DIR_TURN_L90);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 				if(MF.FLAG.SET){
 					set_position(1);
 					MF.FLAG.SET = 0;
@@ -281,13 +282,13 @@ void searchSLA(){											//連続走行の未完成アルゴリズム、完�
 
 	sensor_start();
 	printf("Michishirube\r\n");
-	set_dir(FORWARD);
+	SetMotionDirection(FORWARD);
 
 	if(wall_ff.dif > wall_ff.threshold){
 		turn_180();
 		HAL_Delay(100);
 		turn_dir(DIR_TURN_180);
-		set_dir(FORWARD);
+		SetMotionDirection(FORWARD);
 	}
 
 	half_sectionA();
@@ -305,7 +306,7 @@ void searchSLA(){											//連続走行の未完成アルゴリズム、完�
 			case 0x44:
 				turn_SLA_R90();
 				turn_dir(DIR_TURN_R90);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 				break;
 			//----180回転----
 			case 0x22:
@@ -316,7 +317,7 @@ void searchSLA(){											//連続走行の未完成アルゴリズム、完�
 				turn_180();
 				HAL_Delay(100);
 				turn_dir(DIR_TURN_180);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 
 				if(MF.FLAG.SET){
 					set_position(0);
@@ -328,7 +329,7 @@ void searchSLA(){											//連続走行の未完成アルゴリズム、完�
 			case 0x11:
 				turn_SLA_L90();
 				turn_dir(DIR_TURN_L90);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 
 				break;
 		}
@@ -357,13 +358,13 @@ void searchSLA_ESNW(){											//連続走行の未完成アルゴリズム、
 
 	sensor_start();
 	printf("Michishirube\r\n");
-	set_dir(FORWARD);
+	SetMotionDirection(FORWARD);
 
 	if(wall_ff.dif > wall_ff.threshold){
 		turn_180();
 		HAL_Delay(100);
 		turn_dir(DIR_TURN_180);
-		set_dir(FORWARD);
+		SetMotionDirection(FORWARD);
 	}
 
 	half_sectionA();
@@ -381,7 +382,7 @@ void searchSLA_ESNW(){											//連続走行の未完成アルゴリズム、
 			case 0x44:
 				turn_SLA_R90();
 				turn_dir(DIR_TURN_R90);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 				break;
 			//----180回転----
 			case 0x22:
@@ -392,7 +393,7 @@ void searchSLA_ESNW(){											//連続走行の未完成アルゴリズム、
 				turn_180();
 				HAL_Delay(100);
 				turn_dir(DIR_TURN_180);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 
 				if(MF.FLAG.SET){
 					set_position(0);
@@ -404,7 +405,7 @@ void searchSLA_ESNW(){											//連続走行の未完成アルゴリズム、
 			case 0x11:
 				turn_SLA_L90();
 				turn_dir(DIR_TURN_L90);
-				set_dir(FORWARD);
+				SetMotionDirection(FORWARD);
 
 				break;
 		}

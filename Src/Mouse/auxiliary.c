@@ -191,7 +191,7 @@ void start_ready(void)
 
 	MF.FLAG.CTRL = 0;								//制御を無効にする
 	get_base();
-	set_dir(FORWARD);								//前進するようにモータの回転方向を設定
+	SetMotionDirection(FORWARD);								//前進するようにモータの回転方向を設定
 
 	Melody(c6,1000);
 	auto_Calibration(0.30,0.60);
@@ -254,6 +254,7 @@ void CheckBattery(void)
 		HAL_TIM_PWM_Stop(&htim1,TIM_CHANNEL_1);
 		HAL_TIM_PWM_Stop(&htim2,TIM_CHANNEL_2);
 		HAL_TIM_PWM_Stop(&htim11,TIM_CHANNEL_1);
+
 		HAL_TIM_Base_Stop(&htim6);
 
 //		R_PG_Timer_StopModule_CMT_U0();
@@ -264,5 +265,5 @@ void CheckBattery(void)
 	}
 
 	printf("Voltage ALL GREEN\n");
-	MelodyMrLawrence();
+
 }

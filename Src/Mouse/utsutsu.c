@@ -129,13 +129,7 @@ void UtsutsuSystem(){
 			//----走行テスト----
 		case 11:
 			HAL_Delay(100);
-			StartWaiting();
-			set_dir(FORWARD);
-			drive_start();
-			while(1){
-				printf("Driving\r\n");
-			}
-			test_drive(&mode);									//test_drive()はdrive.cに関数定義あり
+		    DriveTest(&mode);									//test_drive()はdrive.cに関数定義あり
 			ms_wait(100);
 			break;
 			//----エンコーダテスト----
@@ -164,7 +158,7 @@ void UtsutsuSystem(){
 			centor.vel_target = 0;
 			omega.target = 0;
 
-			drive_start();
+			StartMotion();
 			while(1){
 //				uart_printf("angle : %lf dif_angle : %lf tpid_G : %lf\r\n");
 				ms_wait(100);

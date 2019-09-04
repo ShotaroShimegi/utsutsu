@@ -94,20 +94,7 @@ void sensor_start(){
 
 }
 void sensor_stop(){
-/*	R_PG_Timer_HaltCount_MTU_U0_C1();
-	R_PG_Timer_HaltCount_MTU_U0_C2();
-
-	R_PG_Timer_HaltCount_CMT_U0_C1();
-	R_PG_Timer_HaltCount_CMT_U1_C2();
-
-	pin_write(PE0,0);
-	pin_write(PE1,0);
-	pin_write(PE2,0);
-	pin_write(PE3,0);
-	pin_write(PE4,0);
-
-	melody(c6,1000);
-*/
+	HAL_TIM_Base_Stop_IT(&htim6);
 }
 void sensor_check()
 {
