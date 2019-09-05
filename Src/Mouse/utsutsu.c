@@ -2,6 +2,7 @@
 
 void UtsutsuSystem(){
 	uint8_t mode = 0;
+	uint8_t i = 0;
 
 	MelodySummer();
 	GyroInit();
@@ -26,8 +27,8 @@ void UtsutsuSystem(){
 
 			printf("base:%d, %d\r\n", wall_l.threshold, wall_r.threshold);
 
-/*			for(i=0;i<2000;i++){
-				uart_printf("%lf, %lf,%lf, %lf, %lf, %lf\r\n",log.test1[i],log.test2[i],log.test3[i],log.test4[i],log.test5[i],log.test6[i]);
+/*			for(i=0;i<1000;i++){
+				printf("%4lf, %4lf, %4lf\r\n",test1[i],test2[i],test3[i]);
 				ms_wait(1);
 			}
 */			printf("ALL\r\n");

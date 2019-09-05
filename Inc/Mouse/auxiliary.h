@@ -29,28 +29,23 @@
 		float wall_kd;
 	} gain;
 
-	typedef struct{
-		float test1[2000];
-		float test2[2000];
-		float test3[2000];
-		float test4[2000];
-		float test5[2000];
-		float test6[2000];
-	} data_array;
-
 	#ifdef MAIN_C_										//call from main.c
 		/*Gloabl Variable Define*/
 		volatile params params_now;
 		volatile gain gain_now;
 		volatile params params_search1;
 		volatile gain gain_search1;
-//		volatile data_array log;
+		volatile float test1[200];
+		volatile float test2[200];
+		volatile float test3[200];
 	#else											//対応ファイルでEXTERNが定義されていない場合
 		extern volatile params params_now;
 		extern volatile gain gain_now;
 		extern volatile params params_search1;
 		extern volatile gain gain_search1;
-//		extern volatile data_array log;
+		extern volatile float test1[200];
+		extern volatile float test2[200];
+		extern volatile float test3[200];
 
 	#endif
 

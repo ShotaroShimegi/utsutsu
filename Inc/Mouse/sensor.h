@@ -40,7 +40,6 @@
 		volatile uint16_t base_l, base_r;								//基準値を格納
 		volatile int16_t dif_l, dif_r;									//AD値と基準との差
 
-		volatile float volt_bat;									//電源電圧監視
 		volatile float cont_r,cont_l;									//壁制御の比例定数
 
 		volatile float dif_total;
@@ -62,14 +61,12 @@
 		extern volatile uint8_t tp;
 		extern volatile uint16_t base_l, base_r;
 		extern volatile int16_t dif_l, dif_r;
-		extern volatile float volt_bat;
 
 		extern volatile float cont_r,cont_l;
 
 		extern volatile float pre_dif_total;
 		extern volatile float dif_total;
 		extern volatile float sen_ctrl;
-
 
 		extern volatile float gyro_base;
 

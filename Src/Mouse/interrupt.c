@@ -56,19 +56,90 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			break;
 		case 2:
 			UpdateEncoder();
+			UpdateGyro();
+
+			//====加減速処理====
+				//----減速----
+			if(MF.FLAG.VCTRL){
+				if(MF.FLAG.DECL){
+					centor.vel_target -= params_now.accel * 0.001;
+					if(centor.vel_target < 0)centor.vel_target = 0.0f;
+				}
+				//----加速----
+				else if(MF.FLAG.ACCL){
+					centor.vel_target += params_now.accel * 0.001;
+					if(centor.vel_target > params_now.vel_max)centor.vel_target = params_now.vel_max;
+				}
+			}
+
+			if(MF.FLAG.WCTRL){
+				if(MF.FLAG.WDECL){
+					omega.target -= params_now.omega_accel * 0.001;
+					if(omega.target < 0)	omega.target = 0.0f;
+				}
+				else if(MF.FLAG.WACCL){
+					omega.target += params_now.omega_accel * 0.001;
+					if(omega.target > params_now.omega_max)	omega.target = params_now.omega_max;
+				}
+			}
+
+
 
 			break;
 		case 3:
+			//PID
+			if(MF.FLAG.WCTRL){
+				//偏差角速度の算出
+				omega.dif = (centor.omega_dir * omega.target) - centor.omega_rad;
+				omega.p_out = gain_now.omega_kp * omega.dif;
+				omega.i_out += gain_now.omega_ki * omega.dif;
+				omega.out = omega.p_out + omega.i_out;
+			}else{
+				omega.out = 0;
+			}
+
+			if(MF.FLAG.VCTRL){
+				//偏差の計算
+				vel_ctrl_R.dif = (centor.vel_target * vel_ctrl_R.dir) - vel_ctrl_R.real;
+				vel_ctrl_L.dif = (centor.vel_target * vel_ctrl_L.dir) - vel_ctrl_L.real;
+				//偏差のP制御
+				vel_ctrl_R.p_out = gain_now.vel_kpR * vel_ctrl_R.dif;
+				vel_ctrl_L.p_out = gain_now.vel_kpL * vel_ctrl_L.dif;
+
+				//偏差のI制御
+				vel_ctrl_R.i_out += gain_now.vel_kiR * vel_ctrl_R.dif;
+				vel_ctrl_L.i_out += gain_now.vel_kiL * vel_ctrl_L.dif;
+
+				//PID制御値を統合
+				vel_ctrl_R.out = vel_ctrl_R.p_out + vel_ctrl_R.i_out;
+				vel_ctrl_L.out = vel_ctrl_L.p_out + vel_ctrl_L.i_out;
+
+			}else{
+				vel_ctrl_R.out = 0;
+				vel_ctrl_L.out = 0;
+			}
+
+
+			//壁制御フラグアリの場合
+			if(MF.FLAG.CTRL && centor.vel_target > 0.2){
+
+			}else {
+				sen_ctrl = 0;
+			}
+
+
 			break;
 		}
 		tp = (tp+1) % 4;
 
-		UpdateGyro();
+
 
 	}	//---htim6 End---
 
 	else if(htim->Instance == htim1.Instance)
 	{
+//		duty_r = vel_ctrl_R.out + omega.out + sen_ctrl;
+
 //Config Setting
 		sConfigOC.OCMode = TIM_OCMODE_PWM1;
 		sConfigOC.Pulse = 100;
@@ -83,7 +154,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 	else if(htim->Instance == htim2.Instance)
 	{
-		//Config Setting
+//Config Setting
 		sConfigOC.OCMode = TIM_OCMODE_PWM1;
 		sConfigOC.Pulse = 100;
 		sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;

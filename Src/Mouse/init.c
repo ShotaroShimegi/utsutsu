@@ -123,15 +123,18 @@ void VariableInit(void){
 
 	printf("Array Delete Start\n");
 	//---テスト用配列初期化
-/*	for(i=0;i<2000;i++){
-		log.test1[i] = 0.0f;
+	for(i=0;i<200;i++){
+		test1[i] = 0;
+		test2[i] = 0;
+		test3[i] = 0;
+/*		log.test1[i] = 0.0f;
 		log.test2[i] = 0.0f;
 		log.test3[i] = 0.0f;
 		log.test4[i] = 0.0f;
 		log.test5[i] = 0.0f;
 		log.test6[i] = 0.0f;
-	}
-*/	printf("Array Delete Completed\n");
+*/	}
+	printf("Array Delete Completed\n");
 
 }
 

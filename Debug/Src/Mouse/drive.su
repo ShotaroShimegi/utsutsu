@@ -16,7 +16,7 @@ drive.c:318:6:driveAD	32	static
 drive.c:394:6:driveX	16	static
 drive.c:429:6:driveC	24	static
 drive.c:474:6:driveW	32	static
-drive.c:533:6:StartMotion	40	static
-drive.c:558:6:StopMotion	8	static
-drive.c:578:6:SetMotionDirection	16	static
-drive.c:634:6:DriveTest	16	static
+drive.c:532:6:StartMotion	40	static
+drive.c:557:6:StopMotion	8	static
+drive.c:577:6:SetMotionDirection	16	static
+drive.c:633:6:DriveTest	16	static

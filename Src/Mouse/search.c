@@ -25,7 +25,6 @@ void searchA(){												//一次走行　一番基本的な初期装備
 	make_route_NESW();											//最短経路探索(route配列に動作が格納される)
 	sensor_start();
 
-	//uart_printf("ad_l: %4d ad_fl:%4d ad_ff:%4d  ad_fr:%4d ad_r:%4d\r\n ", ad_l, ad_fl, ad_ff, ad_fr, ad_r);
 	//====探索走行====
 	do{
 

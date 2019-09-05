@@ -524,7 +524,6 @@ void driveW(int16_t theta)			//引数　時間　停止許可
 	}
 
 	omega.dir = 0;
-	//centor.angle = 0;
 	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
 	omega.i_out = 0;
 
@@ -645,6 +644,7 @@ void DriveTest(uint8_t *mode){
 				StartMotion();
 				HAL_Delay(1000);
 				StopMotion();
+				HAL_Delay(1000);
 
 				printf("Drive Out\n");
 
