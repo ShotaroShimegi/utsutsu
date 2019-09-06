@@ -6,10 +6,10 @@ auxiliary.c:98:6:MelodyMrLawrence	8	static
 auxiliary.c:122:6:timer_start	4	static
 auxiliary.c:135:6:Melody	48	static
 auxiliary.c:168:6:StartWaiting	8	static
-auxiliary.c:188:6:start_ready	8	static
-auxiliary.c:202:6:setting_params	16	static
-auxiliary.c:210:6:setting_gain	16	static
-auxiliary.c:222:6:auto_Calibration	24	static
-auxiliary.c:231:6:ctrl_zero	4	static
-auxiliary.c:238:6:reset_distance	8	static
-auxiliary.c:250:6:CheckBattery	8	static
+auxiliary.c:191:6:start_ready	8	static
+auxiliary.c:205:6:setting_params	16	static
+auxiliary.c:213:6:setting_gain	16	static
+auxiliary.c:225:6:auto_Calibration	24	static
+auxiliary.c:234:6:ctrl_zero	4	static
+auxiliary.c:241:6:reset_distance	8	static
+auxiliary.c:253:6:CheckBattery	8	static

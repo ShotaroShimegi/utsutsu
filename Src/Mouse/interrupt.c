@@ -20,6 +20,7 @@ uint32_t buff_array[6];
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	TIM_OC_InitTypeDef sConfigOC;
+//	float duty = 0;
 
 	if(htim->Instance == htim6.Instance){
 		switch(tp){
@@ -34,10 +35,23 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			wall_ff.val = GetADC(&hadc1,ADC_CHANNEL_2);
 			wall_fr.val = GetADC(&hadc1,ADC_CHANNEL_0);
 
-
 			HAL_GPIO_WritePin(LED_L_GPIO_Port, LED_L_Pin,RESET);
 			HAL_GPIO_WritePin(LED_FF_GPIO_Port, LED_FF_Pin,RESET);
 			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin,RESET);
+
+			//====並進加減速処理====
+				//----減速----
+			if(MF.FLAG.VCTRL){
+				if(MF.FLAG.DECL){
+					centor.vel_target -= params_now.accel * 0.001;
+					if(centor.vel_target < 0)centor.vel_target = 0.0f;
+				}
+				//----加速----
+				else if(MF.FLAG.ACCL){
+					centor.vel_target += params_now.accel * 0.001;
+					if(centor.vel_target > params_now.vel_max)centor.vel_target = params_now.vel_max;
+				}
+			}
 
 			break;
 
@@ -53,25 +67,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin,RESET);
 			HAL_GPIO_WritePin(LED_FL_GPIO_Port, LED_FL_Pin,RESET);
 
-			break;
-		case 2:
-			UpdateEncoder();
-			UpdateGyro();
-
-			//====加減速処理====
-				//----減速----
-			if(MF.FLAG.VCTRL){
-				if(MF.FLAG.DECL){
-					centor.vel_target -= params_now.accel * 0.001;
-					if(centor.vel_target < 0)centor.vel_target = 0.0f;
-				}
-				//----加速----
-				else if(MF.FLAG.ACCL){
-					centor.vel_target += params_now.accel * 0.001;
-					if(centor.vel_target > params_now.vel_max)centor.vel_target = params_now.vel_max;
-				}
-			}
-
+			//====回転加速処理====
 			if(MF.FLAG.WCTRL){
 				if(MF.FLAG.WDECL){
 					omega.target -= params_now.omega_accel * 0.001;
@@ -83,10 +79,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				}
 			}
 
-
-
 			break;
-		case 3:
+		case 2:
+			time++;
+			if(time > 2000){
+				time = 1999;
+			}
+			UpdateEncoder();
+			UpdateGyro();
+
 			//PID
 			if(MF.FLAG.WCTRL){
 				//偏差角速度の算出
@@ -100,12 +101,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			if(MF.FLAG.VCTRL){
 				//偏差の計算
-				vel_ctrl_R.dif = (centor.vel_target * vel_ctrl_R.dir) - vel_ctrl_R.real;
-				vel_ctrl_L.dif = (centor.vel_target * vel_ctrl_L.dir) - vel_ctrl_L.real;
+				vel_ctrl_R.dif = (centor.vel_target * vel_ctrl_R.dir) - encoder_r.velocity;
+				vel_ctrl_L.dif = (centor.vel_target * vel_ctrl_L.dir) - encoder_l.velocity;
 				//偏差のP制御
 				vel_ctrl_R.p_out = gain_now.vel_kpR * vel_ctrl_R.dif;
 				vel_ctrl_L.p_out = gain_now.vel_kpL * vel_ctrl_L.dif;
-
 				//偏差のI制御
 				vel_ctrl_R.i_out += gain_now.vel_kiR * vel_ctrl_R.dif;
 				vel_ctrl_L.i_out += gain_now.vel_kiL * vel_ctrl_L.dif;
@@ -119,7 +119,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				vel_ctrl_L.out = 0;
 			}
 
-
 			//壁制御フラグアリの場合
 			if(MF.FLAG.CTRL && centor.vel_target > 0.2){
 
@@ -127,44 +126,81 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				sen_ctrl = 0;
 			}
 
+			if(time < 1999){
+//			Translation
+  				test1[(uint16_t)(time*0.1)] = encoder_r.velocity;
+				test2[(uint16_t)(time*0.1)] = encoder_l.velocity;
+				test3[(uint16_t)(time*0.1)] = centor.vel_target;
 
+//			Revolution
+/* 				test1[(uint16_t)(time*0.1)] = centor.omega_rad;
+				test2[(uint16_t)(time*0.1)] = centor.omega_dir * omega.target ;
+				test3[(uint16_t)(time*0.1)] = centor.angle;
+*/
+			}
+
+			break;
+		case 3:
+			out_duty_l = vel_ctrl_L.out - omega.out;
+			out_duty_r = vel_ctrl_R.out + omega.out;
+
+			if(out_duty_l < 0){
+				out_duty_l = -out_duty_l;
+				HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,SET);
+				HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,RESET);
+			}else{
+				HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,RESET);
+				HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,SET);
+			}
+
+			if(out_duty_r < 0){
+				out_duty_r = -out_duty_r;
+				HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,SET);
+				HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,RESET);
+			}else{
+				HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,RESET);
+				HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,SET);
+			}
+
+			if(out_duty_l > 0.5f) out_duty_l = 0.5f;
+			if(out_duty_l < 0.01f) out_duty_l = 0.01f;
+
+			if(out_duty_r > 0.5f) out_duty_r = 0.5f;
+			if(out_duty_r < 0.01f) out_duty_r = 0.01f;
+
+	//Config Setting
+			sConfigOC.OCMode = TIM_OCMODE_PWM1;
+			sConfigOC.Pulse = (uint16_t)(1000 * out_duty_r);
+//			sConfigOC.Pulse = 50;
+
+			sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+			sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+			sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+			sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+			sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+
+			HAL_TIM_PWM_ConfigChannel(&htim1,&sConfigOC,TIM_CHANNEL_1);
+
+			sConfigOC.Pulse = (uint16_t)(1000 * out_duty_l);
+//			sConfigOC.Pulse = 50;
+
+			HAL_TIM_PWM_ConfigChannel(&htim2,&sConfigOC,TIM_CHANNEL_2);
+
+			HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+			HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 			break;
 		}
 		tp = (tp+1) % 4;
-
-
 
 	}	//---htim6 End---
 
 	else if(htim->Instance == htim1.Instance)
 	{
-//		duty_r = vel_ctrl_R.out + omega.out + sen_ctrl;
+	}//---htim1 End--
 
-//Config Setting
-		sConfigOC.OCMode = TIM_OCMODE_PWM1;
-		sConfigOC.Pulse = 100;
-		sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-		sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-		sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-		sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-		sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-
-		HAL_TIM_PWM_ConfigChannel(&htim1,&sConfigOC,TIM_CHANNEL_1);
-
-	}
 	else if(htim->Instance == htim2.Instance)
 	{
-//Config Setting
-		sConfigOC.OCMode = TIM_OCMODE_PWM1;
-		sConfigOC.Pulse = 100;
-		sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-		sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-		sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-		sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-		sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-
-		HAL_TIM_PWM_ConfigChannel(&htim2,&sConfigOC,TIM_CHANNEL_2);
-	}
+	}//---htim2 End--
 
 }
 
@@ -274,38 +310,6 @@ break;
 		break;
 		//----制御計算----
 	case 3:
-		//====加減速処理====
-			//----減速----
-		if(MF.FLAG.VCTRL){
-			if(MF.FLAG.DECL){
-				centor.vel_target -= params_now.accel * 0.001;
-				if(centor.vel_target < 0){
-					centor.vel_target = 0.0f;
-				}
-			}
-			//----加速----
-			else if(MF.FLAG.ACCL){
-				centor.vel_target += params_now.accel * 0.001;
-				if(centor.vel_target > params_now.vel_max){
-					centor.vel_target = params_now.vel_max;
-				}
-			}
-		}
-
-		if(MF.FLAG.WCTRL){
-			if(MF.FLAG.WDECL){
-				omega.target -= params_now.omega_accel * 0.001;
-				if(omega.target < 0.0f){
-					omega.target = 0.0f;
-				}
-			}
-			else if(MF.FLAG.WACCL){
-				omega.target += params_now.omega_accel * 0.001;
-				if(omega.target > params_now.omega_max){
-					omega.target = params_now.omega_max;
-				}
-			}
-		}
 
 		//壁制御フラグアリの場合
 		if(MF.FLAG.CTRL){

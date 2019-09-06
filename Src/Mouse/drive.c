@@ -31,7 +31,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++
 void half_sectionA()
 {
-	MF.FLAG.CTRL = 1;
+	MF.FLAG.CTRL = 0;
 	driveA(HALF_MM);									//半区画のパルス分加速しながら走行。走行後は停止しない
 	get_wall_info();										//壁情報を取得
 }
@@ -93,14 +93,16 @@ void a_sectionU() {
 //+++++++++++++++++++++++++++++++++++++++++++++++
 //DC用に改造
 
-void turn_R90(){
+void turn_R90()
+{
 	MF.FLAG.CTRL = 0;								//制御を無効にする
 	SetMotionDirection(TURN_R);								//右に回転するようモータの回転方向を設定
 	driveAD(ROT_ANGLE_R90);								//超信地するわよぉ！
 	SetMotionDirection(FORWARD);								//前進するようにモータの回転方向を設定
 }
 
-void turn_SLA_R90(){
+void turn_SLA_R90()
+{
 	MF.FLAG.CTRL = 0;
 	SetMotionDirection(FORWARD);								//右に回転するようモータの回転方向を設定
 	driveA(params_search1.R90_before);
@@ -137,7 +139,8 @@ void turn_L90()
 // 引数：なし
 // 戻り値：なし
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void turn_SLA_L90(){
+void turn_SLA_L90()
+{
 
 	//time2 = 0;
 
@@ -211,13 +214,13 @@ void set_position(uint8_t flag)
 void driveA(float dist) {					//引数　走行距離　停止の有無（1で停止，０で継続走行）,vel0とtimeは触れていない
 
 	float ics = centor.distance;
-	uint16_t flag = 0;
+//	uint16_t flag = 0;
 	//====走行====
 	//----走行開始----
 	//MF.FLAGS = 0x00 | (MF.FLAGS & 0x0F);					//減速・定速・ストップフラグを0に、加速フラグを1にする
 	MF.FLAG.ACTRL = 0;
 	MF.FLAG.VCTRL = 1;
-	MF.FLAG.WCTRL = 0;
+	MF.FLAG.WCTRL = 1;
 	MF.FLAG.XCTRL = 0;
 
 	MF.FLAG.WDECL = 0;
@@ -228,25 +231,23 @@ void driveA(float dist) {					//引数　走行距離　停止の有無（1で�
 	MF.FLAG.FFCTRL = 0;
 
 	//走行距離をリセット
-	reset_distance();
-
 	omega.target = 0;
-//	kwiG = 0;
+
 	StartMotion();					//走行開始
 
-	time = 0;
 	//----走行----
 	while(centor.distance < ics + dist){
-		if(time > 1000){
-			break;
-		}
-		if(MF.FLAG.WALL && flag == 0){
+//		printf("%lf : %lf : %lf : %lf :\n",centor.distance, centor.vel_target, centor.velocity, out_duty_r);
+/*		if(MF.FLAG.WALL && flag == 0){
 			encoder_r.distance = (dist + ics - 60) / Kxr;
 			encoder_l.distance = (dist + ics - 60) / Kxr;
 			MF.FLAG.WALL = 0;
 			flag = 1;
 		}
-	}
+*/	}
+
+//	printf("Accel Finish\n");
+
 }
 
 
@@ -277,13 +278,13 @@ void driveD(uint16_t dist, unsigned char rs) {
 	MF.FLAG.ACCL = 1;
 	MF.FLAG.DECL = 0;
 
-	StartMotion();								//痩躯開始
+	StartMotion();
+
 	offset = rs * 0.5 * params_now.vel_max * maxindex * 1000;
+
 	//----走行----
 	while((centor.distance + offset) < (dist + ics)){
-		if(time > 1000){
-			break;
-		}
+//		printf("%lf : %lf : %lf : %lf :\n",centor.distance, centor.vel_target, centor.velocity, out_duty_r);
 	}
 
 		if(rs){
@@ -291,17 +292,17 @@ void driveD(uint16_t dist, unsigned char rs) {
 			MF.FLAG.DECL = 1;
 
 			while(centor.vel_target > 0.0f){
-				if(centor.vel_target == 0.0f){
-					ms_wait(100);
-					break;
-				}
+//				printf("%lf : %lf : %lf : %lf :\n",centor.distance, centor.vel_target, centor.velocity, out_duty_r);
 			}
+
+			ms_wait(500);
 
 			MF.FLAG.ACTRL = 0;
 			MF.FLAG.WCTRL = 0;
 			MF.FLAG.XCTRL = 0;
 			MF.FLAG.VCTRL = 0;
 		}
+	printf("Deaccel Finish\n");
 	//----停止措置----
 	StopMotion();											//走行終了、停止許可があれば停止
 
@@ -325,8 +326,7 @@ void driveAD(float theta)
 		centor.omega_dir = -1;
 	}
 
-	//====走行====
-	//----走行設定----
+	//----Setting Mouse Flag----
 	MF.FLAG.ACTRL = 0;
 	MF.FLAG.VCTRL = 1;
 	MF.FLAG.WCTRL = 1;
@@ -339,47 +339,41 @@ void driveAD(float theta)
 
 	MF.FLAG.REVOL = 1;
 
-	//走行距離をリセット
 	reset_distance();
 
 	offset = (0.5 * maxindex_w * params_now.omega_max) * KWP;	//減速に必要な角度の絶対値計算
 	centor.vel_target = 0;
 	omega.target = 0;
 
-	StartMotion();			//走行開始
+	StartMotion();
 
 	if(theta > 0){
 		//----走行----
 		while(centor.angle < theta - offset);				//w-tグラフにおける速度増加部の面積　⇒　現在の回転角度
+
 		MF.FLAG.WACCL = 0;
 		MF.FLAG.WDECL = 1;
-		vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
-		omega.i_out = 0;
 
-		while(centor.angle < theta) {
-			if(omega.target == 0){
-				ms_wait(100);
-				break;
-			}
-		}
+		while(centor.angle < theta);
+
 	}else if (theta < 0){
 		while(centor.angle > theta + offset);
+
 		MF.FLAG.WACCL = 0;
 		MF.FLAG.WDECL = 1;
-		vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
-		omega.i_out = 0;
 
-		while(centor.angle > theta) {
-			if(omega.target == 0){
-				ms_wait(100);
-				break;
-			}
-		}
+		while(centor.angle > theta);
+		omega.target = 0;
+		HAL_Delay(200);
+
 	}
 
+	omega.target = 0;
+	HAL_Delay(200);
 
 	//----停止許可があれば停止----
 	StopMotion();
+
 	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
 	omega.i_out = 0;
 	MF.FLAG.REVOL = 0;
@@ -405,10 +399,9 @@ void driveX(uint16_t dist){
 	MF.FLAG.DECL = 0;
 
 	reset_distance();		//距離を初期化
-
 	centor.angle = 0;
 
-	drive_start();								//走行開始
+	StartMotion();								//走行開始
 
 	ms_wait(100);
 	//----走行----
@@ -490,7 +483,6 @@ void driveW(int16_t theta)			//引数　時間　停止許可
 	}else if(theta < 0){			//右旋回
 		centor.omega_dir = -1;
 	}
-
 	MF.FLAG.ACCL = 1;
 	MF.FLAG.DECL = 0;
 	MF.FLAG.WACCL = 1;
@@ -504,7 +496,6 @@ void driveW(int16_t theta)			//引数　時間　停止許可
 		while(centor.angle + offset < theta);
 		MF.FLAG.WACCL = 0;
 		MF.FLAG.WDECL = 1;
-
 		while(centor.angle  < theta){
 			if(omega.target == 0){
 				break;
@@ -533,7 +524,7 @@ void StartMotion(void){
 	TIM_OC_InitTypeDef sConfigOC;
 //Config Setting
 	  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	  sConfigOC.Pulse = 100;
+	  sConfigOC.Pulse = 10;
 	  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
 	  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -550,12 +541,12 @@ void StartMotion(void){
 	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 
-	time = 0;
-
 }
 
 void StopMotion(void)
 {
+	MF.FLAGS = 0x00;
+
 	HAL_TIM_PWM_Stop(&htim1,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Stop(&htim2,TIM_CHANNEL_2);
 
@@ -618,48 +609,48 @@ void SetMotionDirection(uint8_t d_dir)
 
 			break;
 	}
+}
 
+void MotorDisable(){
+	HAL_GPIO_WritePin(STBY_GPIO_Port, STBY_Pin,RESET);
 
+	HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,RESET);
+	HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,SET);
 
+	HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,RESET);
+	HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,SET);
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//test_drive
-//	走行関係のテストをする
-// 引数1：mode・・・モード番号を格納する変数のアドレス
-// 戻り値：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void DriveTest(uint8_t *mode){
 
 	while(1){
 		printf("test_drive:\n");						//UARTで送信
-		ModeSelect(mode);									//モード選択をさせる
+		ModeSelect(mode);								//モード選択をさせる
 		ms_wait(50);
 		switch(*mode){										//モード番号により分岐
 			//----位置の調整----
 			case 0:
 				SetMotionDirection(FORWARD);
-				HAL_Delay(100);
+
 				StartMotion();
 				HAL_Delay(1000);
 				StopMotion();
 				HAL_Delay(1000);
 
 				printf("Drive Out\n");
-
-//				set_position(1);
+//
 				break;
 
 			//----一区画定速走行----
 			case 1:
 				sensor_start();
 				SetMotionDirection(FORWARD);
-				StartMotion();
+				time = 0;
+				half_sectionA();
+				half_sectionD();
+				sensor_stop();
 
-				while(1){
-				ms_wait(1000);
-				}
 				printf("BREAK \n");
 				break;
 
@@ -735,9 +726,8 @@ void DriveTest(uint8_t *mode){
 
 			default:
 
-				while(1){
-					printf("GoodBy, Drive\r\n");
-				}
+				printf("GoodBy, Drive\r\n");
+
 				return;
 		}
 	}

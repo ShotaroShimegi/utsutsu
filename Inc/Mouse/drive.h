@@ -84,7 +84,8 @@ typedef struct{
 	volatile omega_ctrl omega;
 
 	volatile uint16_t time,time2, ms_time;			//
-	volatile float minindex, maxindex,maxindex_w, number;		//時間・加速必要時間・角加速必要時間？
+	volatile float maxindex, maxindex_w;		//時間・加速必要時間・角加速必要時間？
+	volatile float out_duty_r, out_duty_l;
 
 	volatile float Kvolt,Kxr;				//加速度計算するための電流定数，距離変換のための定数
 
@@ -102,7 +103,9 @@ typedef struct{
 	extern volatile omega_ctrl omega;
 
 	extern volatile uint16_t time,time2, ms_time;
-	extern volatile float minindex, maxindex,maxindex_w,number;
+	extern volatile float maxindex,maxindex_w;
+	extern volatile float out_duty_r, out_duty_l;
+
 
 	extern volatile float Kvolt,Kxr;
 
@@ -141,7 +144,8 @@ typedef struct{
 	void turn_SLA_L90();
 
 	//----走行試験----
-	void DriveTest(uint8_t *mode);	//走行試験
+	void DriveTest(uint8_t *mode);
+	void MotorDisable(void);
 
 	void start_ready();
 

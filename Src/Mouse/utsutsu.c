@@ -4,14 +4,40 @@ void UtsutsuSystem(){
 	uint8_t mode = 0;
 	uint8_t i = 0;
 
+	HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,SET);
+	HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,SET);
+
 	MelodySummer();
+
+	StartWaiting();
+
 	GyroInit();
 	VariableInit();
 
 	CheckBattery();
 
-	printf("----Start Utsutsu System----\n");
+/*	StartWaiting();
+	EncoderGyroTest();
+	ms_wait(100);
+*/
 
+/*	time = 0;
+	turn_L90();
+	HAL_Delay(100);
+	sensor_stop();
+	MotorDisable();
+*/
+
+	SetMotionDirection(FORWARD);
+	sensor_start();
+	time = 0;
+	half_sectionA();
+	half_sectionA();
+	half_sectionD();
+	sensor_stop();
+
+
+	printf("----Start Utsutsu System----\n");
 
 	while(1){
 
@@ -25,13 +51,13 @@ void UtsutsuSystem(){
 			ms_wait(500);
 			printf("START\r\n");
 
-			printf("base:%d, %d\r\n", wall_l.threshold, wall_r.threshold);
+//			printf("base:%d, %d\n", wall_l.threshold, wall_r.threshold);
 
-/*			for(i=0;i<1000;i++){
-				printf("%4lf, %4lf, %4lf\r\n",test1[i],test2[i],test3[i]);
+			for(i=0;i<200;i++){
+				printf("%4lf, %4lf, %4lf\n",test1[i],test2[i],test3[i]);
 				ms_wait(1);
 			}
-*/			printf("ALL\r\n");
+			printf("ALL\r\n");
 			break;
 
 	  	  case 1:	//----一次探索走行----
@@ -125,7 +151,22 @@ void UtsutsuSystem(){
 			turn_180();									//180度回転
 			turn_dir(DIR_TURN_180);
 			break;
+		case 6:
+			SetMotionDirection(FORWARD);
 
+/*			StartMotion();
+			HAL_Delay(1000);
+			StopMotion();
+			HAL_Delay(1000);
+*/
+			SetMotionDirection(FORWARD);
+			sensor_start();
+			time = 0;
+			half_sectionA();
+			half_sectionD();
+			sensor_stop();
+
+			break;
 
 			//----走行テスト----
 		case 11:
@@ -133,6 +174,7 @@ void UtsutsuSystem(){
 		    DriveTest(&mode);									//test_drive()はdrive.cに関数定義あり
 			ms_wait(100);
 			break;
+
 			//----エンコーダテスト----
 		case 12:
 			HAL_Delay(100);

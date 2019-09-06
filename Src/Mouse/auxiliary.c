@@ -167,6 +167,9 @@ void Melody(uint32_t hz, uint32_t ms)
 
 void StartWaiting(void)
 {
+	MF.FLAG.VCTRL = 0;
+	MF.FLAG.WCTRL = 0;
+
 	__HAL_TIM_CLEAR_FLAG(&htim6, TIM_FLAG_UPDATE);
 	__HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
 	HAL_TIM_Base_Start(&htim6);

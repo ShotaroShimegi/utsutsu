@@ -30,7 +30,6 @@ void VariableInit(void){
 	encoder_l.velocity = 0.0;
 
 	/*** vel_ctrl構造体の初期化 ***/
-	vel_ctrl_R.real = 0;
 	vel_ctrl_R.dif = 0;
 	vel_ctrl_R.pre = 0;
 	vel_ctrl_R.p_out = 0;
@@ -38,7 +37,6 @@ void VariableInit(void){
 	vel_ctrl_R.dir = 1;
 	vel_ctrl_R.out = 0;
 
-	vel_ctrl_L.real = 0;
 	vel_ctrl_L.dif = 0;
 	vel_ctrl_L.pre = 0;
 	vel_ctrl_L.p_out = 0;
@@ -71,12 +69,12 @@ void VariableInit(void){
 //	params_search1.omega_accel = 25.0f;		//単位はrad/s/s
 
 	/*** 探索用のゲイン構造体設定　***/
-	gain_search1.vel_kpR = 14.0f;		//14.0
-	gain_search1.vel_kpL = 14.0f;
-	gain_search1.vel_kiR = 0.05f;		//0.05
-	gain_search1.vel_kiL = 0.05f;
-	gain_search1.omega_kp = 0.01f;		//1.3
-	gain_search1.omega_ki = 0.0f;		//0.11
+	gain_search1.vel_kpR = 1.5f;		//14.0
+	gain_search1.vel_kpL = 1.5f;
+	gain_search1.vel_kiR = 0.0f;		//0.05
+	gain_search1.vel_kiL = 0.0f;
+	gain_search1.omega_kp = 0.10f;		//1.3
+	gain_search1.omega_ki = 0.01f;		//0.11
 	gain_search1.wall_kp = 0.00f;
 	gain_search1.wall_kd = 0.00f;
 
@@ -101,11 +99,9 @@ void VariableInit(void){
 	centor.angle = 0;
 
 	maxindex_w = val1 / 3;					//回転加速時間計算
-	minindex = 0;						//最低速度初期化
 
 	/* 並進速度，計算処理  */
 	maxindex = params_now.vel_max / params_now.accel;	//並進加速時間計算
-	minindex = 0;						//最低速度初期化
 
 	//----走行系----
 //	minindex = MINSPEED_S;			//最低速度初期化     MINSPEED_Sはglobal.hにマクロ定義あり
@@ -119,7 +115,7 @@ void VariableInit(void){
 	m_dir = 0;				//マウス方向の初期化
 
 	Kvolt = MASS / 2 * DIA_SPUR_mm / DIA_PINI_mm * RADIUS_WHEEL_mm / Ktolk * Rmotor; //電源電圧測定に必要な定数
-	Kxr =  -RADIUS_WHEEL_mm * (DIA_PINI_mm / DIA_SPUR_mm) * 2 * Pi / 4096;	      //Gain for Convert Encoder Pulse to Physical Unit
+	Kxr =  RADIUS_WHEEL_mm * DIA_PINI_mm / DIA_SPUR_mm * 2 * Pi / 4096;	      //Gain for Convert Encoder Pulse to Physical Unit
 
 	printf("Array Delete Start\n");
 	//---テスト用配列初期化
@@ -127,13 +123,7 @@ void VariableInit(void){
 		test1[i] = 0;
 		test2[i] = 0;
 		test3[i] = 0;
-/*		log.test1[i] = 0.0f;
-		log.test2[i] = 0.0f;
-		log.test3[i] = 0.0f;
-		log.test4[i] = 0.0f;
-		log.test5[i] = 0.0f;
-		log.test6[i] = 0.0f;
-*/	}
+	}
 	printf("Array Delete Completed\n");
 
 }

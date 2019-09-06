@@ -1,3 +1,3 @@
 connect.c:8:6:GyroInit	16	static
-connect.c:31:7:GyroRead	24	static
-connect.c:39:6:GyroGetOffset	24	static
+connect.c:33:7:GyroRead	24	static
+connect.c:41:6:GyroGetOffset	24	static

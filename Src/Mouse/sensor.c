@@ -58,33 +58,41 @@ void get_wall_info()
 		wall_info |= 0x11;								//Apdating Wall Data
 		tmp |= 0x08;									//3番目のLEDを点灯させるよう設定
 	}
-
 }
 
-void EncoderGyroTest(){
+void EncoderGyroTest()
+{
 	reset_distance();
 	time = 0;
 	centor.angle = 0;
 
-	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
-	HAL_TIM_Encoder_Start(&htim4,TIM_CHANNEL_ALL);
+	MF.FLAG.WCTRL = 0;
+	MF.FLAG.VCTRL = 0;
+	SetMotionDirection(FORWARD);
+	StartMotion();
 
-	__HAL_TIM_CLEAR_FLAG(&htim6, TIM_FLAG_UPDATE);
-	__HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
-	HAL_TIM_Base_Start(&htim6);
+	sensor_start();
 
 	while(1){
-
 //		totalR_mm += -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi * (dif_pulse_r % 4096) / 4096;
 //		totalL_mm += -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi * (dif_pulse_l % 4096) / 4096;
 
-		printf("R_distance:%4lf L_distance:%4lf Gyro:%4lf \n",encoder_r.distance, encoder_l.distance,centor.angle);
+		printf("R_dist:%4lf L_dist%4lf Gyro:%4lf \n",encoder_r.distance,encoder_l.distance,centor.angle);
+
+//		printf("R_dist:%4lf R_vel:%4lf L_dist%4lf L_vel:%4lf Gyro:%4lf \n",encoder_r.distance,encoder_r.velocity, encoder_l.distance, encoder_l.velocity, centor.angle);
+//		printf("R_vel:%4lf L_vel:%4lf Gyro:%4lf \n",encoder_r.velocity,encoder_l.velocity,centor.angle);
+
 		ms_wait(500);
 	}
 
 }
 
 void sensor_start(){
+
+	reset_distance();
+
+	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
+	HAL_TIM_Encoder_Start(&htim4,TIM_CHANNEL_ALL);
 
 	/*Basic Timer Start*/
 	__HAL_TIM_CLEAR_FLAG(&htim6, TIM_FLAG_UPDATE);
@@ -95,6 +103,8 @@ void sensor_start(){
 }
 void sensor_stop(){
 	HAL_TIM_Base_Stop_IT(&htim6);
+	HAL_TIM_Encoder_Stop(&htim3,TIM_CHANNEL_ALL);
+	HAL_TIM_Encoder_Stop(&htim4,TIM_CHANNEL_ALL);
 }
 void sensor_check()
 {
@@ -105,7 +115,6 @@ void sensor_check()
 	__HAL_TIM_CLEAR_FLAG(&htim6, TIM_FLAG_UPDATE);
 	__HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
 	HAL_TIM_Base_Start(&htim6);
-
 
 //	HAL_TIM_Base_Start_IT(&htim6);	<- 何故かこれだと上手くいかない
 
@@ -174,7 +183,7 @@ int16_t GetEncoderRight(void)
 
 void UpdateGyro(void)
 {
-	centor.omega_deg = GyroRead();
+	centor.omega_deg = GyroRead() - gyro_base;
 	centor.omega_rad = centor.omega_deg * KW;
 	centor.angle += (centor.omega_deg + centor.pre_omega_deg) * 0.5 * 0.001;
 	centor.pre_omega_deg = centor.omega_deg;
