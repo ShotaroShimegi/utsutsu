@@ -14,8 +14,8 @@ unsigned char get_base()
 
 	ms_wait(10);
 	//----制御用の基準を取得----
-//	base_l = ad_l;										//現在の左側のセンサ値で決定
-//	base_r = ad_r;										//現在の右側のセンサ値で決定
+	base_l = wall_l.val;										//現在の左側のセンサ値で決定
+	base_r = wall_r.val;										//現在の右側のセンサ値で決定
 
 	//----基準が理想的だとLED点滅----
 	if((-50 < (int)(base_l - base_r)) && ((int)(base_l - base_r) < 50)){
@@ -42,22 +42,25 @@ void get_wall_info()
 	wall_info = 0x00;									//壁情報を初期化
 
 	//----Check Front----
-	if(wall_ff.dif > wall_ff.threshold){
+	if(wall_ff.val > wall_ff.threshold){
 		//AD値が閾値より大きい(=壁があって光が跳ね返ってきている)場合
 		wall_info |= 0x88;								//壁情報を更新
 		tmp = 0x06;										//1番目と2番目のLEDを点灯させるよう設定
 	}
 	//----Check Right----
-	if(wall_r.dif > wall_r.threshold){
+	if(wall_r.val > wall_r.threshold){
 		//AD値が閾値より大きい(=壁があって光が跳ね返ってきている)場合
 		wall_info |= 0x44;								//壁情報を更新
 		tmp |= 0x01;									//0番目のLEDを点灯させるよう設定
 	}
 	//----Check Left----
-	if(wall_l.dif > wall_l.threshold){
+	if(wall_l.val > wall_l.threshold){
 		wall_info |= 0x11;								//Apdating Wall Data
 		tmp |= 0x08;									//3番目のLEDを点灯させるよう設定
 	}
+
+//	printf("L:%d, F:%d R:%d\n",wall_l.val, wall_ff.val, wall_r.val);
+
 }
 
 void EncoderGyroTest()

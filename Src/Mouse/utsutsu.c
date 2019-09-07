@@ -9,11 +9,11 @@ void UtsutsuSystem(){
 
 	MelodySummer();
 
-	StartWaiting();
+//	StartWaiting();
+//	sensor_stop();
 
 	GyroInit();
 	VariableInit();
-
 	CheckBattery();
 
 /*	StartWaiting();
@@ -22,21 +22,18 @@ void UtsutsuSystem(){
 */
 
 /*	time = 0;
-	turn_L90();
+	turn_180();
 	HAL_Delay(100);
 	sensor_stop();
 	MotorDisable();
 */
 
-	SetMotionDirection(FORWARD);
+/*	SetMotionDirection(FORWARD);
 	sensor_start();
 	time = 0;
-	half_sectionA();
-	half_sectionA();
-	half_sectionD();
+	a_section();
 	sensor_stop();
-
-
+*/
 	printf("----Start Utsutsu System----\n");
 
 	while(1){

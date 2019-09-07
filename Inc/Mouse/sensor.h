@@ -44,7 +44,7 @@
 
 		volatile float dif_total;
 		volatile float pre_dif_total;									//壁のPD制御用
-		volatile float sen_ctrl;
+		volatile float sen_ctrl_r, sen_ctrl_l;
 
 		volatile float gyro_base;
 	#else
@@ -66,7 +66,7 @@
 
 		extern volatile float pre_dif_total;
 		extern volatile float dif_total;
-		extern volatile float sen_ctrl;
+		extern volatile float sen_ctrl_r,sen_ctrl_l;
 
 		extern volatile float gyro_base;
 

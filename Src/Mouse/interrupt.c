@@ -120,20 +120,37 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			}
 
 			//壁制御フラグアリの場合
-			if(MF.FLAG.CTRL && centor.vel_target > 0.2){
-
+			if(MF.FLAG.CTRL && centor.vel_target > 0.1){
+				wall_l.dif = wall_l.val - wall_l.threshold;
+				wall_r.dif = wall_l.val - wall_l.threshold;
+				if(SREF_MIN_L < wall_l.dif && wall_l.dif < SREF_MAX_L){
+					sen_ctrl_l = gain_search1.wall_kp * wall_l.dif;
+				}
+				if(SREF_MIN_R < wall_r.dif && wall_r.dif < SREF_MAX_R){
+					sen_ctrl_r = gain_search1.wall_kp * wall_r.dif;
+				}
 			}else {
-				sen_ctrl = 0;
+				sen_ctrl_r = 0;
+				sen_ctrl_l = 0;
 			}
 
+
+
 			if(time < 1999){
+//			Wall Sensor
+				test1[(uint16_t)(time*0.1)] = centor.distance;
+				test2[(uint16_t)(time*0.1)] = wall_l.val;
+				test3[(uint16_t)(time*0.1)] = wall_r.val;
+
+
 //			Translation
-  				test1[(uint16_t)(time*0.1)] = encoder_r.velocity;
+ /*
+  *  			test1[(uint16_t)(time*0.1)] = encoder_r.velocity;
 				test2[(uint16_t)(time*0.1)] = encoder_l.velocity;
 				test3[(uint16_t)(time*0.1)] = centor.vel_target;
-
+*/
 //			Revolution
-/* 				test1[(uint16_t)(time*0.1)] = centor.omega_rad;
+/*				test1[(uint16_t)(time*0.1)] = centor.omega_rad;
 				test2[(uint16_t)(time*0.1)] = centor.omega_dir * omega.target ;
 				test3[(uint16_t)(time*0.1)] = centor.angle;
 */
@@ -141,8 +158,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			break;
 		case 3:
-			out_duty_l = vel_ctrl_L.out - omega.out;
-			out_duty_r = vel_ctrl_R.out + omega.out;
+			out_duty_l = vel_ctrl_L.out - omega.out + sen_ctrl_l;
+			out_duty_r = vel_ctrl_R.out + omega.out + sen_ctrl_r;
 
 			if(out_duty_l < 0){
 				out_duty_l = -out_duty_l;
@@ -347,8 +364,6 @@ break;
 		}else {
 			sen_ctrl = 0;
 		}
-
-
 	}
 
 	//====タスクポインタで分割処理====
@@ -358,77 +373,11 @@ break;
 /*
 void Cmt2IntFunc(){
 
-	time++;
-	time2++;
-	if(time2 > 2000) time2 = 2000;
 
-	//エンコーダの値取得
-//	R_PG_Timer_GetCounterValue_MTU_U0_C1(&encoder_l.pulse);
-//	R_PG_Timer_GetCounterValue_MTU_U0_C2(&encoder_r.pulse);
 
-//	R_PG_Timer_SetCounterValue_MTU_U0_C1(0);
-//	R_PG_Timer_SetCounterValue_MTU_U0_C2(0);
-
-	encoder_r.dif = encoder_r.pulse + (65536 * encoder_r.over_flag);
-	encoder_l.dif = encoder_l.pulse + (65536 * encoder_l.over_flag);
-
-	encoder_r.over_flag = 0;
-	encoder_r.over_flag = 0;
-
-	encoder_r.sum += encoder_r.dif;
-	encoder_l.sum += encoder_l.dif;
-
-	vel_ctrl_R.real = Kxr * (float)encoder_r.dif;
-	vel_ctrl_L.real = Kxr * (float)encoder_l.dif;
-
-	encoder_r.distance = Kxr * (float)encoder_r.sum;
-	encoder_l.distance = Kxr * (float)encoder_l.sum;
-
-//物理量計算
 //物理量で扱いやすいm/s = mm/msに変換
 	centor.vel = (vel_ctrl_R.real + vel_ctrl_L.real) * 0.5;
 	centor.distance = (encoder_r.distance + encoder_l.distance) * 0.5;
-
-//センサログ用
-		log.test1[time2] = totalG_mm;//angle_G, sen_dr;
-		log.test2[time2] = wall_l.val;//dif_angle, sen_dl;
-
-		log.test3[time2] = wall_l.base;//angle_G;//ad_r, kvpR
-		log.test4[time2] = wall_r.val;//omega_G;//ad_l, kvdR
-
-		log.test5[time2] = wall_r.base;
-		log.test6[time2] = dif_total;
-
-//並進速度ログ用
-		log.test1[time2] = centor.vel_target;
-		log.test2[time2] = omega.out;
-
-		log.test3[time2] = number;
-		log.test4[time2] = vel_ctrl_R.out;
-
-		log.test5[time2] = vel_ctrl_L.real;
-		log.test6[time2] = vel_ctrl_R.real;
-
-//回転速度ログ用
-		log.test1[time2] = omega_direction * targ_omega;	//angle_G, sen_dr;
-		log.test2[time2] = omega_G_rad;				//dif_angle, sen_dl;
-
-		log.test3[time2] = vel_omega;				//angle_G;//ad_r, kvpR
-		log.test4[time2] = angle_G;				//omega_G;//ad_l, kvdR
-
-		log.test5[time2] = vel_R;
-		log.test6[time2] = vel_L;
-
-//スラローム
-		log.test1[time2] = omega_direction * targ_omega;//angle_G, sen_dr;
-		log.test2[time2] = omega_G_rad;//dif_angle, sen_dl;
-
-		log.test3[time2] = vel_R;//angle_G;//ad_r, kvpR
-		log.test4[time2] = vel_L;//omega_G;//ad_l, kvdR
-
-		log.test5[time2] = totalG_mm;
-		log.test6[time2] = angle_G;
-
 
 	//PIDしてみる？
 	if(MF.FLAG.WCTRL){

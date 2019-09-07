@@ -16,6 +16,7 @@ void searchA(){												//一次走行　一番基本的な初期装備
 
 	//====マップデータ初期化====
 	map_Init();												//マップデータを初期化する
+	GyroInit();
 
 	//====歩数等初期化====
 	m_step = r_cnt = 0;										//歩数と経路カウンタの初期化
@@ -23,6 +24,8 @@ void searchA(){												//一次走行　一番基本的な初期装備
 	write_map();											//地図の初期化
 	make_smap();											//歩数図の初期化
 	make_route_NESW();											//最短経路探索(route配列に動作が格納される)
+
+	SetMotionDirection(FORWARD);
 	sensor_start();
 
 	//====探索走行====
@@ -33,40 +36,55 @@ void searchA(){												//一次走行　一番基本的な初期装備
 			//----前進----
 			case 0x88:
 				SetMotionDirection(FORWARD);
-				//Melody(1120,500);
+//				Melody(1120,500);
+//				printf("STRAIGHT\n");
 				break;
 			//----右折----
 			case 0x44:
-				turn_R90();									//右回転
-				if(wall_l.dif > wall_l.threshold){
-					set_position(1);
+/*				if(wall_l.val > wall_l.threshold){
+					MF.FLAG.REVOL = 1;
 				}
-				turn_dir(DIR_TURN_R90);						//マイクロマウス内部位置情報でも右回転処理
+*/				turn_R90();									//右回転
+/*				if(MF.FLAG.REVOL){
+					set_position(1);
+					MF.FLAG.REVOL = 0;
+				}
+*/				turn_dir(DIR_TURN_R90);						//マイクロマウス内部位置情報でも右回転処理
 				HAL_Delay(100);										//安定するまで待機
 				SetMotionDirection(FORWARD);
-				//Melody(920,500);
+//				printf("TURN_R\n");
 				break;
 			//----180回転----
 			case 0x22:
-				turn_180();							//180度回転
-				if(wall_ff.dif > wall_ff.threshold){
-					set_position(1);
+/*				if(wall_ff.val > wall_ff.threshold){
+					MF.FLAG.REVOL = 1;
 				}
-				turn_dir(DIR_TURN_180);						//マイクロマウス内部位置情報でも180度回転処理
+*/				turn_180();							//180度回転
+/*				if(MF.FLAG.REVOL){
+					set_position(1);
+					MF.FLAG.REVOL = 0;
+				}
+*/				turn_dir(DIR_TURN_180);						//マイクロマウス内部位置情報でも180度回転処理
 				HAL_Delay(100);
 				SetMotionDirection(FORWARD);
-				//Melody(1320,500);
+//				Melody(1320,500);
+//				printf("TURN_180\n");
 				break;
 			//----左折----
 			case 0x11:
-				turn_L90();									//左回転
-				if(wall_r.dif > wall_ff.threshold){
-					set_position(1);
+/*				if(wall_r.val > wall_r.threshold){
+					MF.FLAG.REVOL = 1;
 				}
-				turn_dir(DIR_TURN_L90);						//マイクロマウス内部位置情報でも左回転処理
+*/				turn_L90();									//左回転
+/*				if(MF.FLAG.REVOL){
+					set_position(1);
+					MF.FLAG.REVOL = 0;
+				}
+*/				turn_dir(DIR_TURN_L90);						//マイクロマウス内部位置情報でも左回転処理
 				HAL_Delay(100);									//安定するまで待機
 				SetMotionDirection(FORWARD);
-				//Melody(720,500);
+//				Melody(720,500);
+//				printf("TURN_L\n");
 				break;
 		}
 /*
@@ -81,8 +99,13 @@ void searchA(){												//一次走行　一番基本的な初期装備
 	}while((PRELOC.AXIS.X != goal_x) || (PRELOC.AXIS.Y != goal_y));
 															//現在座標とgoal座標が等しくなるまで実行
 	ms_wait(2000);											//スタートでは***2秒以上***停止しなくてはならない
+	Melody(g6,300);
+	Melody(f6,300);
+	Melody(e6,300);
 	turn_180();												//180度回転
 	turn_dir(DIR_TURN_180);									//マイクロマウス内部位置情報でも180度回転処理
+	sensor_stop();
+	MotorDisable();
 }
 
 
@@ -103,6 +126,7 @@ void searchSA(){											//連続走行の未完成アルゴリズム、完成
 
 	sensor_start();
 	printf("Michishirube\r\n");
+	Melody(c6,1000);
 	SetMotionDirection(FORWARD);
 
 	if(wall_ff.dif > wall_ff.threshold){

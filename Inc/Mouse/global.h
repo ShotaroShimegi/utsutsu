@@ -93,28 +93,28 @@
 ------------------------------------------------------------*/
 //----壁判断基準----			       団活  部室
 #define WALL_BASE_F 100			//前壁 500　　800
-#define WALL_BASE_L 600 //700		//左壁 380    500
-#define WALL_BASE_R 350 //700		//右壁 300    400
+#define WALL_BASE_L 80 //700		//左壁 380    500
+#define WALL_BASE_R 80 //700		//右壁 300    400
 #define WALL_OFF 200	//尻当て用の補正
 
 #define WALL_OFFSET 0	//閾値のオフセット
-#define WALL_START 300
+#define WALL_START 200
 
 #define CONT_FIX 0.05f
 
 //----制御基準値----
 #define SREF_MIN_L 100		//左制御基準　　下限　0
-#define SREF_HALF_L 3000		//左制御　係数変更点　200
+//#define SREF_HALF_L 3000		//左制御　係数変更点　200
 #define SREF_MAX_L 4000		//左制御基準　　上限　1000
 #define SREF_MIN_R 100		//右制御基準　　下限　0
-#define SREF_HALF_R 3000		//右制御　係数変更点　200
+//#define SREF_HALF_R 3000		//右制御　係数変更点　200
 #define SREF_MAX_R 4000		//右制御基準　　上限　1000
 
 /*------------------------------------------------------------
 		探索系
 ------------------------------------------------------------*/
 //----ゴール座標----
-#define GOAL_X 2	//7
+#define GOAL_X 1	//7
 #define GOAL_Y 1	//7
 
 /*------------------------------------------------------------

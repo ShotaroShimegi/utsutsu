@@ -31,7 +31,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++
 void half_sectionA()
 {
-	MF.FLAG.CTRL = 0;
+	MF.FLAG.CTRL = 1;
 	driveA(HALF_MM);									//半区画のパルス分加速しながら走行。走行後は停止しない
 	get_wall_info();										//壁情報を取得
 }
@@ -63,8 +63,15 @@ void half_sectionD()
 //+++++++++++++++++++++++++++++++++++++++++++++++
 void a_section()
 {
-	half_sectionA();			//半区画分加速走行
+
+ 	half_sectionA();			//半区画分加速走行
 	half_sectionD();
+
+/*	driveA(HALF_MM);
+	driveD(HALF_MM,1);
+*/
+	reset_distance();
+	MotorDisable();
 }
 
 void s_section(){
@@ -95,9 +102,15 @@ void a_sectionU() {
 
 void turn_R90()
 {
-	MF.FLAG.CTRL = 0;								//制御を無効にする
+	MF.FLAG.CTRL = 0;
+	sen_ctrl_r = 0;
+	sen_ctrl_l = 0;
+
+	//制御を無効にする
 	SetMotionDirection(TURN_R);								//右に回転するようモータの回転方向を設定
 	driveAD(ROT_ANGLE_R90);								//超信地するわよぉ！
+	MotorDisable();
+
 	SetMotionDirection(FORWARD);								//前進するようにモータの回転方向を設定
 }
 
@@ -128,8 +141,12 @@ void turn_SLA_R90()
 void turn_L90()
 {
 	MF.FLAG.CTRL = 0;
+	sen_ctrl_r = 0;
+	sen_ctrl_l = 0;
+
 	SetMotionDirection(TURN_L);									//左に超信地旋回する向きに設定
 	driveAD(ROT_ANGLE_L90);									//超信地面するわよぉ！
+	MotorDisable();
 	SetMotionDirection(FORWARD);									//前進するようにモータの回転方向を設定
 }
 
@@ -145,6 +162,7 @@ void turn_SLA_L90()
 	//time2 = 0;
 
 	MF.FLAG.CTRL = 0;
+
 	SetMotionDirection(FORWARD);
 	driveA(params_search1.L90_before);							//offset　before区間走行
 
@@ -169,11 +187,13 @@ void turn_SLA_L90()
 void turn_180()
 {
 	MF.FLAG.CTRL = 0;										//制御を無効にする
-	sen_ctrl = 0;
+	sen_ctrl_r = 0;
+	sen_ctrl_l = 0;
 
-	SetMotionDirection(TURN_R);										//左に回転するようモータの回転方向を設定driveAD(ROT_ANGLE_R90);
+	SetMotionDirection(TURN_R);
 	driveAD(-180);
-	SetMotionDirection(FORWARD);										//前進するようにモータの回転方向を設定
+	MotorDisable();
+
 }
 
 
@@ -186,10 +206,14 @@ void turn_180()
 void set_position(uint8_t flag)
 {
 	MF.FLAG.CTRL = 0;
+	sen_ctrl_r = 0;
+	sen_ctrl_l = 0;
+
 	//制御を無効にする
 	SetMotionDirection(BACK);											//後退するようモータの回転方向を設定
 	ms_wait(200);
-	driveC(500,0);								//尻を当てる程度に後退。回転後に停止する
+//	driveC(500,0);								//尻を当てる程度に後退。回転後に停止する
+
 	SetMotionDirection(FORWARD);										//前進するようにモータの回転方向を設定
 
 	MF.FLAG.CTRL =1;
@@ -302,9 +326,12 @@ void driveD(uint16_t dist, unsigned char rs) {
 			MF.FLAG.XCTRL = 0;
 			MF.FLAG.VCTRL = 0;
 		}
-	printf("Deaccel Finish\n");
+//	printf("Deaccel Finish\n");
 	//----停止措置----
 	StopMotion();											//走行終了、停止許可があれば停止
+	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
+	omega.i_out = 0;
+
 
 }
 
@@ -319,6 +346,7 @@ void driveD(uint16_t dist, unsigned char rs) {
 void driveAD(float theta)
 {
 	float offset;
+	float ics = centor.angle;
 
 	if(theta > 0){				//左旋回
 		centor.omega_dir = 1;
@@ -344,25 +372,26 @@ void driveAD(float theta)
 	offset = (0.5 * maxindex_w * params_now.omega_max) * KWP;	//減速に必要な角度の絶対値計算
 	centor.vel_target = 0;
 	omega.target = 0;
+	omega.i_out = 0;
 
 	StartMotion();
 
 	if(theta > 0){
 		//----走行----
-		while(centor.angle < theta - offset);				//w-tグラフにおける速度増加部の面積　⇒　現在の回転角度
+		while(centor.angle < ics + theta - offset);				//w-tグラフにおける速度増加部の面積　⇒　現在の回転角度
 
 		MF.FLAG.WACCL = 0;
 		MF.FLAG.WDECL = 1;
 
-		while(centor.angle < theta);
+		while(centor.angle < ics + theta);
 
 	}else if (theta < 0){
-		while(centor.angle > theta + offset);
+		while(centor.angle > ics + theta + offset);
 
 		MF.FLAG.WACCL = 0;
 		MF.FLAG.WDECL = 1;
 
-		while(centor.angle > theta);
+		while(centor.angle > ics + theta);
 		omega.target = 0;
 		HAL_Delay(200);
 
@@ -619,6 +648,10 @@ void MotorDisable(){
 
 	HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,RESET);
 	HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,SET);
+
+	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
+	omega.i_out = 0;
+
 
 }
 

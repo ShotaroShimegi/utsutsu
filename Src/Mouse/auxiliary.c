@@ -190,16 +190,20 @@ void StartWaiting(void)
 
 void start_ready(void)
 {
+	MotorDisable();
 	sensor_start();
 
 	MF.FLAG.CTRL = 0;								//制御を無効にする
 	get_base();
 	SetMotionDirection(FORWARD);								//前進するようにモータの回転方向を設定
 
-	Melody(c6,1000);
 	auto_Calibration(0.30,0.60);
 	time2 = 0;
-	driveA(SET_MM);
+	driveA(SET_MM * 0.5);
+	driveD(SET_MM * 0.5, 1);
+
+	MotorDisable();
+
 }
 
 void setting_params(params *instance)
@@ -224,9 +228,13 @@ void setting_gain(gain *instance)
 
 void auto_Calibration(float constant_l, float constant_r)
 {
-	wall_l.threshold = (uint16_t)(wall_l.dif * constant_l);
+//	wall_l.threshold = (uint16_t)(wall_l.dif * constant_l);
+
+	wall_l.threshold = WALL_BASE_L;
 	wall_ff.threshold = WALL_BASE_F;
-	wall_r.threshold = (uint16_t)(wall_r.dif * constant_r);
+	wall_r.threshold = WALL_BASE_R;
+
+//	wall_r.threshold = (uint16_t)(wall_r.dif * constant_r);
 	printf("threshold %d, %d :: dif %d, %d\r\n",wall_l.threshold, wall_r.threshold, wall_l.dif, wall_r.dif);
 
 }
@@ -234,7 +242,9 @@ void auto_Calibration(float constant_l, float constant_r)
 void ctrl_zero()
 {
 	MF.FLAG.CTRL = 0;
-	sen_ctrl = 0;
+	sen_ctrl_r = 0;
+	sen_ctrl_l = 0;
+
 	pre_dif_total = 0;
 }
 
