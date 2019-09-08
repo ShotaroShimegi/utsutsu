@@ -212,8 +212,9 @@ void set_position(uint8_t flag)
 	//制御を無効にする
 	SetMotionDirection(BACK);											//後退するようモータの回転方向を設定
 	ms_wait(200);
-//	driveC(500,0);								//尻を当てる程度に後退。回転後に停止する
-
+	driveC(500,0);								//尻を当てる程度に後退。回転後に停止する
+//	driveA(SET_MM * 0.5);
+//	driveD(SET_MM * 0.5,1);
 	SetMotionDirection(FORWARD);										//前進するようにモータの回転方向を設定
 
 	MF.FLAG.CTRL =1;
@@ -453,6 +454,7 @@ void driveC(uint16_t count, unsigned char rs)			//引数　時間　停止許可
 
 	reset_distance();
 	centor.vel_target = omega.target = 0;
+	time = 0;
 
 	//====回転開始====
 	MF.FLAG.VCTRL = 1;

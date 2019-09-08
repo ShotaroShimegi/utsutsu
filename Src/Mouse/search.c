@@ -56,15 +56,15 @@ void searchA(){												//一次走行　一番基本的な初期装備
 				break;
 			//----180回転----
 			case 0x22:
-/*				if(wall_ff.val > wall_ff.threshold){
+				if(wall_ff.val > wall_ff.threshold + WALL_OFFSET){
 					MF.FLAG.REVOL = 1;
 				}
-*/				turn_180();							//180度回転
-/*				if(MF.FLAG.REVOL){
+				turn_180();							//180度回転
+				if(MF.FLAG.REVOL){
 					set_position(1);
 					MF.FLAG.REVOL = 0;
 				}
-*/				turn_dir(DIR_TURN_180);						//マイクロマウス内部位置情報でも180度回転処理
+				turn_dir(DIR_TURN_180);						//マイクロマウス内部位置情報でも180度回転処理
 				HAL_Delay(100);
 				SetMotionDirection(FORWARD);
 //				Melody(1320,500);

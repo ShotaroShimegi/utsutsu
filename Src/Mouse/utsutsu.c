@@ -28,10 +28,11 @@ void UtsutsuSystem(){
 	MotorDisable();
 */
 
-/*	SetMotionDirection(FORWARD);
+/*	SetMotionDirection(BACK);
 	sensor_start();
 	time = 0;
-	a_section();
+	set_position(1);
+//	a_section();
 	sensor_stop();
 */
 	printf("----Start Utsutsu System----\n");
@@ -66,10 +67,10 @@ void UtsutsuSystem(){
 
 			get_wall_info();									//壁情報の初期化     get_wall_info()はsensor.cに関数定義あり
 			searchA();										//ゴール区画まで探索，進行する　searchA()はsearch.cに関数定義あり
-			goal_x = goal_y = 0;								//ゴール座標をスタート区画に設定
+/*			goal_x = goal_y = 0;								//ゴール座標をスタート区画に設定
 			ms_wait(100);										//待機
 			searchA();											//戻ってくる
-
+*/
 			goal_x = GOAL_X;									//ゴール座標設定
 			goal_y = GOAL_Y;									//ゴール座標設定
 			break;

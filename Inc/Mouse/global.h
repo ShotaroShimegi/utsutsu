@@ -93,11 +93,11 @@
 ------------------------------------------------------------*/
 //----壁判断基準----			       団活  部室
 #define WALL_BASE_F 100			//前壁 500　　800
-#define WALL_BASE_L 80 //700		//左壁 380    500
-#define WALL_BASE_R 80 //700		//右壁 300    400
+#define WALL_BASE_L 50 //700		//左壁 380    500
+#define WALL_BASE_R 50 //700		//右壁 300    400
 #define WALL_OFF 200	//尻当て用の補正
 
-#define WALL_OFFSET 0	//閾値のオフセット
+#define WALL_OFFSET 30	//閾値のオフセット
 #define WALL_START 200
 
 #define CONT_FIX 0.05f
@@ -114,8 +114,8 @@
 		探索系
 ------------------------------------------------------------*/
 //----ゴール座標----
-#define GOAL_X 1	//7
-#define GOAL_Y 1	//7
+#define GOAL_X 7	//7
+#define GOAL_Y 7	//7
 
 /*------------------------------------------------------------
 		共用・構造体の定義

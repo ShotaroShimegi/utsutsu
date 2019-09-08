@@ -73,7 +73,7 @@ void VariableInit(void){
 	gain_search1.vel_kpL = 1.5f;
 	gain_search1.vel_kiR = 0.0f;		//0.05
 	gain_search1.vel_kiL = 0.0f;
-	gain_search1.omega_kp = 0.04f;		//1.3
+	gain_search1.omega_kp = 0.08f;		//1.3
 	gain_search1.omega_ki = 0.01f;		//0.11
 	gain_search1.wall_kp = 0.008f;
 	gain_search1.wall_kd = 0.00f;
