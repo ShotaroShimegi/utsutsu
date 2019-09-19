@@ -1,6 +1,6 @@
 Src/Mouse/auxiliary.o: ../Src/Mouse/auxiliary.c ../Inc/Mouse/global.h \
- ../Inc/Mouse/port.h ../Inc/Mouse/auxiliary.h ../Inc/Mouse/drive.h \
- ../Inc/Mouse/sensor.h ../Inc/adc.h ../Inc/main.h \
+ ../Inc/Mouse/auxiliary.h ../Inc/Mouse/drive.h ../Inc/Mouse/sensor.h \
+ ../Inc/adc.h ../Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
@@ -36,8 +36,6 @@ Src/Mouse/auxiliary.o: ../Src/Mouse/auxiliary.c ../Inc/Mouse/global.h \
  ../Inc/Mouse/init.h ../Inc/tim.h
 
 ../Inc/Mouse/global.h:
-
-../Inc/Mouse/port.h:
 
 ../Inc/Mouse/auxiliary.h:
 

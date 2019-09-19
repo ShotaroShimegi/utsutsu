@@ -3,7 +3,7 @@
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
 //wait
-//	ms_waitは重複して使用する(以下参照)ことが出来ない
+//	WaitMsは重複して使用する(以下参照)ことが出来ない
 //	(動作が途中で止まる)。そのため、割り込み関数内では
 //	正確な時間は測定できないがwhile文ループを用いて待機する
 // 引数1：loop・・・待機するループ数
@@ -14,12 +14,12 @@ void stay(unsigned int loop)
 	while(loop--);					//loop回while文を回す
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-//ms_wait
+//WaitMs
 //	ミリ秒待機する
 // 引数1：ms・・・待機時間[ミリ秒]
 // 戻り値：無し
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void ms_wait(unsigned int ms)
+void WaitMs(unsigned int ms)
 {
 	HAL_Delay(ms);
 }
@@ -61,7 +61,7 @@ void ModeSelect(uint8_t *mode)
 		nowR = (uint16_t)(encR / 4300);
 		nowL = (uint16_t)(encL / 30000);
 
-		//ms_wait(50);
+		//WaitMs(50);
 		 *mode = nowR;
 		//LEDで現在の値を表示
 		LedDisplay(mode);			//LEDがActiveLowの場合
@@ -119,19 +119,6 @@ void MelodyMrLawrence()
 
 }
 
-void timer_start()
-{
-/*
-	R_PG_Timer_StartCount_MTU_U0_C1();
-	R_PG_Timer_StartCount_MTU_U0_C2();
-	R_PG_Timer_StartCount_MTU_U0_C3();
-	R_PG_Timer_StartCount_MTU_U0_C4();
-
-	R_PG_Timer_StartCount_CMT_U0_C1();
-	R_PG_Timer_StartCount_CMT_U1_C2();
-*/
-}
-
 void Melody(uint32_t hz, uint32_t ms)
 {
 	TIM_OC_InitTypeDef sConfigOC;
@@ -177,36 +164,34 @@ void StartWaiting(void)
 	printf("Ready???\r\n");
 
 	while(1){
-//		printf("ad_l: %4d ad_fl:%4d ad_ff:%4d  ad_fr:%4d ad_r:%4d\n ", wall_l.val,wall_fl.val, wall_ff.val, wall_fr.val, wall_r.val);
 		if(wall_ff.val > WALL_START){
 			Melody(e6,300);
 			Melody(f6,300);
 			Melody(g6,300);
-			ms_wait(1000);
+			WaitMs(1000);
 			break;
 		}
 	}
 }
 
-void start_ready(void)
+void FirstAction(void)
 {
-	MotorDisable();
-	sensor_start();
+	DisableMotor();
+	StartTimer();
 
-	MF.FLAG.CTRL = 0;								//制御を無効にする
-	get_base();
-	SetMotionDirection(FORWARD);								//前進するようにモータの回転方向を設定
+	MF.FLAG.CTRL = 0;
+	SetMotionDirection(FORWARD);
 
-	auto_Calibration(0.30,0.60);
+	AutoCalibration(0.30,0.60);
 	time2 = 0;
-	driveA(SET_MM * 0.5);
-	driveD(SET_MM * 0.5, 1);
+	DriveAccel(SET_MM * 0.5);
+	DriveDecel(SET_MM * 0.5, 1);
 
-	MotorDisable();
+	DisableMotor();
 
 }
 
-void setting_params(params *instance)
+void SetParams(params *instance)
 {
 	params_now.vel_max = instance->vel_max;
 	params_now.accel = instance->accel;
@@ -214,7 +199,7 @@ void setting_params(params *instance)
 	params_now.omega_accel = instance->omega_accel;
 }
 
-void setting_gain(gain *instance)
+void SetGain(gain *instance)
 {
 	gain_now.vel_kpR = instance->vel_kpR;
 	gain_now.vel_kiR = instance->vel_kiR;
@@ -226,7 +211,7 @@ void setting_gain(gain *instance)
 	gain_now.wall_kd = instance->wall_kd;
 }
 
-void auto_Calibration(float constant_l, float constant_r)
+void AutoCalibration(float constant_l, float constant_r)
 {
 //	wall_l.threshold = (uint16_t)(wall_l.dif * constant_l);
 
@@ -238,24 +223,24 @@ void auto_Calibration(float constant_l, float constant_r)
 	printf("threshold %d, %d :: dif %d, %d\r\n",wall_l.threshold, wall_r.threshold, wall_l.dif, wall_r.dif);
 
 }
-
-void ctrl_zero()
+void LedDisplay(uint8_t *led)
 {
-	MF.FLAG.CTRL = 0;
-	sen_ctrl_r = 0;
-	sen_ctrl_l = 0;
+	HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, *led&0x01);
+	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, *led&0x02);
+	HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, *led&0x04);
+	HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, *led&0x08);
+	HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, *led&0x10);
 
-	pre_dif_total = 0;
 }
 
-void reset_distance()
+void ResetDistance()
 {
-	/* 物理量初期化 */
+	/* Initialize Distance */
 	encoder_r.distance = 0;
 	encoder_l.distance = 0;
-	centor.distance = 0;
+	center.distance = 0;
 
-	/* エンコーダカウント値初期化 */
+	/* Initialize Integral Variable  */
 	encoder_r.sum = 0;
 	encoder_l.sum = 0;
 }
@@ -269,8 +254,8 @@ void CheckBattery(void)
 		HAL_TIM_PWM_Stop(&htim11,TIM_CHANNEL_1);
 
 		HAL_TIM_Base_Stop(&htim6);
+		DisableMotor();
 
-//		R_PG_Timer_StopModule_CMT_U0();
 		printf("Voltage Out!\n");
 		MelodyMrLawrence();
 		while(1){

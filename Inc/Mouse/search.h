@@ -1,5 +1,5 @@
-#ifndef SEARCH_H_											//対応ファイルで一度も読み込まれていない場合以下を定義
-	#define SEARCH_H_										//読み込んだことを表す
+#ifndef SEARCH_H_
+	#define SEARCH_H_
 /*============================================================
 		各種定数･変数宣言
 ============================================================*/
@@ -15,47 +15,47 @@
 	//各要素に機体が前進する際は0x88が、右折する際は0x44が、Uターンする際は0x22が、左折する場合は0x11が、
 	//それ以外の場合には0x00が格納される。(make_route関数参照)。なお、進行の経過はr_cntで管理されている。
 
-	//====変数====
-	#ifdef MAIN_C_											//対応ファイルでEXTERNが定義されている場合
+	//====Variavle Initialize====
+	#ifdef MAIN_C_
 		/*グローバル変数の定義*/
 		unsigned char map[16][16];									//マップ格納配列
-		unsigned char smap[16][16];									//歩数マップ格納配列
+		unsigned char step_map[16][16];									//歩数マップ格納配列
 		unsigned char wall_info;									//壁情報格納変数
 		unsigned char m_dir;										//マウスの方向
 		unsigned char m_step;										//歩数格納
 		uint16_t goal_x, goal_y;								//ゴール座標
 		unsigned char route[256];									//最短経路格納配列
 		unsigned char r_cnt;										//経路カウンタ
-	#else													//対応ファイルでEXTERNが定義されていない場合
+	#else
 		/*グローバル変数の宣言*/
 		extern unsigned char map[16][16];							//マップ格納配列
-		extern unsigned char smap[16][16];							//歩数マップ格納配列
-		extern unsigned char wall_info;								//壁情報格納変数
+		extern unsigned char step_map[16][16];						//歩数マップ格納配列
+		extern unsigned char wall_info;								//
 		extern unsigned char m_dir;									//マウスの方向
-		extern unsigned char m_step;								//歩数格納
-		extern uint16_t goal_x, goal_y;							//ゴール座標
-		extern unsigned char route[256];							//最短経路格納配列
+		extern unsigned char m_step;								//
+		extern uint16_t goal_x, goal_y;								//Goal Node
+		extern unsigned char route[256];							//Shortest Route Array
 		extern unsigned char r_cnt;									//経路カウンタ
 	#endif
 
 /*============================================================
 		関数プロトタイプ宣言
 ============================================================*/
-	//====探索系====
-	void searchA();											//一区画停止型探索走行
-	void searchSA();										//連続探索走行
+	//====Sernch Function====
+	void SearchOneSection();
+	void SearchContinuous();
 	void searchSA_ESNW();
 
-	void searchSLA();
+	void SearchSlalom();
 	void searchSLA_ESNW();
 
 	void adv_pos();											//マウスの位置情報を前進
 	void conf_route_NESW();										//次ルートの確認
 	void conf_route_ESNW();
-	void map_Init();										//マップデータ初期化
+	void InitializeMap();									//マップデータ初期化
 	void write_map();										//マップ書き込み
-	void turn_dir(unsigned char);									//自機方向情報変更
-	void make_smap();										//歩数マップ作成
+	void UpdateDirection(unsigned char);					//自機方向情報変更
+	void MakeStepMap();										//歩数マップ作成
 	void make_route_NESW();										//最短経路検索
 	void make_route_ESNW();
 

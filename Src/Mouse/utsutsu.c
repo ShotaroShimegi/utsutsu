@@ -4,36 +4,23 @@ void UtsutsuSystem(){
 	uint8_t mode = 0;
 	uint8_t i = 0;
 
-	HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,SET);
-	HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,SET);
+	DisableMotor();
 
 	MelodySummer();
 
 //	StartWaiting();
-//	sensor_stop();
+//	StopTimer();
 
 	GyroInit();
 	VariableInit();
 	CheckBattery();
-
-/*	StartWaiting();
-	EncoderGyroTest();
-	ms_wait(100);
-*/
-
-/*	time = 0;
-	turn_180();
-	HAL_Delay(100);
-	sensor_stop();
-	MotorDisable();
-*/
 
 /*	SetMotionDirection(BACK);
 	sensor_start();
 	time = 0;
 	set_position(1);
 //	a_section();
-	sensor_stop();
+	StopTimer();
 */
 	printf("----Start Utsutsu System----\n");
 
@@ -41,57 +28,56 @@ void UtsutsuSystem(){
 
 	  ModeSelect(&mode);
 
-	  ms_wait(100);
+	  WaitMs(500);
 	  //----mode action----
-	  switch(mode){
-	  	  case 0:	//
-			//----log trans----
-			ms_wait(500);
+	  switch(mode)
+	  {
+	  	  //----log Transmit----
+	  	  case 0:
 			printf("START\r\n");
-
-//			printf("base:%d, %d\n", wall_l.threshold, wall_r.threshold);
-
 			for(i=0;i<200;i++){
 				printf("%4lf, %4lf, %4lf\n",test1[i],test2[i],test3[i]);
-				ms_wait(1);
+				WaitMs(1);
 			}
 			printf("ALL\r\n");
+
 			break;
 
-	  	  case 1:	//----一次探索走行----
-			goal_x = GOAL_X;									//ゴール座標を設定　　GOAL_Xはglobal.hにマクロ定義あり
-			goal_y = GOAL_Y;									//ゴール座標を設定　　GOAL_Yはglobal.hにマクロ定義あり
+		  //----Search Mode for One Section Running----
+	  	  case 1:
+			goal_x = GOAL_X;
+			goal_y = GOAL_Y;
 
 			StartWaiting();
-			start_ready();
+			FirstAction();
 
-			get_wall_info();									//壁情報の初期化     get_wall_info()はsensor.cに関数定義あり
-			searchA();										//ゴール区画まで探索，進行する　searchA()はsearch.cに関数定義あり
-/*			goal_x = goal_y = 0;								//ゴール座標をスタート区画に設定
-			ms_wait(100);										//待機
-			searchA();											//戻ってくる
+			GetWallData();
+			SearchOneSection();
+/*			goal_x = goal_y = 0;
+			WaitMs(100);
+			searchA();
 */
-			goal_x = GOAL_X;									//ゴール座標設定
-			goal_y = GOAL_Y;									//ゴール座標設定
+			goal_x = GOAL_X;
+			goal_y = GOAL_Y;						//ゴール座標設定
 			break;
 
-			//----連続探索走行----
+			//----Search Mode for Continuous Running----
 	  	  case 2:
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
 			StartWaiting();
-			start_ready();
+			FirstAction();
 
-			searchSA();
+			SearchContinuous();
 			goal_x = goal_y = 0;
-			searchSA();
+			SearchContinuous();
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
-			turn_180();									//180度回転
-			sensor_stop();
-			turn_dir(DIR_TURN_180);
+			Spin180();
+			StopTimer();
+			UpdateDirection(DIR_SPIN_180);
 			break;
 
 			/////////////////////////////////　　↓の二次探索走行とスラローム走行は未実装
@@ -101,7 +87,7 @@ void UtsutsuSystem(){
 			goal_y = GOAL_Y;
 
 			StartWaiting();
-			start_ready();
+			FirstAction();
 
 			searchSA_ESNW();
 			goal_x = goal_y = 0;
@@ -109,8 +95,8 @@ void UtsutsuSystem(){
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
-			turn_180();									//180度回転
-			turn_dir(DIR_TURN_180);
+			Spin180();									//180度回転
+			UpdateDirection(DIR_SPIN_180);
 			break;
 
 			//----スラローム走行----
@@ -119,16 +105,16 @@ void UtsutsuSystem(){
 			goal_y = GOAL_Y;
 
 			StartWaiting();
-			start_ready();
+			FirstAction();
 
-			searchSLA();
+			SearchSlalom();
 			goal_x = goal_y = 0;
-			searchSLA();
+			SearchSlalom();
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
-			turn_180();									//180度回転
-			turn_dir(DIR_TURN_180);
+			Spin180();									//180度回転
+			UpdateDirection(DIR_SPIN_180);
 
 			break;
 			//////////////////////////////////
@@ -138,7 +124,7 @@ void UtsutsuSystem(){
 			goal_y = GOAL_Y;
 
 			StartWaiting();
-			start_ready();
+			FirstAction();
 
 			searchSLA_ESNW();
 			goal_x = goal_y = 0;
@@ -146,8 +132,8 @@ void UtsutsuSystem(){
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
-			turn_180();									//180度回転
-			turn_dir(DIR_TURN_180);
+			Spin180();									//180度回転
+			UpdateDirection(DIR_SPIN_180);
 			break;
 		case 6:
 			SetMotionDirection(FORWARD);
@@ -158,34 +144,31 @@ void UtsutsuSystem(){
 			HAL_Delay(1000);
 */
 			SetMotionDirection(FORWARD);
-			sensor_start();
+			StartTimer();
 			time = 0;
 			half_sectionA();
 			half_sectionD();
-			sensor_stop();
+			StopTimer();
 
 			break;
 
 			//----走行テスト----
 		case 11:
-			HAL_Delay(100);
 		    DriveTest(&mode);									//test_drive()はdrive.cに関数定義あり
-			ms_wait(100);
+			WaitMs(100);
 			break;
 
 			//----エンコーダテスト----
 		case 12:
-			HAL_Delay(100);
 			StartWaiting();
 			EncoderGyroTest();
-			ms_wait(100);
+			WaitMs(100);
 			break;
 
 		case 13:
-			HAL_Delay(100);
 			StartWaiting();
 
-			/*Mode Stone*/
+			/*Stone Mode*/
 			MF.FLAG.ACTRL = 0;
 			MF.FLAG.VCTRL = 1;
 			MF.FLAG.WCTRL = 1;
@@ -196,13 +179,12 @@ void UtsutsuSystem(){
 			MF.FLAG.WACCL = 0;
 			MF.FLAG.WDECL = 0;
 
-			centor.vel_target = 0;
-			omega.target = 0;
-
+			center.vel_target = 0;
+			center.omega_target = 0;
+			SetMotionDirection(FORWARD);
 			StartMotion();
 			while(1){
-//				uart_printf("angle : %lf dif_angle : %lf tpid_G : %lf\r\n");
-				ms_wait(100);
+				WaitMs(100);
 			}
 			break;
 
@@ -211,10 +193,9 @@ void UtsutsuSystem(){
 			HAL_Delay(100);
 			VariableInit();
 //			StartWaiting();
-			sensor_check();
-			ms_wait(100);
+			CheckSensor();
+			WaitMs(100);
 			break;
 	  	  }
-
 	  }
 }

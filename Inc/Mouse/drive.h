@@ -1,19 +1,5 @@
-/*
-==============================================================
- Name        : drive.h
- Copyright   : Copyright (C) 早稲田大学マイクロマウスクラブ
- Description : 走行関連の関数たちです．
-
-==============================================================
-*/
-
-/*ヘッダファイルの読み込み*/
-#include "port.h"
-
 typedef struct{
-	float real;			//測定した速度
 	float dif;			//速度偏差
-	float pre;			//偏差直前値
 	float p_out;			//P制御出力値
 	float i_out;			//I制御出力
 	int8_t dir;		//モータの回転方向
@@ -21,7 +7,6 @@ typedef struct{
 } vel_ctrl;
 
 typedef struct{
-	float target;			//目標角速度
 	float dif;			//角速度偏差
 	float p_out;			//P制御の出力値
 	float i_out;			//I制御の出力値
@@ -34,15 +19,17 @@ typedef struct{
 	int16_t  dif;
 	int64_t sum; 			//Raw Integral
 	float distance;			//Converted Value [mm]
-	float velocity;
+	float velocity;			//uint m/s
 } encoder;
 
 typedef struct{
 	float velocity;			//重心速度
 	float vel_target;		//重心目標速度
-	float omega_deg;		//重心角速度　degree単位
-	float pre_omega_deg;		//角度計算用の保存用
 	float omega_rad;		//重心角速度　radian単位
+	float omega_deg;		//重心角速度　degree単位
+	float omega_target;		//重心目標角速度
+	float pre_omega_deg;	//角度計算用の保存用 radian単位
+
 	int8_t omega_dir;		//角速度変化方向
 	float distance;			//重心走行距離
 	float angle;			//重心角度　degree単位
@@ -56,42 +43,39 @@ typedef struct{
 /*============================================================
 		各種定数･変数宣言
 ============================================================*/
-	//----動作方向関連----
-	#define FORWARD	0x00			//前進向き
-	#define BACK	0x11			//後退
-	#define TURN_L	0x01			//回転向き(左)
-	#define TURN_R	0x10			//回転向き(右)
+	//----Signal Motor Direction----
+	#define FORWARD	0x00
+	#define BACK	0x11
+	#define TURN_L	0x01
+	#define TURN_R	0x10
 
-	//----方向転換用定数----
-	#define DIR_TURN_R90	0x01	//右90度回転
-	#define DIR_TURN_L90	0xff	//左90度回転
-	#define DIR_TURN_180	0x02	//180度回転
+	//----Signal Mouse Direction----
+	#define DIR_SPIN_R90	0x01
+	#define DIR_SPIN_L90	0xff
+	#define DIR_SPIN_180	0x02
 
 
 	//====変数====
 #ifdef MAIN_C_
 
-	/*** 重心・位置　構造体 ***/
-	volatile gravity centor;
+	/*** Structure [Gravity-Center] [encoder] ***/
+	volatile gravity center;
 	volatile encoder encoder_r;
 	volatile encoder encoder_l;
 
-	/*** 速度制御 構造体***/
+	/*** Structure [Velocity Control] [Angular Velocity Control]***/
 	volatile vel_ctrl vel_ctrl_R;
 	volatile vel_ctrl vel_ctrl_L;
-
-	/***　角速度制御 構造体***/
 	volatile omega_ctrl omega;
 
-	volatile uint16_t time,time2, ms_time;			//
+	volatile uint16_t time,time2, ms_time;
 	volatile float maxindex, maxindex_w;		//時間・加速必要時間・角加速必要時間？
-	volatile float out_duty_r, out_duty_l;
 
 	volatile float Kvolt,Kxr;				//加速度計算するための電流定数，距離変換のための定数
 
 #else									//対応ファイルでEXTERNが定義されていない場合
 	/*** 重心・位置　構造体 ***/
-	extern volatile gravity centor;
+	extern volatile gravity center;
 	extern volatile encoder encoder_r;
 	extern volatile encoder encoder_l;
 
@@ -104,21 +88,20 @@ typedef struct{
 
 	extern volatile uint16_t time,time2, ms_time;
 	extern volatile float maxindex,maxindex_w;
-	extern volatile float out_duty_r, out_duty_l;
-
 
 	extern volatile float Kvolt,Kxr;
 
 #endif
 
 /*============================================================
-		関数プロトタイプ宣言
+		Funciton Private Declaration
 ============================================================*/
-	//====走行系====
+	//====Basic Function====
 	//----基幹関数----
-	void driveA(float);	//加速走行
-	void driveD(uint16_t, unsigned char);	//減速走行
-	void driveAD(float);	//加減速走行
+	void DriveAccel(float);	//加速走行
+	void DriveDecel(uint16_t, unsigned char);	//減速走行
+	void DriveSpin(float);	//加減速走行
+
 	void driveC(uint16_t, unsigned char);	//定時間走行，セッポジぐらいしか使ってない
 	void driveX(uint16_t);			//位置・角度制御走行
 	void driveW(int16_t);			//角速度制御走行
@@ -133,21 +116,18 @@ typedef struct{
 	void half_sectionA2();
 	void half_sectionD();		//減速半区画
 	void a_section();		//加減速一区画
-	void a_sectionU();		//等速一区画
 	void s_section();		//連続区画直線走行
-	void turn_R90();		//右90回転
-	void turn_L90();		//左90回転
-	void turn_180();		//180度回転
+	void SpinR90();
+	void SpinL90();
+	void Spin180();
 	void set_position(uint8_t);		//位置合わせ
 
-	void turn_SLA_R90();
-	void turn_SLA_L90();
+	void SlalomR90();
+	void SlalomL90();
 
 	//----走行試験----
 	void DriveTest(uint8_t *mode);
-	void MotorDisable(void);
-
-	void start_ready();
+	void DisableMotor(void);
 
 
 #endif /* DRIVE_H_ */

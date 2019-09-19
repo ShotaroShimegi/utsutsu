@@ -1,11 +1,6 @@
 #include <Mouse/global.h>
 
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//GyroInit
-//	Gyroの初期設定を行う
-//+++++++++++++++++++++++++++++++++++++++++++++++
-void GyroInit()
+void GyroInit(void)
 {
 	uint8_t who_am_i = ReadByte(WHO_AM_I);
 	printf("Who am I ? -> 0x%x\n", who_am_i);
@@ -44,7 +39,7 @@ void GyroGetOffset(uint16_t num){
 
 	for(i=0;i<num;i++){
 		gyro_offset += GyroRead();
-		ms_wait(1);
+		WaitMs(1);
 	}
 	gyro_base = gyro_offset / num;
 }

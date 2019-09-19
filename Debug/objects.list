@@ -22,7 +22,6 @@
 "Src/Mouse/drive.o"
 "Src/Mouse/init.o"
 "Src/Mouse/interrupt.o"
-"Src/Mouse/port.o"
 "Src/Mouse/search.o"
 "Src/Mouse/sensor.o"
 "Src/Mouse/utsutsu.o"

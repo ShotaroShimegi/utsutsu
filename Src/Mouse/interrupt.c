@@ -20,7 +20,10 @@ uint32_t buff_array[6];
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	TIM_OC_InitTypeDef sConfigOC;
-//	float duty = 0;
+	float sen_out_right = 0.0;
+	float sen_out_left = 0.0;
+	float duty_right =0.0;
+	float duty_left = 0.0;
 
 	if(htim->Instance == htim6.Instance){
 		switch(tp){
@@ -43,13 +46,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				//----減速----
 			if(MF.FLAG.VCTRL){
 				if(MF.FLAG.DECL){
-					centor.vel_target -= params_now.accel * 0.001;
-					if(centor.vel_target < 0)centor.vel_target = 0.0f;
+					center.vel_target -= params_now.accel * 0.001;
+					if(center.vel_target < 0)center.vel_target = 0.0f;
 				}
 				//----加速----
 				else if(MF.FLAG.ACCL){
-					centor.vel_target += params_now.accel * 0.001;
-					if(centor.vel_target > params_now.vel_max)centor.vel_target = params_now.vel_max;
+					center.vel_target += params_now.accel * 0.001;
+					if(center.vel_target > params_now.vel_max)center.vel_target = params_now.vel_max;
 				}
 			}
 
@@ -70,12 +73,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			//====回転加速処理====
 			if(MF.FLAG.WCTRL){
 				if(MF.FLAG.WDECL){
-					omega.target -= params_now.omega_accel * 0.001;
-					if(omega.target < 0)	omega.target = 0.0f;
+					center.omega_target -= params_now.omega_accel * 0.001;
+					if(center.omega_target < 0)	center.omega_target = 0.0f;
 				}
 				else if(MF.FLAG.WACCL){
-					omega.target += params_now.omega_accel * 0.001;
-					if(omega.target > params_now.omega_max)	omega.target = params_now.omega_max;
+					center.omega_target += params_now.omega_accel * 0.001;
+					if(center.omega_target > params_now.omega_max)	center.omega_target = params_now.omega_max;
 				}
 			}
 
@@ -91,7 +94,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			//PID
 			if(MF.FLAG.WCTRL){
 				//偏差角速度の算出
-				omega.dif = (centor.omega_dir * omega.target) - centor.omega_rad;
+				omega.dif = (center.omega_dir * center.omega_target) - center.omega_rad;
 				omega.p_out = gain_now.omega_kp * omega.dif;
 				omega.i_out += gain_now.omega_ki * omega.dif;
 				omega.out = omega.p_out + omega.i_out;
@@ -101,8 +104,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			if(MF.FLAG.VCTRL){
 				//偏差の計算
-				vel_ctrl_R.dif = (centor.vel_target * vel_ctrl_R.dir) - encoder_r.velocity;
-				vel_ctrl_L.dif = (centor.vel_target * vel_ctrl_L.dir) - encoder_l.velocity;
+				vel_ctrl_R.dif = (center.vel_target * vel_ctrl_R.dir) - encoder_r.velocity;
+				vel_ctrl_L.dif = (center.vel_target * vel_ctrl_L.dir) - encoder_l.velocity;
 				//偏差のP制御
 				vel_ctrl_R.p_out = gain_now.vel_kpR * vel_ctrl_R.dif;
 				vel_ctrl_L.p_out = gain_now.vel_kpL * vel_ctrl_L.dif;
@@ -120,25 +123,25 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			}
 
 			//壁制御フラグアリの場合
-			if(MF.FLAG.CTRL && centor.vel_target > 0.1){
+			if(MF.FLAG.CTRL && center.vel_target > 0.1){
 				wall_l.dif = wall_l.val - wall_l.threshold;
 				wall_r.dif = wall_l.val - wall_l.threshold;
 				if(SREF_MIN_L < wall_l.dif && wall_l.dif < SREF_MAX_L){
-					sen_ctrl_l = gain_search1.wall_kp * wall_l.dif;
+					sen_out_left = gain_search1.wall_kp * wall_l.dif;
 				}
 				if(SREF_MIN_R < wall_r.dif && wall_r.dif < SREF_MAX_R){
-					sen_ctrl_r = gain_search1.wall_kp * wall_r.dif;
+					sen_out_right = gain_search1.wall_kp * wall_r.dif;
 				}
 			}else {
-				sen_ctrl_r = 0;
-				sen_ctrl_l = 0;
+				sen_out_right = 0;
+				sen_out_left = 0;
 			}
 
 
 
 			if(time < 1999){
 //			Wall Sensor
-				test1[(uint16_t)(time*0.1)] = centor.distance;
+				test1[(uint16_t)(time*0.1)] = center.distance;
 				test2[(uint16_t)(time*0.1)] = wall_l.val;
 				test3[(uint16_t)(time*0.1)] = wall_r.val;
 
@@ -147,22 +150,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  /*
   *  			test1[(uint16_t)(time*0.1)] = encoder_r.velocity;
 				test2[(uint16_t)(time*0.1)] = encoder_l.velocity;
-				test3[(uint16_t)(time*0.1)] = centor.vel_target;
+				test3[(uint16_t)(time*0.1)] = center.vel_target;
 */
 //			Revolution
-/*				test1[(uint16_t)(time*0.1)] = centor.omega_rad;
-				test2[(uint16_t)(time*0.1)] = centor.omega_dir * omega.target ;
-				test3[(uint16_t)(time*0.1)] = centor.angle;
+/*				test1[(uint16_t)(time*0.1)] = center.omega_rad;
+				test2[(uint16_t)(time*0.1)] = center.omega_dir * center.omega_target ;
+				test3[(uint16_t)(time*0.1)] = center.angle;
 */
 			}
 
 			break;
 		case 3:
-			out_duty_l = vel_ctrl_L.out - omega.out + sen_ctrl_l;
-			out_duty_r = vel_ctrl_R.out + omega.out + sen_ctrl_r;
+			duty_left = vel_ctrl_L.out - omega.out + sen_out_left;
+			duty_right = vel_ctrl_R.out + omega.out + sen_out_right;
 
-			if(out_duty_l < 0){
-				out_duty_l = -out_duty_l;
+			if(duty_left < 0){
+				duty_left = -duty_left;
 				HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,SET);
 				HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,RESET);
 			}else{
@@ -170,8 +173,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,SET);
 			}
 
-			if(out_duty_r < 0){
-				out_duty_r = -out_duty_r;
+			if(duty_right < 0){
+				duty_right = -duty_right;
 				HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,SET);
 				HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,RESET);
 			}else{
@@ -179,16 +182,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,SET);
 			}
 
-			if(out_duty_l > 0.5f) out_duty_l = 0.5f;
-			if(out_duty_l < 0.01f) out_duty_l = 0.01f;
+			if(duty_left > 0.5f) duty_left = 0.5f;
+			if(duty_left < 0.01f) duty_left = 0.01f;
 
-			if(out_duty_r > 0.5f) out_duty_r = 0.5f;
-			if(out_duty_r < 0.01f) out_duty_r = 0.01f;
+			if(duty_right > 0.5f) duty_right = 0.5f;
+			if(duty_right < 0.01f) duty_right = 0.01f;
 
 	//Config Setting
 			sConfigOC.OCMode = TIM_OCMODE_PWM1;
-			sConfigOC.Pulse = (uint16_t)(1000 * out_duty_r);
-//			sConfigOC.Pulse = 50;
+			sConfigOC.Pulse = (uint16_t)(1000 * duty_right);
 
 			sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 			sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
@@ -198,8 +200,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			HAL_TIM_PWM_ConfigChannel(&htim1,&sConfigOC,TIM_CHANNEL_1);
 
-			sConfigOC.Pulse = (uint16_t)(1000 * out_duty_l);
-//			sConfigOC.Pulse = 50;
+			sConfigOC.Pulse = (uint16_t)(1000 * duty_left);
 
 			HAL_TIM_PWM_ConfigChannel(&htim2,&sConfigOC,TIM_CHANNEL_2);
 
@@ -223,166 +224,25 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//Mtu3IcCmDIntFunction
-//左モータの制御関数
-// PWMを１パルス送るごとに呼び出される
-// RX631では1msよりは短くなることが多いから計算量に注意
-//+++++++++++++++++++++++++++++++++++++++++++++++
-/*
-void Mtu3IcCmDIntFunc(void){		//パルス一周期でやると呼び出される左モータの制御関数
-	volatile uint16_t paraL0 = 0;
-	volatile uint16_t paraL1 = 1000;
-	volatile float output = 0.0f;
 
-//	pin_write(P54,0);
-//	pin_write(P55,0);
-
-	//duty_l = Kvolt * accel_l / VOLT_BAT + kpvL + kpdL;
-	duty_l = vel_ctrl_L.duty_out - omega.duty_out;
-	apid_G = duty_l;
-
-	output = vel_ctrl_L.out - omega.out;
-
-	if(output < 0){
-		MF.FLAG.L_DIR = 0;
-		output = - output;
-	}else if(output > 0){
-		MF.FLAG.L_DIR = 1;
-	}
-	if(output > 0.70f) {
-		output = 0.70f;
-	}else if(output < 0.001f ){
-		output = 0.001f;
-	}
-
-		paraL0 = (uint16_t)(float)((1 - output) * paraL1);					//デューティ逆計算
-
-//		R_PG_Timer_SetTGR_C_MTU_U0_C3(paraL0);
-//		R_PG_Timer_SetTGR_D_MTU_U0_C3(paraL1);
-
-}
-*/
-/*
-void Mtu4IcCmDIntFunc(void){			//右モータ制御関数
-	volatile uint16_t paraR0 = 0;
-	volatile uint16_t paraR1 = 1000;
-	volatile float output = 0.0f;
-
-//	pin_write(PA4,0);
-//	pin_write(PA6,0);
-
-	//duty_r = Kvolt * accel_r / VOLT_BAT + kpvR + kpdR;
-	duty_r = vel_ctrl_R.duty_out + omega.duty_out;
-
-	output = vel_ctrl_R.out + omega.out;
-
-	if(output< 0.0f){
-		MF.FLAG.R_DIR = 0;
-		output= - output;
-	}else if(output > 0.0f){
-		MF.FLAG.R_DIR = 1;
-	}
-
-	number = output;
-
-	if(output > 1.0f){
-		output = 0.70f;
-	}else if(output < 0.001f){
-		output = 0.001f;
-	}
-
-	paraR0 = (uint16_t)(float)((1 - output) * paraR1);
-
-//	R_PG_Timer_SetTGR_C_MTU_U0_C4(paraR0);
-//	R_PG_Timer_SetTGR_D_MTU_U0_C4(paraR1);
-
-}
-*/
 
 /*------------------------------------------------------------
 		センサ系の割り込み
 ------------------------------------------------------------*/
-/*
-void Cmt1IntFunc(void){
-//	int r_threshold = 0;
-//	int l_threshold = 0;
 
-	switch(tp){
-	//タイマ内での分割処理
-	case 0:
-break;
-
-	case 1:
-
-		break;
-
-	case 2:
-
-		centor.omega_deg = GYRO_read();
-		centor.omega_rad = centor.omega_deg * KW;
-		centor.angle += (centor.omega_deg + centor.pre_omega_deg) * 0.5 * 0.001;
-		centor.pre_omega_deg = centor.omega_deg;
-
-		break;
-		//----制御計算----
-	case 3:
-
-		//壁制御フラグアリの場合
-		if(MF.FLAG.CTRL){
-			//閾値の設定
-			if(abs(wall_r.diff) > 8){
-				r_threshold = wall_r.threshold + 10;
-			}else{
-				r_threshold = wall_r.threshold;
-			}
-			if(abs(wall_l.diff) > 8){
-				l_threshold = wall_l.threshold + 10;
-			}else{
-				l_threshold = wall_l.threshold;
-			}
-
-			//偏差を統合
-			if((wall_r.val > r_threshold) && (wall_l.val > l_threshold)){			//両方向に壁がある
-				dif_total = wall_l.dif - wall_r.dif;
-			}else if((wall_r.val < r_threshold) && (wall_l.val < l_threshold)){		//両方向に壁無し
-				dif_total = 0;
-			}else if(wall_r.val > r_threshold){						//右だけ壁アリ
-				dif_total = -2 * wall_r.dif;
-			}else{											//左だけ壁アリ
-				dif_total = 2 * wall_l.dif;
-			}
-
-			//偏差
-			sen_ctrl = gain_search1.wall_kp * dif_total + gain_search1.wall_kd * (pre_dif_total - dif_total);
-			pre_dif_total = dif_total;
-
-			if(targ_vel < 0.2){
-				sen_ctrl = 0;
-			}
-			sen_ctrl = 0;
-		}else {
-			sen_ctrl = 0;
-		}
-	}
-
-	//====タスクポインタで分割処理====
-	tp = (tp+1) % 4;
-}
-*/
 /*
 void Cmt2IntFunc(){
 
 
 
 //物理量で扱いやすいm/s = mm/msに変換
-	centor.vel = (vel_ctrl_R.real + vel_ctrl_L.real) * 0.5;
-	centor.distance = (encoder_r.distance + encoder_l.distance) * 0.5;
+	center.vel = (vel_ctrl_R.real + vel_ctrl_L.real) * 0.5;
+	center.distance = (encoder_r.distance + encoder_l.distance) * 0.5;
 
 	//PIDしてみる？
 	if(MF.FLAG.WCTRL){
 		//偏差角速度の算出
-		omega.dif = (centor.omega_dir * omega.target) - centor.omega_rad;
+		omega.dif = (center.omega_dir * center.omega_target) - center.omega_rad;
 
 //		omega.p_out = gain_now.omega_kp * omega.dif * TREAD_mm * 0.5 * 0.001;
 //		omega.i_out += gain_now.omega_ki * omega.dif * TREAD_mm * 0.5 * 0.001;
@@ -395,31 +255,10 @@ void Cmt2IntFunc(){
 	}
 
 	//超信地旋回で無い　かつ　低速域
-	if(MF.FLAG.REVOL == 0 && centor.vel_target < 0.20f){
+	if(MF.FLAG.REVOL == 0 && center.vel_target < 0.20f){
 		sen_ctrl = 0;
 	}
 
-	if(MF.FLAG.VCTRL){
-		//偏差の計算
-		vel_ctrl_R.dif = (centor.vel_target * vel_ctrl_R.dir) - vel_ctrl_R.real;
-		vel_ctrl_L.dif = (centor.vel_target * vel_ctrl_L.dir) - vel_ctrl_L.real;
-		//偏差のP制御
-		vel_ctrl_R.p_out = gain_now.vel_kpR * vel_ctrl_R.dif;
-		vel_ctrl_L.p_out = gain_now.vel_kpL * vel_ctrl_L.dif;
-
-		//偏差のI制御
-		vel_ctrl_R.i_out += gain_now.vel_kiR * vel_ctrl_R.dif;
-		vel_ctrl_L.i_out += gain_now.vel_kiL * vel_ctrl_L.dif;
-
-		//PID制御値を統合
-		vel_ctrl_R.out = vel_ctrl_R.p_out + vel_ctrl_R.i_out;
-		vel_ctrl_L.out = vel_ctrl_L.p_out + vel_ctrl_L.i_out;
-
-
-	}else{
-		vel_ctrl_R.out = 0;
-		vel_ctrl_L.out = 0;
-	}
 
 }
 */

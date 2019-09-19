@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include "stdio.h"
 
-#include "port.h"
 #include "auxiliary.h"
 #include "drive.h"
 #include "sensor.h"
@@ -91,11 +90,11 @@
 /*------------------------------------------------------------
 		センサ系
 ------------------------------------------------------------*/
-//----壁判断基準----			       団活  部室
-#define WALL_BASE_F 100			//前壁 500　　800
-#define WALL_BASE_L 50 //700		//左壁 380    500
-#define WALL_BASE_R 50 //700		//右壁 300    400
-#define WALL_OFF 200	//尻当て用の補正
+//----壁判断基準----
+#define WALL_BASE_F 100
+#define WALL_BASE_L 50
+#define WALL_BASE_R 50
+#define WALL_OFF 200
 
 #define WALL_OFFSET 30	//閾値のオフセット
 #define WALL_START 200
@@ -114,8 +113,8 @@
 		探索系
 ------------------------------------------------------------*/
 //----ゴール座標----
-#define GOAL_X 7	//7
-#define GOAL_Y 7	//7
+#define GOAL_X 7
+#define GOAL_Y 7
 
 /*------------------------------------------------------------
 		共用・構造体の定義
@@ -176,7 +175,6 @@
 #endif
 
 #ifdef MAIN_C_
-
 	volatile union map_coor PRELOC;		//現在地の座標を格納する共用・構造体
 #else
 

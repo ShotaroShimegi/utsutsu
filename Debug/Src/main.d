@@ -31,9 +31,9 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h ../Inc/adc.h \
  ../Inc/main.h ../Inc/spi.h ../Inc/tim.h ../Inc/usart.h ../Inc/gpio.h \
- ../Inc/Mouse/global.h ../Inc/Mouse/port.h ../Inc/Mouse/auxiliary.h \
- ../Inc/Mouse/drive.h ../Inc/Mouse/sensor.h ../Inc/Mouse/search.h \
- ../Inc/Mouse/connect.h ../Inc/Mouse/init.h
+ ../Inc/Mouse/global.h ../Inc/Mouse/auxiliary.h ../Inc/Mouse/drive.h \
+ ../Inc/Mouse/sensor.h ../Inc/Mouse/search.h ../Inc/Mouse/connect.h \
+ ../Inc/Mouse/init.h
 
 ../Inc/main.h:
 
@@ -112,8 +112,6 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
 ../Inc/gpio.h:
 
 ../Inc/Mouse/global.h:
-
-../Inc/Mouse/port.h:
 
 ../Inc/Mouse/auxiliary.h:
 

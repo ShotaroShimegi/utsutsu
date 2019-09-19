@@ -29,23 +29,25 @@
 		float wall_kd;
 	} gain;
 
+#define MEMORY 200
+
 	#ifdef MAIN_C_										//call from main.c
 		/*Gloabl Variable Define*/
 		volatile params params_now;
 		volatile gain gain_now;
 		volatile params params_search1;
 		volatile gain gain_search1;
-		volatile float test1[200];
-		volatile float test2[200];
-		volatile float test3[200];
-	#else											//対応ファイルでEXTERNが定義されていない場合
+		volatile float test1[MEMORY];
+		volatile float test2[MEMORY];
+		volatile float test3[MEMORY];
+	#else
 		extern volatile params params_now;
 		extern volatile gain gain_now;
 		extern volatile params params_search1;
 		extern volatile gain gain_search1;
-		extern volatile float test1[200];
-		extern volatile float test2[200];
-		extern volatile float test3[200];
+		extern volatile float test1[MEMORY];
+		extern volatile float test2[MEMORY];
+		extern volatile float test3[MEMORY];
 
 	#endif
 
@@ -54,24 +56,22 @@
 ============================================================*/
 	//====その他====
 	void stay(unsigned int);
-	void ms_wait(unsigned int);
+	void WaitMs(unsigned int);
 
 	void ModeSelect(uint8_t *mode);
 	void MelodySummer(void);
 	void MelodyMrLawrence(void);
 
-
-	void timer_start(void);
 	void Melody(uint32_t,uint32_t);
 	void StartWaiting(void);
-	void start_ready(void);
+	void FirstAction(void);
 
-	void auto_Calibration(float,float);
-	void setting_params(params *instance);
-	void setting_gain(gain *instance);
+	void AutoCalibration(float,float);
+	void SetParams(params *instance);
+	void SetGain(gain *instance);
 
-	void ctrl_zero(void);
-	void reset_distance(void);
+	void LedDisplay(uint8_t *led);
+	void ResetDistance(void);
 	void CheckBattery(void);
 
 	void UtsutsuSystem();
