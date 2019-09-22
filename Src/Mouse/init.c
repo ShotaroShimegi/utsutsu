@@ -6,7 +6,7 @@
 void VariableInit(void){
 
 	float val1 = 0;
-	uint8_t i;
+	uint16_t i;
 	//----壁センサ系----
 	tp = 0;
 	wall_l.dif = wall_r.dif = wall_fl.dif = wall_fr.dif = wall_ff.dif = 0;
@@ -90,33 +90,36 @@ void VariableInit(void){
 	center.distance = 0;
 	center.angle = 0;
 
-	maxindex_w = val1 / 3;					//回転加速時間計算
+	maxindex_w = val1 / 3;					// Time for Rotate
 
 	/* 並進速度，計算処理  */
-	maxindex = params_now.vel_max / params_now.accel;	//並進加速時間計算
+	maxindex = params_now.vel_max / params_now.accel;	//Time for Accel
 
-	//----走行系----
-	MF.FLAGS = 0x80;			//フラグクリア＆停止状態  0x80=0b10000000
+	//----Eraze MF FLAGS----
+	MF.FLAGS = 0x00;
 
 	//----探索系----
 	goal_x = GOAL_X;
 	goal_y = GOAL_Y;
-	InitializeMap();				//マップの初期化
-	PRELOC.PLANE = 0x00;			//現在地の初期化
-	m_dir = 0;						//マウス方向の初期化
+	InitializeMap();
+	MOUSE.X = 0;
+	MOUSE.Y = 0;
+	MOUSE.DIR = 0;
 
 	//Gain for Convert AD Value to Voltage
 	Kvolt = MASS / 2 * DIA_SPUR_mm / DIA_PINI_mm * RADIUS_WHEEL_mm / Ktolk * Rmotor;
 	//Gain for Convert Encoder Pulse to Physical Unit
 	Kxr =  RADIUS_WHEEL_mm * DIA_PINI_mm / DIA_SPUR_mm * 2 * Pi / 4096;
 
-
 	printf("Array Delete Start\n");
+
 	//---Initialize Log Array---
 	for(i=0;i<MEMORY;i++){
 		test1[i] = 0;
 		test2[i] = 0;
 		test3[i] = 0;
+//		printf("%d\n",i);
+//		HAL_Delay(1);
 	}
 	printf("Array Delete Completed\n");
 

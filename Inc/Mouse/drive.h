@@ -98,36 +98,37 @@ typedef struct{
 ============================================================*/
 	//====Basic Function====
 	//----基幹関数----
-	void DriveAccel(float);	//加速走行
-	void DriveDecel(uint16_t, unsigned char);	//減速走行
-	void DriveSpin(float);	//加減速走行
+	void DriveAccel(float);
+	void DriveDecel(uint16_t, unsigned char);
+	void DriveSpin(float);
 
 	void driveC(uint16_t, unsigned char);	//定時間走行，セッポジぐらいしか使ってない
 	void driveX(uint16_t);			//位置・角度制御走行
 	void driveW(int16_t);			//角速度制御走行
 
-	void SetMotionDirection(uint8_t);		//進む方向の設定
+	void SetMotionDirection(uint8_t);
+	void DisableMotor(void);
 
 	void StartMotion(void);
 	void StopMotion(void);
 
 	//----簡易上位関数----
-	void half_sectionA();		//加速半区画
+	void half_sectionA();
 	void half_sectionA2();
-	void half_sectionD();		//減速半区画
+	void half_sectionD();
 	void a_section();		//加減速一区画
 	void s_section();		//連続区画直線走行
+
 	void SpinR90();
 	void SpinL90();
 	void Spin180();
+
 	void set_position(uint8_t);		//位置合わせ
 
 	void SlalomR90();
 	void SlalomL90();
 
-	//----走行試験----
-	void DriveTest(uint8_t *mode);
-	void DisableMotor(void);
 
+	void DriveTest(uint8_t *mode);
 
 #endif /* DRIVE_H_ */

@@ -29,7 +29,7 @@
 		float wall_kd;
 	} gain;
 
-#define MEMORY 200
+#define MEMORY 4000
 
 	#ifdef MAIN_C_										//call from main.c
 		/*Gloabl Variable Define*/

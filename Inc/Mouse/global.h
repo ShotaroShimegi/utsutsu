@@ -20,10 +20,10 @@
 ------------------------------------------------------------*/
 //----走行パルス関連----
 
-#define ROT_ANGLE_R90 -90	//右90度距離mm 145
-#define	ROT_ANGLE_L90 90  	//左90度距離mm 145
-#define ROT_ANGLE_180 180		//180度回転用パルス数 289
-#define SET_MM 54	//後ろ壁に当てるために下がるパルス数
+#define ROT_ANGLE_R90 -90			//Target Angle [degree]
+#define	ROT_ANGLE_L90 90
+#define ROT_ANGLE_180 180
+#define SET_MM 54					//Distance for Set Positiopn
 
 #define CENTER_TIME 350
 #define ROT_TIME 355
@@ -32,6 +32,7 @@
 #define GYRO_FIX 16.4			//Gain for Convert Gyro Value to Physical Unit，ジャイロデータシート参照
 #define KW 0.01744				//Pi/180　degree -> radian に変換する定数
 #define KWP 57.471
+
 //----DC走行関連----
 #define HALF_MM 90
 #define ONE_MM 180
@@ -40,7 +41,7 @@
 #define SLA_OFFSET_B 30
 #define SLA_OFFSET_A 53
 
-//----エンコーダ・DCモータ関連----
+//----Constante Variable for Calculate ----
 #define RADIUS_WHEEL_mm 12.25f
 #define DIA_PINI_mm 4.0f
 #define DIA_SPUR_mm 21.0f
@@ -90,7 +91,7 @@
 /*------------------------------------------------------------
 		センサ系
 ------------------------------------------------------------*/
-//----壁判断基準----
+//----Sensor Threshoud----
 #define WALL_BASE_F 100
 #define WALL_BASE_L 50
 #define WALL_BASE_R 50
@@ -101,20 +102,21 @@
 
 #define CONT_FIX 0.05f
 
-//----制御基準値----
-#define SREF_MIN_L 100		//左制御基準　　下限　0
-//#define SREF_HALF_L 3000		//左制御　係数変更点　200
-#define SREF_MAX_L 4000		//左制御基準　　上限　1000
-#define SREF_MIN_R 100		//右制御基準　　下限　0
-//#define SREF_HALF_R 3000		//右制御　係数変更点　200
-#define SREF_MAX_R 4000		//右制御基準　　上限　1000
+//----Sensor Control for Threshoud----
+#define SREF_MIN_L 100
+//#define SREF_HALF_L 3000
+#define SREF_MAX_L 4000
+#define SREF_MIN_R 100
+//#define SREF_HALF_R 3000
+#define SREF_MAX_R 4000
 
 /*------------------------------------------------------------
 		探索系
 ------------------------------------------------------------*/
-//----ゴール座標----
-#define GOAL_X 7
-#define GOAL_Y 7
+//----Goal Node----
+#define GOAL_X 2
+#define GOAL_Y 2
+#define GOAL_SIZE 1
 
 /*------------------------------------------------------------
 		共用・構造体の定義
@@ -129,11 +131,11 @@
 
 //----フラグ共用・構造体----
 //順番は間違ってません
-#ifndef __MOUSE_FLAGS__					//対応ファイルで一度も読み込まれていない場合以下を定義
-	#define __MOUSE_FLAGS__				//読み込んだことを表す
-	typedef union {						//共用体の宣言
+#ifndef __MOUSE_FLAGS__
+	#define __MOUSE_FLAGS__
+	typedef union {
 		uint16_t FLAGS;
-		struct ms_flags{				//構造体の宣言
+		struct ms_flags{
 			unsigned char SET:1;		//予備ビット(B0)		(:1は1ビット分の意味、ビットフィールド)
 			unsigned char SCND:1;		//二次フラグ(B1)
 			unsigned char WALL:1;		//旋回フラグ(B2)
@@ -160,25 +162,23 @@
 	extern volatile mouse_flags MF;
 #endif
 
-//----現在地格納共用・構造体----
-#ifndef __MAP_COOR__
-	#define __MAP_COOR__
+//----Mouse State Constructure----
+#ifndef __MOUSE_STATE__
+	#define __MOUSE_STATE__
 
-	union map_coor{						//共用体の宣言
-		unsigned char PLANE;					//YX座標
-		struct coor_axis{				//構造体の宣言
-			unsigned char X:4;					//X座標
-			unsigned char Y:4;					//Y座標
-		}AXIS;
-	};
+	typedef struct {
+			uint8_t X:8;
+			uint8_t Y:8;
+			uint8_t DIR:8;
+	}mouse_state;
 
 #endif
 
 #ifdef MAIN_C_
-	volatile union map_coor PRELOC;		//現在地の座標を格納する共用・構造体
+	volatile mouse_state MOUSE;
 #else
 
-	extern volatile union map_coor PRELOC;
+	extern volatile mouse_state MOUSE;
 #endif
 
 #endif /* GLOBAL_H_ */

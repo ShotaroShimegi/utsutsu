@@ -1,5 +1,16 @@
 #ifndef SEARCH_H_
 	#define SEARCH_H_
+
+#define NORTH 0x00
+#define EAST 0x01
+#define SOUTH 0x02
+#define WEST 0x03
+
+#define STRAIGHT 0x88
+#define TURN_RIGHT 0x44
+#define TURN_BACK 0x22
+#define TURN_LEFT 0x11
+
 /*============================================================
 		各種定数･変数宣言
 ============================================================*/
@@ -18,24 +29,23 @@
 	//====Variavle Initialize====
 	#ifdef MAIN_C_
 		/*グローバル変数の定義*/
-		unsigned char map[16][16];									//マップ格納配列
-		unsigned char step_map[16][16];									//歩数マップ格納配列
-		unsigned char wall_info;									//壁情報格納変数
-		unsigned char m_dir;										//マウスの方向
-		unsigned char m_step;										//歩数格納
+		uint8_t map[16][16];									// wall_map
+		uint8_t step_map[16][16];								//歩数マップ格納配列
+		uint8_t wall_info;										//壁情報格納変数
+//		uint8_t m_dir;											//マウスの方向
+		uint8_t m_step;											//歩数格納
 		uint16_t goal_x, goal_y;								//ゴール座標
-		unsigned char route[256];									//最短経路格納配列
-		unsigned char r_cnt;										//経路カウンタ
+		uint8_t route[256];									//最短経路格納配列
+		uint8_t r_cnt;										//経路カウンタ
 	#else
 		/*グローバル変数の宣言*/
-		extern unsigned char map[16][16];							//マップ格納配列
-		extern unsigned char step_map[16][16];						//歩数マップ格納配列
-		extern unsigned char wall_info;								//
-		extern unsigned char m_dir;									//マウスの方向
-		extern unsigned char m_step;								//
+		extern uint8_t map[16][16];							//マップ格納配列
+		extern uint8_t step_map[16][16];						//歩数マップ格納配列
+		extern uint8_t wall_info;								//
+		extern uint8_t m_step;
 		extern uint16_t goal_x, goal_y;								//Goal Node
-		extern unsigned char route[256];							//Shortest Route Array
-		extern unsigned char r_cnt;									//経路カウンタ
+		extern uint8_t route[256];							//Shortest Route Array
+		extern uint8_t r_cnt;									//経路カウンタ
 	#endif
 
 /*============================================================
@@ -49,13 +59,13 @@
 	void SearchSlalom();
 	void searchSLA_ESNW();
 
-	void adv_pos();											//マウスの位置情報を前進
+	void UpdatePosition();
 	void conf_route_NESW();										//次ルートの確認
 	void conf_route_ESNW();
 	void InitializeMap();									//マップデータ初期化
 	void write_map();										//マップ書き込み
-	void UpdateDirection(unsigned char);					//自機方向情報変更
-	void MakeStepMap();										//歩数マップ作成
+	void UpdateDirection(uint8_t);
+	void MakeStepMap(uint8_t);										//歩数マップ作成
 	void make_route_NESW();										//最短経路検索
 	void make_route_ESNW();
 

@@ -84,9 +84,8 @@ void SpinR90()
 {
 	MF.FLAG.CTRL = 0;
 
-	//制御を無効にする
 	SetMotionDirection(TURN_R);								//右に回転するようモータの回転方向を設定
-	DriveSpin(ROT_ANGLE_R90);								//超信地するわよぉ！
+	DriveSpin(ROT_ANGLE_R90);
 	DisableMotor();
 
 	SetMotionDirection(FORWARD);								//前進するようにモータの回転方向を設定
@@ -308,9 +307,9 @@ void DriveSpin(float theta)
 	float offset;
 	float ics = center.angle;
 
-	if(theta > 0){				//左旋回
+	if(theta > 0){
 		center.omega_dir = 1;
-	}else if(theta < 0){			//右旋回
+	}else if(theta < 0){
 		center.omega_dir = -1;
 	}
 
@@ -531,6 +530,8 @@ void StartMotion(void){
 	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 
+	StartTimer();
+
 }
 
 void StopMotion(void)
@@ -545,6 +546,8 @@ void StopMotion(void)
 
 	HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,RESET);
 	HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,RESET);
+
+	DisableMotor();
 
 }
 

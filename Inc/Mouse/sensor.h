@@ -30,8 +30,7 @@
 		volatile wall_sensor wall_l;
 
 		//----その他----
-		volatile uint8_t tp;											//タスクポインタ
-		volatile uint16_t base_l, base_r;								//基準値を格納
+		volatile uint8_t tp;
 		volatile float gyro_base;
 
 	#else
@@ -45,7 +44,6 @@
 
 		//----その他----
 		extern volatile uint8_t tp;
-		extern volatile uint16_t base_l, base_r;
 		extern volatile float gyro_base;
 
 	#endif
