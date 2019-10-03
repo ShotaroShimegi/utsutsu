@@ -4,8 +4,9 @@ typedef struct{
 	float i_out;			//I制御出力
 	int8_t dir;		//モータの回転方向
 	float out;
-} vel_ctrl;
+} pid_control;
 
+/*
 typedef struct{
 	float dif;			//角速度偏差
 	float p_out;			//P制御の出力値
@@ -13,6 +14,7 @@ typedef struct{
 	int8_t dir;			//回転方向
 	float out;
 } omega_ctrl;
+*/
 
 typedef struct{
 	int16_t pulse;			//Raw Value
@@ -54,6 +56,8 @@ typedef struct{
 	#define DIR_SPIN_L90	0xff
 	#define DIR_SPIN_180	0x02
 
+	#define GET_WALL_ON 1
+	#define GET_WALL_OFF 0
 
 	//====変数====
 #ifdef MAIN_C_
@@ -64,11 +68,11 @@ typedef struct{
 	volatile encoder encoder_l;
 
 	/*** Structure [Velocity Control] [Angular Velocity Control]***/
-	volatile vel_ctrl vel_ctrl_R;
-	volatile vel_ctrl vel_ctrl_L;
-	volatile omega_ctrl omega;
+	volatile pid_control vel_ctrl_R;
+	volatile pid_control vel_ctrl_L;
+	volatile pid_control omega_control;
 
-	volatile uint16_t time,time2, ms_time;
+	volatile uint16_t utsutsu_time,utsutsu_time2, ms_time;
 	volatile float maxindex, maxindex_w;		//時間・加速必要時間・角加速必要時間？
 
 	volatile float Kvolt,Kxr;				//加速度計算するための電流定数，距離変換のための定数
@@ -80,13 +84,13 @@ typedef struct{
 	extern volatile encoder encoder_l;
 
 	/*** 速度制御 構造体***/
-	extern volatile vel_ctrl vel_ctrl_R;
-	extern volatile vel_ctrl vel_ctrl_L;
+	extern volatile pid_control vel_ctrl_R;
+	extern volatile pid_control vel_ctrl_L;
 
 	/***　角速度制御 構造体***/
-	extern volatile omega_ctrl omega;
+	extern volatile pid_control omega_control;
 
-	extern volatile uint16_t time,time2, ms_time;
+	extern volatile uint16_t utsutsu_time,utsutsu_time2, ms_time;
 	extern volatile float maxindex,maxindex_w;
 
 	extern volatile float Kvolt,Kxr;
@@ -102,9 +106,9 @@ typedef struct{
 	void DriveDecel(uint16_t, unsigned char);
 	void DriveSpin(float);
 
-	void driveC(uint16_t, unsigned char);	//定時間走行，セッポジぐらいしか使ってない
-	void driveX(uint16_t);			//位置・角度制御走行
-	void driveW(int16_t);			//角速度制御走行
+	void driveC(uint16_t, unsigned char);		//time drive
+	void driveX(uint16_t);						//abgle control drive
+	void driveW(int16_t);						//omega control drive
 
 	void SetMotionDirection(uint8_t);
 	void DisableMotor(void);
@@ -112,22 +116,21 @@ typedef struct{
 	void StartMotion(void);
 	void StopMotion(void);
 
-	//----簡易上位関数----
-	void half_sectionA();
-	void half_sectionA2();
-	void half_sectionD();
-	void a_section();		//加減速一区画
-	void s_section();		//連続区画直線走行
+
+	void HalfSectionAccel(uint8_t);
+	void HalfSectionDecel();
+
+	void GoOneSectionStop();
+	void GoOneSectionContinuous();
 
 	void SpinR90();
 	void SpinL90();
 	void Spin180();
 
-	void set_position(uint8_t);		//位置合わせ
+	void FixPosition(uint8_t);
 
 	void SlalomR90();
 	void SlalomL90();
-
 
 	void DriveTest(uint8_t *mode);
 

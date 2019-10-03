@@ -15,14 +15,10 @@
 
 #define AD_WAIT_US 15
 
-uint32_t buff_array[6];
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	TIM_OC_InitTypeDef sConfigOC;
-	float sen_out_right = 0.0;
-	float sen_out_left = 0.0;
-	float duty_right =0.0;
+	float duty_right = 0.0;
 	float duty_left = 0.0;
 
 	if(htim->Instance == htim6.Instance){
@@ -84,9 +80,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			break;
 		case 2:
-			time++;
-			if(time > 2000){
-				time = 1999;
+			utsutsu_time++;
+			if(utsutsu_time > MEMORY){
+				utsutsu_time = MEMORY - 1;
 			}
 			UpdateEncoder();
 			UpdateGyro();
@@ -94,12 +90,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			//PID
 			if(MF.FLAG.WCTRL){
 				//偏差角速度の算出
-				omega.dif = (center.omega_dir * center.omega_target) - center.omega_rad;
-				omega.p_out = gain_now.omega_kp * omega.dif;
-				omega.i_out += gain_now.omega_ki * omega.dif;
-				omega.out = omega.p_out + omega.i_out;
+				omega_control.dif = (center.omega_dir * center.omega_target) - center.omega_rad;
+				omega_control.p_out = gain_now.omega_kp * omega_control.dif;
+				omega_control.i_out += gain_now.omega_ki * omega_control.dif;
+				omega_control.out = omega_control.p_out + omega_control.i_out;
 			}else{
-				omega.out = 0;
+				omega_control.out = 0;
 			}
 
 			if(MF.FLAG.VCTRL){
@@ -124,45 +120,55 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			//壁制御フラグアリの場合
 			if(MF.FLAG.CTRL && center.vel_target > 0.1){
-				wall_l.dif = wall_l.val - wall_l.threshold;
-				wall_r.dif = wall_l.val - wall_l.threshold;
+				wall_l.dif = wall_l.val - wall_l.base;
+				wall_r.dif = wall_l.val - wall_l.base;
 				if(SREF_MIN_L < wall_l.dif && wall_l.dif < SREF_MAX_L){
-					sen_out_left = gain_search1.wall_kp * wall_l.dif;
+					wall_l.out = gain_search1.wall_kp * wall_l.dif;
 				}
 				if(SREF_MIN_R < wall_r.dif && wall_r.dif < SREF_MAX_R){
-					sen_out_right = gain_search1.wall_kp * wall_r.dif;
+					wall_r.out = gain_search1.wall_kp * wall_r.dif;
 				}
 			}else {
-				sen_out_right = 0;
-				sen_out_left = 0;
+				wall_r.out = 0;
+				wall_l.out = 0;
 			}
 
 
 
-			if(time < 1999){
-//			Wall Sensor
-				test1[(uint16_t)(time*0.1)] = center.distance;
-				test2[(uint16_t)(time*0.1)] = wall_l.val;
-				test3[(uint16_t)(time*0.1)] = wall_r.val;
-
-
-//			Translation
- /*
-  *  			test1[(uint16_t)(time*0.1)] = encoder_r.velocity;
-				test2[(uint16_t)(time*0.1)] = encoder_l.velocity;
-				test3[(uint16_t)(time*0.1)] = center.vel_target;
+			if(utsutsu_time < MEMORY){
+//				Wall Sensor
+/*				test1[utsutsu_time] = center.distance;
+				test2[utsutsu_time] = wall_r.base;
+				test3[utsutsu_time] = wall_r.val;
+				test4[utsutsu_time] = wall_l.val;
 */
-//			Revolution
-/*				test1[(uint16_t)(time*0.1)] = center.omega_rad;
-				test2[(uint16_t)(time*0.1)] = center.omega_dir * center.omega_target ;
-				test3[(uint16_t)(time*0.1)] = center.angle;
+//				Translation
+/*
+				test1[utsutsu_time] = encoder_r.velocity;
+				test2[utsutsu_time] = encoder_l.velocity;
+				test3[utsutsu_time] = center.vel_target;
+				test4[utsutsu_time] = center.velocity;
+*/
+//				Revolution
+
+/*				test1[utsutsu_time] = center.omega_rad;
+				test2[utsutsu_time] = center.omega_dir * center.omega_target;
+				test3[utsutsu_time] = center.angle;
+				test4[utsutsu_time] = center.distance;
+*/
+//				Slalom
+
+/*				test1[utsutsu_time] = center.omega_dir * center.omega_target;
+				test2[utsutsu_time] = center.omega_rad;;
+				test3[utsutsu_time] = center.vel_target;
+				test4[utsutsu_time] = center.velocity;
 */
 			}
 
 			break;
 		case 3:
-			duty_left = vel_ctrl_L.out - omega.out + sen_out_left;
-			duty_right = vel_ctrl_R.out + omega.out + sen_out_right;
+			duty_left = vel_ctrl_L.out - omega_control.out + wall_r.out;
+			duty_right = vel_ctrl_R.out + omega_control.out + wall_l.out;
 
 			if(duty_left < 0){
 				duty_left = -duty_left;
@@ -221,47 +227,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}//---htim2 End--
 
 }
-
-
-
-
-
-/*------------------------------------------------------------
-		センサ系の割り込み
-------------------------------------------------------------*/
-
-/*
-void Cmt2IntFunc(){
-
-
-
-//物理量で扱いやすいm/s = mm/msに変換
-	center.vel = (vel_ctrl_R.real + vel_ctrl_L.real) * 0.5;
-	center.distance = (encoder_r.distance + encoder_l.distance) * 0.5;
-
-	//PIDしてみる？
-	if(MF.FLAG.WCTRL){
-		//偏差角速度の算出
-		omega.dif = (center.omega_dir * center.omega_target) - center.omega_rad;
-
-//		omega.p_out = gain_now.omega_kp * omega.dif * TREAD_mm * 0.5 * 0.001;
-//		omega.i_out += gain_now.omega_ki * omega.dif * TREAD_mm * 0.5 * 0.001;
-
-		omega.p_out = gain_now.omega_kp * omega.dif;
-		omega.i_out += gain_now.omega_ki * omega.dif;
-		omega.out = omega.p_out + omega.i_out;
-	}else{
-		omega.out = 0;
-	}
-
-	//超信地旋回で無い　かつ　低速域
-	if(MF.FLAG.REVOL == 0 && center.vel_target < 0.20f){
-		sen_ctrl = 0;
-	}
-
-
-}
-*/
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 

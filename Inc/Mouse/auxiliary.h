@@ -40,6 +40,8 @@
 		volatile float test1[MEMORY];
 		volatile float test2[MEMORY];
 		volatile float test3[MEMORY];
+		volatile float test4[MEMORY];
+
 	#else
 		extern volatile params params_now;
 		extern volatile gain gain_now;
@@ -48,6 +50,7 @@
 		extern volatile float test1[MEMORY];
 		extern volatile float test2[MEMORY];
 		extern volatile float test3[MEMORY];
+		extern volatile float test4[MEMORY];
 
 	#endif
 
@@ -55,7 +58,6 @@
 		関数プロトタイプ宣言
 ============================================================*/
 	//====その他====
-	void stay(unsigned int);
 	void WaitMs(unsigned int);
 
 	void ModeSelect(uint8_t *mode);

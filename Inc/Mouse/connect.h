@@ -16,7 +16,7 @@
 		関数プロトタイプ宣言
 ============================================================*/
 		void GyroInit();
-		float GyroRead(void);
-		void GyroGetOffset(uint16_t);
+		float ReadGyro(void);
+		void GetGyroOffset(uint16_t);
 
 #endif /* CONNECT_H_ */

@@ -1,15 +1,15 @@
 #include <Mouse/global.h>
 
-void UtsutsuSystem(){
+void UtsutsuSystem()
+{
 	uint8_t mode = 0;
-	uint8_t i = 0;
+	uint16_t i = 0;
 
 	DisableMotor();
 
 	MelodySummer();
 
 //	StartWaiting();
-//	StopTimer();
 
 	GyroInit();
 	VariableInit();
@@ -24,6 +24,20 @@ void UtsutsuSystem(){
 */
 	printf("----Start Utsutsu System----\n");
 
+/*	SetMotionDirection(FORWARD);
+
+	GoOneSectionContinuous();
+	while(1){
+		HalfSectionAccel(GET_WALL_OFF);
+		GoOneSectionContinuous();
+		utsutsu_time = 0;
+		SlalomL90();
+	}
+
+	HalfSectionDecel();
+*/
+	StopTimer();
+
 	while(1){
 
 	  ModeSelect(&mode);
@@ -35,9 +49,8 @@ void UtsutsuSystem(){
 	  	  //----log Transmit----
 	  	  case 0:
 			printf("START\r\n");
-			for(i=0;i<200;i++){
-				printf("%4lf, %4lf, %4lf\n",test1[i],test2[i],test3[i]);
-				WaitMs(1);
+			for(i=0;i<MEMORY;i++){
+				printf("%4lf, %4lf, %4lf, %4lf\n",test1[i],test2[i],test3[i],test4[i]);
 			}
 			printf("ALL\r\n");
 
@@ -51,12 +64,12 @@ void UtsutsuSystem(){
 			StartWaiting();
 			FirstAction();
 
-			GetWallData();
+//			GetWallData();
 			SearchOneSection();
-/*			goal_x = goal_y = 0;
+			goal_x = goal_y = 0;
 			WaitMs(100);
-			searchA();
-*/
+			SearchOneSection();
+
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;						//ゴール座標設定
 			break;
@@ -116,6 +129,8 @@ void UtsutsuSystem(){
 			Spin180();									//180度回転
 			UpdateDirection(DIR_SPIN_180);
 
+			StopTimer();
+
 			break;
 			//////////////////////////////////
 
@@ -132,29 +147,22 @@ void UtsutsuSystem(){
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
-			Spin180();									//180度回転
+			Spin180();
 			UpdateDirection(DIR_SPIN_180);
 			break;
 		case 6:
 			SetMotionDirection(FORWARD);
-
-/*			StartMotion();
-			HAL_Delay(1000);
-			StopMotion();
-			HAL_Delay(1000);
-*/
-			SetMotionDirection(FORWARD);
 			StartTimer();
-			time = 0;
-			half_sectionA();
-			half_sectionD();
+			utsutsu_time = 0;
+			HalfSectionAccel(GET_WALL_ON);
+			HalfSectionDecel();
 			StopTimer();
 
 			break;
 
 			//----走行テスト----
 		case 11:
-		    DriveTest(&mode);									//test_drive()はdrive.cに関数定義あり
+		    DriveTest(&mode);
 			WaitMs(100);
 			break;
 

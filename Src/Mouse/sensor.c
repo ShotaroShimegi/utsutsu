@@ -33,7 +33,7 @@ void GetWallData()
 void EncoderGyroTest()
 {
 	ResetDistance();
-	time = 0;
+	utsutsu_time = 0;
 	center.angle = 0;
 
 	MF.FLAG.WCTRL = 0;
@@ -54,7 +54,7 @@ void EncoderGyroTest()
 
 void StartTimer()
 {
-	ResetDistance();
+//	ResetDistance();
 
 	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
 	HAL_TIM_Encoder_Start(&htim4,TIM_CHANNEL_ALL);
@@ -66,10 +66,15 @@ void StartTimer()
 
 }
 
-void StopTimer(){
+//静止している時のみ使うこと
+
+void StopTimer()
+{
 	HAL_TIM_Base_Stop_IT(&htim6);
 	HAL_TIM_Encoder_Stop(&htim3,TIM_CHANNEL_ALL);
 	HAL_TIM_Encoder_Stop(&htim4,TIM_CHANNEL_ALL);
+
+	ResetDistance();
 }
 
 void CheckSensor()
@@ -77,6 +82,8 @@ void CheckSensor()
 	uint8_t buff;
 
 	printf("Timer Start!\n");
+	GetControlBaseValue();
+	printf("base_r : %d, base_l : %d\n",wall_r.base,wall_l.base);
 
 	__HAL_TIM_CLEAR_FLAG(&htim6, TIM_FLAG_UPDATE);
 	__HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
@@ -85,9 +92,7 @@ void CheckSensor()
 //	HAL_TIM_Base_Start_IT(&htim6);	<- Do not Use
 
 	while(1){
-		//printf("ad_l: %4d ad_fl:%4d ad_ff:%4d  ad_fr:%4d ad_r:%4d \r\n", wall_l.dif, wall_fl.dif, wall_ff.dif, wall_fr.dif, wall_r.dif);
 		printf("ad_l: %4d ad_ff:%4d ad_r:%4d \n", wall_l.val,wall_ff.val,wall_r.val);
-		//----LEDが4つの場合----
 		if(wall_fr.val > wall_fr.threshold)	buff = buff | 0x10;
 		if(wall_r.val > wall_r.threshold)	buff = buff | 0x08;
 		if(wall_ff.val > wall_ff.threshold)	buff = buff | 0x04;
@@ -96,7 +101,6 @@ void CheckSensor()
 
 		LedDisplay(&buff);
 		WaitMs(1000);
-
 		}
 
 }
@@ -117,9 +121,7 @@ int16_t GetEncoderLeft(void){
 	}else{
 		count = -(int16_t)enc_val;
 	}
-
 	return count;
-
 }
 
 int16_t GetEncoderRight(void)
@@ -140,7 +142,7 @@ int16_t GetEncoderRight(void)
 
 void UpdateGyro(void)
 {
-	center.omega_deg = GyroRead() - gyro_base;
+	center.omega_deg = ReadGyro() - gyro_base;
 	center.omega_rad = center.omega_deg * KW;
 	center.angle += (center.omega_deg + center.pre_omega_deg) * 0.5 * 0.001;
 	center.pre_omega_deg = center.omega_deg;
@@ -176,4 +178,12 @@ int GetADC(ADC_HandleTypeDef *hadc, uint32_t channel)
   HAL_ADC_Start(hadc);
   HAL_ADC_PollForConversion(hadc, 100);
   return HAL_ADC_GetValue(hadc);
+}
+
+void GetControlBaseValue(){
+	DisableMotor();
+	StartTimer();
+	HAL_Delay(100);
+	wall_r.base = wall_r.val;
+	wall_l.base = wall_l.val;
 }

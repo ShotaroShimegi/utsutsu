@@ -29,23 +29,22 @@
 	//====Variavle Initialize====
 	#ifdef MAIN_C_
 		/*グローバル変数の定義*/
-		uint8_t map[16][16];									// wall_map
-		uint8_t step_map[16][16];								//歩数マップ格納配列
-		uint8_t wall_info;										//壁情報格納変数
-//		uint8_t m_dir;											//マウスの方向
-		uint8_t m_step;											//歩数格納
-		uint16_t goal_x, goal_y;								//ゴール座標
+		uint8_t map[16][16];								// wall_map
+		uint8_t step_map[16][16];							//歩数マップ格納配列
+		uint8_t wall_info;									//壁情報格納変数
+		uint8_t m_step;										//歩数格納
+		uint16_t goal_x, goal_y;							//ゴール座標
 		uint8_t route[256];									//最短経路格納配列
 		uint8_t r_cnt;										//経路カウンタ
 	#else
 		/*グローバル変数の宣言*/
 		extern uint8_t map[16][16];							//マップ格納配列
-		extern uint8_t step_map[16][16];						//歩数マップ格納配列
-		extern uint8_t wall_info;								//
+		extern uint8_t step_map[16][16];					//歩数マップ格納配列
+		extern uint8_t wall_info;
 		extern uint8_t m_step;
-		extern uint16_t goal_x, goal_y;								//Goal Node
+		extern uint16_t goal_x, goal_y;						//Goal Node
 		extern uint8_t route[256];							//Shortest Route Array
-		extern uint8_t r_cnt;									//経路カウンタ
+		extern uint8_t r_cnt;								//経路カウンタ
 	#endif
 
 /*============================================================
@@ -60,13 +59,13 @@
 	void searchSLA_ESNW();
 
 	void UpdatePosition();
-	void conf_route_NESW();										//次ルートの確認
-	void conf_route_ESNW();
+	void ConfRoute_NESW();									//次ルートの確認
+	void ConfRoute_ESNW();
 	void InitializeMap();									//マップデータ初期化
-	void write_map();										//マップ書き込み
+	void WriteMap();										//マップ書き込み
 	void UpdateDirection(uint8_t);
-	void MakeStepMap(uint8_t);										//歩数マップ作成
-	void make_route_NESW();										//最短経路検索
-	void make_route_ESNW();
+	void MakeStepMap(uint8_t);								//歩数マップ作成
+	void MakeRoute_NESW();									//最短経路検索
+	void MakeRoute_ESNW();
 
 #endif /* SEARCH_H_ */

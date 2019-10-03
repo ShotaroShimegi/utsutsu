@@ -13,8 +13,8 @@ void VariableInit(void){
 	wall_l.val = wall_r.val = wall_fl.val = wall_fr.val = wall_ff.val = 0;
 	wall_l.base = wall_r.base = wall_fl.base = wall_fr.base = wall_ff.base = 0;
 	wall_l.threshold = wall_r.threshold = wall_fl.threshold = wall_fr.threshold = wall_ff.threshold = 0;
-	time = 0;
-	time2 = 0;
+	utsutsu_time = 0;
+	utsutsu_time2 = 0;
 
 	/*** Initialize Encoder Structure ***/
 	encoder_r.pulse = 0;
@@ -43,11 +43,11 @@ void VariableInit(void){
 	vel_ctrl_L.out = 0;
 
 	/*** Initialize Omega-Control Structure ***/
-	omega.dif = 0;
-	omega.p_out = 0;
-	omega.i_out = 0;
-	omega.dir = 0;
-	omega.out = 0;
+	omega_control.dif = 0;
+	omega_control.p_out = 0;
+	omega_control.i_out = 0;
+	omega_control.dir = 0;
+	omega_control.out = 0;
 	gyro_base = 0;
 
 	//parameter 設定
@@ -59,21 +59,21 @@ void VariableInit(void){
 	params_search1.omega_accel = 3 * params_search1.omega_max / val1; 	//Angular Acceleration [rad/s/s]
 
 	params_search1.R90_before = 30;		//35
-	params_search1.R90_after = 45;
-	params_search1.L90_before = 35;
-	params_search1.L90_after = 50;
+	params_search1.R90_after = 53;
+	params_search1.L90_before = 30;
+	params_search1.L90_after = 53;
 
 //	params_search1.omega_max = 6.0f;			//Unit is [rad/s]
 //	params_search1.omega_accel = 25.0f;		//Unit is [rad/s/s]
 
 	/*** Set Parameter for Search　***/
-	gain_search1.vel_kpR = 1.5f;
-	gain_search1.vel_kpL = 1.5f;
-	gain_search1.vel_kiR = 0.0f;
-	gain_search1.vel_kiL = 0.0f;
-	gain_search1.omega_kp = 0.08f;
-	gain_search1.omega_ki = 0.01f;
-	gain_search1.wall_kp = 0.008f;
+	gain_search1.vel_kpR = 3.5f;
+	gain_search1.vel_kpL = 3.5f;
+	gain_search1.vel_kiR = 0.01f;
+	gain_search1.vel_kiL = 0.01f;
+	gain_search1.omega_kp = 0.20f;
+	gain_search1.omega_ki = 0.04f;
+	gain_search1.wall_kp = 0.0005f;
 	gain_search1.wall_kd = 0.00f;
 
 	SetParams(&params_search1);
@@ -118,6 +118,7 @@ void VariableInit(void){
 		test1[i] = 0;
 		test2[i] = 0;
 		test3[i] = 0;
+		test4[i] = 0;
 //		printf("%d\n",i);
 //		HAL_Delay(1);
 	}

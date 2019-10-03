@@ -2,18 +2,6 @@
 #include "tim.h"
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-//wait
-//	WaitMsは重複して使用する(以下参照)ことが出来ない
-//	(動作が途中で止まる)。そのため、割り込み関数内では
-//	正確な時間は測定できないがwhile文ループを用いて待機する
-// 引数1：loop・・・待機するループ数
-// 戻り値：無し
-//+++++++++++++++++++++++++++++++++++++++++++++++
-void stay(unsigned int loop)
-{
-	while(loop--);					//loop回while文を回す
-}
-//+++++++++++++++++++++++++++++++++++++++++++++++
 //WaitMs
 //	ミリ秒待機する
 // 引数1：ms・・・待機時間[ミリ秒]
@@ -180,10 +168,10 @@ void FirstAction(void)
 	StartTimer();
 
 	MF.FLAG.CTRL = 0;
-	SetMotionDirection(FORWARD);
-
+	GetControlBaseValue();
 	AutoCalibration(0.30,0.60);
-	time2 = 0;
+
+	SetMotionDirection(FORWARD);
 	DriveAccel(SET_MM * 0.5);
 	DriveDecel(SET_MM * 0.5, 1);
 

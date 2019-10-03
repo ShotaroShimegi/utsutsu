@@ -14,6 +14,7 @@
 		int16_t dif;			// = (Raw -base)
 		int16_t pre;			//For D-control
 		int16_t diff;			//D-Control
+		float out;
 
 		uint16_t threshold;
 	}wall_sensor;
@@ -57,6 +58,7 @@
 	void StartTimer(void);
 	void StopTimer(void);
 	void CheckSensor(void);
+	void GetControlBaseValue(void);
 
 	void Tim6WaitUs(uint16_t);
 	int16_t GetEncoderLeft(void);
