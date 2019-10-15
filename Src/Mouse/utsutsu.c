@@ -9,34 +9,13 @@ void UtsutsuSystem()
 
 	MelodySummer();
 
-//	StartWaiting();
-
 	GyroInit();
 	VariableInit();
 	CheckBattery();
-
-/*	SetMotionDirection(BACK);
-	sensor_start();
-	time = 0;
-	set_position(1);
-//	a_section();
 	StopTimer();
-*/
+	MF.FLAG.SEARCH = 1;
+
 	printf("----Start Utsutsu System----\n");
-
-/*	SetMotionDirection(FORWARD);
-
-	GoOneSectionContinuous();
-	while(1){
-		HalfSectionAccel(GET_WALL_OFF);
-		GoOneSectionContinuous();
-		utsutsu_time = 0;
-		SlalomL90();
-	}
-
-	HalfSectionDecel();
-*/
-	StopTimer();
 
 	while(1){
 
@@ -65,10 +44,10 @@ void UtsutsuSystem()
 			FirstAction();
 
 //			GetWallData();
-			SearchOneSection();
+			SearchOneSection(GOAL_LENGTH);
 			goal_x = goal_y = 0;
 			WaitMs(100);
-			SearchOneSection();
+			SearchOneSection(1);
 
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;						//ゴール座標設定
@@ -82,9 +61,9 @@ void UtsutsuSystem()
 			StartWaiting();
 			FirstAction();
 
-			SearchContinuous();
+			SearchContinuous(GOAL_LENGTH);
 			goal_x = goal_y = 0;
-			SearchContinuous();
+			SearchContinuous(1);
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
@@ -93,8 +72,6 @@ void UtsutsuSystem()
 			UpdateDirection(DIR_SPIN_180);
 			break;
 
-			/////////////////////////////////　　↓の二次探索走行とスラローム走行は未実装
-			//----二次高速走行----
 	  	  case 3:
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
@@ -102,9 +79,8 @@ void UtsutsuSystem()
 			StartWaiting();
 			FirstAction();
 
-			searchSA_ESNW();
 			goal_x = goal_y = 0;
-			searchSA_ESNW();
+
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
@@ -112,7 +88,7 @@ void UtsutsuSystem()
 			UpdateDirection(DIR_SPIN_180);
 			break;
 
-			//----スラローム走行----
+
 	  	  case 4:
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
@@ -120,9 +96,9 @@ void UtsutsuSystem()
 			StartWaiting();
 			FirstAction();
 
-			SearchSlalom();
+			SearchSlalom(GOAL_LENGTH);
 			goal_x = goal_y = 0;
-			SearchSlalom();
+			SearchSlalom(1);
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
@@ -141,9 +117,8 @@ void UtsutsuSystem()
 			StartWaiting();
 			FirstAction();
 
-			searchSLA_ESNW();
 			goal_x = goal_y = 0;
-			searchSLA_ESNW();
+
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
@@ -177,10 +152,8 @@ void UtsutsuSystem()
 			StartWaiting();
 
 			/*Stone Mode*/
-			MF.FLAG.ACTRL = 0;
 			MF.FLAG.VCTRL = 1;
 			MF.FLAG.WCTRL = 1;
-			MF.FLAG.XCTRL = 0;
 
 			MF.FLAG.ACCL = 0;
 			MF.FLAG.DECL = 0;

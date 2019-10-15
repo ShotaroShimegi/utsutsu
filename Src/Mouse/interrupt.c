@@ -1,12 +1,3 @@
-/*
-割込関係の処理
-左右モータへのPWM
-左右のエンコーダ処理
-壁センサ処理
-ジャイロ処理
-制御値確定などなど
-
-*/
 #include <Mouse/global.h>
 #include "tim.h"
 #include "adc.h"
@@ -18,8 +9,11 @@
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	TIM_OC_InitTypeDef sConfigOC;
-	float duty_right = 0.0;
-	float duty_left = 0.0;
+	uint8_t buff = 0;
+	float wall_gain_fix_r = 1;
+	float wall_gain_fix_l = 1;
+	float duty_right = 0.0f;
+	float duty_left = 0.0f;
 
 	if(htim->Instance == htim6.Instance){
 		switch(tp){
@@ -51,6 +45,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					if(center.vel_target > params_now.vel_max)center.vel_target = params_now.vel_max;
 				}
 			}
+			//====回転加速処理====
+			if(MF.FLAG.WCTRL){
+				if(MF.FLAG.WDECL){
+					center.omega_target -= params_now.omega_accel * 0.001;
+					if(center.omega_target < 0)	center.omega_target = 0.0f;
+				}
+				else if(MF.FLAG.WACCL){
+					center.omega_target += params_now.omega_accel * 0.001;
+					if(center.omega_target > params_now.omega_max)	center.omega_target = params_now.omega_max;
+				}
+			}
 
 			break;
 
@@ -66,24 +71,28 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin,RESET);
 			HAL_GPIO_WritePin(LED_FL_GPIO_Port, LED_FL_Pin,RESET);
 
-			//====回転加速処理====
-			if(MF.FLAG.WCTRL){
-				if(MF.FLAG.WDECL){
-					center.omega_target -= params_now.omega_accel * 0.001;
-					if(center.omega_target < 0)	center.omega_target = 0.0f;
-				}
-				else if(MF.FLAG.WACCL){
-					center.omega_target += params_now.omega_accel * 0.001;
-					if(center.omega_target > params_now.omega_max)	center.omega_target = params_now.omega_max;
-				}
-			}
 
 			break;
 		case 2:
-			utsutsu_time++;
-			if(utsutsu_time > MEMORY){
-				utsutsu_time = MEMORY - 1;
+			if(wall_fr.val > wall_fr.threshold)	buff = buff | 0x10;
+			if(wall_ff.val > wall_ff.threshold)	buff = buff | 0x04;
+			if(wall_fl.val > wall_fl.threshold)	buff = buff | 0x01;
+
+			if(wall_r.val > wall_r.threshold)	{
+				buff = buff | 0x08;
+				wall_gain_fix_r = 0.5f;
+			}else{
+				wall_gain_fix_r = 1.0f;
 			}
+			if(wall_l.val > wall_l.threshold)	{
+				buff = buff | 0x02;
+				wall_gain_fix_r = 0.5f;
+			}else{
+				wall_gain_fix_r = 1.0f;
+			}
+
+			LedDisplay(&buff);
+
 			UpdateEncoder();
 			UpdateGyro();
 
@@ -118,24 +127,35 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				vel_ctrl_L.out = 0;
 			}
 
-			//壁制御フラグアリの場合
 			if(MF.FLAG.CTRL && center.vel_target > 0.1){
 				wall_l.dif = wall_l.val - wall_l.base;
 				wall_r.dif = wall_l.val - wall_l.base;
+
+				wall_l.diff = wall_l.dif - wall_l.pre;
+				wall_r.diff = wall_r.dif - wall_r.pre;
+
 				if(SREF_MIN_L < wall_l.dif && wall_l.dif < SREF_MAX_L){
-					wall_l.out = gain_search1.wall_kp * wall_l.dif;
+					wall_l.out = wall_gain_fix_l * gain_search1.wall_kp * wall_l.dif;
+					wall_l.out += gain_search1.wall_kd * wall_l.diff;
 				}
 				if(SREF_MIN_R < wall_r.dif && wall_r.dif < SREF_MAX_R){
-					wall_r.out = gain_search1.wall_kp * wall_r.dif;
+					wall_r.out = wall_gain_fix_r * gain_search1.wall_kp * wall_r.dif;
+					wall_r.out += gain_search1.wall_kd * wall_r.diff;
 				}
+
+				wall_l.pre = wall_l.dif;
+				wall_r.pre = wall_r.dif;
+
 			}else {
 				wall_r.out = 0;
 				wall_l.out = 0;
 			}
 
+			utsutsu_time++;
 
-
-			if(utsutsu_time < MEMORY){
+			if(utsutsu_time >= MEMORY){
+				utsutsu_time = MEMORY - 1;
+			}else{
 //				Wall Sensor
 /*				test1[utsutsu_time] = center.distance;
 				test2[utsutsu_time] = wall_r.base;
@@ -167,8 +187,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			break;
 		case 3:
-			duty_left = vel_ctrl_L.out - omega_control.out + wall_r.out;
-			duty_right = vel_ctrl_R.out + omega_control.out + wall_l.out;
+			duty_left = vel_ctrl_L.out - omega_control.out + wall_l.out;
+			duty_right = vel_ctrl_R.out + omega_control.out + wall_r.out;
 
 			if(duty_left < 0){
 				duty_left = -duty_left;

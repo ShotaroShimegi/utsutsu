@@ -7,11 +7,12 @@ void GyroInit(void)
 
 	if(who_am_i != GYRO_CORREST_REACTION){
 		who_am_i = ReadByte(WHO_AM_I);
-		while(who_am_i != GYRO_CORREST_REACTION){
+/*		while(who_am_i != GYRO_CORREST_REACTION){
 			printf("Gyro Error\n");
 			HAL_Delay(100);
 		}
-	}
+*/	}
+	printf("Who am I ? -> 0x%x\n", who_am_i);
 
 	printf("Gyro OK\n");
 

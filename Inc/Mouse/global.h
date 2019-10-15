@@ -21,7 +21,7 @@
 #define ROT_ANGLE_R90 -90			//Target Angle [degree]
 #define	ROT_ANGLE_L90 90
 #define ROT_ANGLE_180 180
-#define SET_MM 54					//Distance for Set Positiopn
+#define SET_MM 62					//Distance for Set Positiopn 54
 
 #define CENTER_TIME 350
 #define ROT_TIME 355
@@ -80,9 +80,9 @@
  センサ系
  ------------------------------------------------------------*/
 //----Sensor Threshoud----
-#define WALL_BASE_F 300
+#define WALL_BASE_F 150
 #define WALL_BASE_L 200
-#define WALL_BASE_R 150
+#define WALL_BASE_R 100
 #define WALL_OFF 100
 
 #define WALL_TURN_VALUE 100
@@ -91,10 +91,8 @@
 
 //----Sensor Control for Threshoud----
 #define SREF_MIN_L 10
-//#define SREF_HALF_L 3000
 #define SREF_MAX_L 4000
 #define SREF_MIN_R 10
-//#define SREF_HALF_R 3000
 #define SREF_MAX_R 4000
 
 /*------------------------------------------------------------
@@ -102,43 +100,31 @@
  ------------------------------------------------------------*/
 
 //----Goal Node----
-#define GOAL_X 2
-#define GOAL_Y 2
-#define GOAL_SIZE 1
+#define GOAL_X 0
+#define GOAL_Y 6
+#define GOAL_LENGTH 1
 
-/*------------------------------------------------------------
- 共用・構造体の定義
- ------------------------------------------------------------*/
-//共用・構造体とは、共用体と構造体を組み合わせたもので、
-//内部の一括操作も、メンバ単位での操作も可能なものである。
-//例えば、以下のmouse_flags共用・構造体のMFでは、
-//MF.FLAGS = 0x10;と全体を一括変更できるほか、
-//MF.FLAG.DECL = 1;とメンバを指定して単体で変更することも出来る。
-//参考：
-//https://www.grapecity.com/tools/support/powernews/column/clang/033/page02.htm
-//----フラグ共用・構造体----
-//順番は間違ってません
 #ifndef __MOUSE_FLAGS__
 #define __MOUSE_FLAGS__
 typedef union {
 	uint16_t FLAGS;
 	struct ms_flags {
-		unsigned char SET :1;		//予備ビット(B0)		(:1は1ビット分の意味、ビットフィールド)
-		unsigned char SCND :1;		//二次フラグ(B1)
-		unsigned char WALL :1;		//旋回フラグ(B2)
-		unsigned char CTRL :1;		//制御フラグ(B3)
-		unsigned char ACCL :1;		//加速フラグ(B4)
-		unsigned char DECL :1;		//減速フラグ(B5)
-		unsigned char FFCTRL :1;		//FF制御フラグ(B6)
-		unsigned char REVOL :1;		//停止フラグ(B7)
-		unsigned char R_DIR :1;		//予備ビット(B8)
-		unsigned char L_DIR :1;		//予備フラグ(B9)
-		unsigned char VCTRL :1;		//予備フラグ(B10)
-		unsigned char XCTRL :1;		//予備フラグ(B11)
-		unsigned char WCTRL :1;		//予備フラグ(B12)
-		unsigned char ACTRL :1;		//予備フラグ(B13)
-		unsigned char WACCL :1;		//予備フラグ(B14)
-		unsigned char WDECL :1;		//予備フラグ(B15)
+		uint8_t SET :1;			//尻当てフラグ(B0)		(:1は1ビット分の意味、ビットフィールド)
+		uint8_t SCND :1;		//二次走行フラグ(B1)
+		uint8_t SEARCH :1;		//探索走行フラグ(B2)
+		uint8_t CTRL :1;		//壁制御フラグ(B3)
+		uint8_t ACCL :1;		//並進加速フラグ(B4)
+		uint8_t DECL :1;		//並進減速フラグ(B5)
+		uint8_t WACCL :1;		//回転加速フラグ(B6)
+		uint8_t WDECL :1;		//回転減速フラグ(B7)
+		uint8_t VCTRL :1;		//並進制御フラグ(B8)
+		uint8_t WCTRL :1;		//回転制御フラグ(B9)
+		uint8_t FAIL :1;		//フェイルセーフフラグ(B10)
+		uint8_t RESV11 :1;		//予備フラグ(B11)
+		uint8_t RESV12 :1;		//予備フラグ(B12)
+		uint8_t RESV13 :1;		//予備フラグ(B13)
+		uint8_t RESV14 :1;		//予備フラグ(B14)
+		uint8_t RESV15 :1;		//予備フラグ(B15)
 	} FLAG;
 } mouse_flags;
 #endif

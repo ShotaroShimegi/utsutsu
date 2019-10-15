@@ -6,29 +6,19 @@
 ==========================================================*/
 /*
 		基本仕様として、
-		基幹関数		第一arg:走行パルス数
-					第二arg:停止許可フラグ
+		ペリフェラル関数
+			***Motion		ペリフェラルが絡む関数，マイコンごとに要変更
+		基幹関数
+			Drive*** 		速度制御をしながら走行，引数で目標速度or目標角度を指示
+		走行関数
+			HalfSection*** 	半区画走行，主にSlalom時の加速，減速用に利用
+			GoOneSection*** 一区画動け
+			Spin***			超信地旋回
+			Slalom***		スラローム
+			Fix				尻当て
 
-		マウスフラグ(MF)
-			7Bit:ストップフラグ
-			6Bit:定速フラグ
-			5Bit:減速フラグ
-			4Bit:加速フラグ
-			3Bit:制御フラグ
-			2Bit:スラロームフラグ
-			1Bit:二次走行フラグ
-			0Bit:予約ビット
-		上位4Bitは、上位ほど優先度が高い
 */
-/*----------------------------------------------------------
-		上位関数
-----------------------------------------------------------*/
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//HalfSectionAccel
-//	半区画分加速しながら走行する
-// arg ： なし
-// return ： なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
+
 void HalfSectionAccel(uint8_t wall_read)
 {
 	MF.FLAG.CTRL = 1;
@@ -38,24 +28,13 @@ void HalfSectionAccel(uint8_t wall_read)
 	}
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//HalfSectionDecel
-//	半区画分減速しながら走行し停止する
-// arg ： なし
-// return ： なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void HalfSectionDecel()
 {
-	MF.FLAG.CTRL = 0;
+	MF.FLAG.CTRL = 1;
 	DriveDecel(HALF_MM,1);									//
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//GoOneSectionStop
-//	1区画分進んで停止する
-// arg：なし
-// return：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
+
 void GoOneSectionStop()
 {
  	HalfSectionAccel(GET_WALL_ON);
@@ -88,7 +67,7 @@ void SlalomR90()
 	DriveAccel(params_search1.R90_before);
 
 	MF.FLAG.CTRL = 0;
-	driveW(-90);
+	DriveSlalom(-90);
 
 	MF.FLAG.CTRL = 1;
 	DriveAccel(params_search1.R90_after);
@@ -110,31 +89,24 @@ void SpinL90(void)
 
 void SlalomL90(void)
 {
-	//time2 = 0;
 	MF.FLAG.CTRL = 1;
 
 	SetMotionDirection(FORWARD);
-	DriveAccel(params_search1.L90_before);							//offset　before区間走行
+	DriveAccel(params_search1.L90_before);
 
 	MF.FLAG.CTRL = 0;
-	driveW(90);								//90までスラローム旋回
+	DriveSlalom(90);
 
 	MF.FLAG.CTRL = 1;
-	DriveAccel(params_search1.L90_after);							//offset　after区間
+	DriveAccel(params_search1.L90_after);
 
 	GetWallData();
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//Spin180
-//	180度回転する
-// arg：なし
-// return：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void Spin180()
 {
-	MF.FLAG.CTRL = 0;										//制御を無効にする
+	MF.FLAG.CTRL = 0;
 
 	SetMotionDirection(TURN_R);
 	DriveSpin(-180);
@@ -156,8 +128,8 @@ void FixPosition(uint8_t flag)
 	SetMotionDirection(BACK);
 //	WaitMs(200);
 
-	DriveAccel(SET_MM * 0.5);
-	DriveDecel(SET_MM * 0.5,1);
+	DriveAccel(-SET_MM * 0.5);
+	DriveDecel(-SET_MM * 0.5,1);
 
 	SetMotionDirection(FORWARD);				//前進するようにモータの回転方向を設定
 
@@ -171,61 +143,43 @@ void FixPosition(uint8_t flag)
 
 }
 
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//driveA
-//	指定距離分加速走行する
-// arg1：dist・・・走行する距離mm
-// return：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//DC用に改造しているdriveA,距離はオッケー
-void DriveAccel(float dist) {					//arg　走行距離　停止の有無（1で停止，０で継続走行）,vel0とtimeは触れていない
-
+void DriveAccel(float dist)
+{
 	float ics = center.distance;
 
 	//====走行====
 	//----走行開始----
-	//MF.FLAGS = 0x00 | (MF.FLAGS & 0x0F);					//減速・定速・ストップフラグを0に、加速フラグを1にする
-	MF.FLAG.ACTRL = 0;
 	MF.FLAG.VCTRL = 1;
 	MF.FLAG.WCTRL = 1;
-	MF.FLAG.XCTRL = 0;
 
 	MF.FLAG.WDECL = 0;
 	MF.FLAG.WACCL = 0;
 	MF.FLAG.ACCL = 1;
 	MF.FLAG.DECL = 0;
 
-	MF.FLAG.FFCTRL = 0;
 	center.omega_target = 0;
 
 	StartMotion();
 
 	//----走行----
-	while(center.distance < ics + dist){
-
+	if(dist >= 0.0f){
+		while(center.distance < ics + dist){
 /*		if(MF.FLAG.WALL && flag == 0){
 			encoder_r.distance = (dist + ics - 60) / Kxr;
 			encoder_l.distance = (dist + ics - 60) / Kxr;
 			MF.FLAG.WALL = 0;
 			flag = 1;
 		}
-*/	}
+*/		}
+	} else{
+		while(center.distance > ics + dist);
+	}
 
 
 }
 
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//driveD
-//	指定パルス分減速走行して停止する
-// arg1：dist・・・走行する距離
-// arg2：rs・・・走行後停止するか　1:する　それ以外:しない
-// return：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
-
-
-void DriveDecel(uint16_t dist, unsigned char rs) {
+void DriveDecel(float dist, unsigned char rs)
+{
 	float ics = center.distance;
 	float offset;
 
@@ -233,9 +187,7 @@ void DriveDecel(uint16_t dist, unsigned char rs) {
 	MF.FLAG.CTRL = 0;
 
 	//----走行開始----
-	MF.FLAG.ACTRL = 0;
 	MF.FLAG.WCTRL = 1;
-	MF.FLAG.XCTRL = 0;
 	MF.FLAG.VCTRL = 1;
 
 	MF.FLAG.WDECL = 0;
@@ -249,41 +201,27 @@ void DriveDecel(uint16_t dist, unsigned char rs) {
 	offset += 8.0f;
 
 	//----走行----
-	while((center.distance + offset) < (dist + ics)){
-//		printf("%lf : %lf : %lf : %lf :\n",center.distance, center.vel_target, center.velocity, out_duty_r);
+	if(dist >= 0.0){
+		while((center.distance + offset) < (dist + ics));
+	}else{
+		while((center.distance + offset) > (dist + ics));
 	}
-
 		if(rs){
 			MF.FLAG.ACCL = 0;
 			MF.FLAG.DECL = 1;
-
-			while(center.vel_target > 0.0f);
-
+			while(center.vel_target != 0.0f);
 			WaitMs(500);
-			MF.FLAG.ACTRL = 0;
 			MF.FLAG.WCTRL = 0;
-			MF.FLAG.XCTRL = 0;
 			MF.FLAG.VCTRL = 0;
 
 			//----停止措置----
-			StopMotion();											//走行終了、停止許可があれば停止
+			StopMotion();
 			vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
 			omega_control.i_out = 0;
 
 		}
-
-//	printf("Deaccel Finish\n");
-
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//DriveSpin
-//	指定パルス分加速(or等速)・減速走行して停止する
-// arg1：dist・・・走行するパルス
-// arg2：rs・・・走行後停止するか　1:する　それ以外:しない
-// return：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//DC用に改造，目的は超信地のみ arg1:
 void DriveSpin(float theta)
 {
 	float offset;
@@ -296,17 +234,13 @@ void DriveSpin(float theta)
 	}
 
 	//----Setting Mouse Flag----
-	MF.FLAG.ACTRL = 0;
 	MF.FLAG.VCTRL = 1;
 	MF.FLAG.WCTRL = 1;
-	MF.FLAG.XCTRL = 0;
 
 	MF.FLAG.WACCL = 1;
 	MF.FLAG.WDECL = 0;
 	MF.FLAG.ACCL = 0;
 	MF.FLAG.DECL = 0;
-
-	MF.FLAG.REVOL = 1;
 
 	ResetDistance();
 
@@ -348,96 +282,10 @@ void DriveSpin(float theta)
 
 	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
 	omega_control.i_out = 0;
-	MF.FLAG.REVOL = 0;
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//driveX
-//姿勢制御を加えた減速走行　止まるときに使いたい
-// arg1：dist・・・走行する距離[mm]
-//+++++++++++++++++++++++++++++++++++++++++++++++
-void driveX(uint16_t dist){
-	//====走行====
-	//----走行開始----
-	MF.FLAG.ACTRL = 1;
-	MF.FLAG.VCTRL = 0;
-	MF.FLAG.WCTRL = 0;
-	MF.FLAG.XCTRL = 1;
-
-	MF.FLAG.CTRL = 0;
-
-	MF.FLAG.ACCL = 0;
-	MF.FLAG.DECL = 0;
-
-	ResetDistance();		//距離を初期化
-	center.angle = 0;
-
-	StartMotion();								//走行開始
-
-	WaitMs(100);
-	//----走行----
-
-	//----停止許可があれば停止----
-	StopMotion();
-	center.angle = 0;
-	center.vel_target = 0;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//driveC
-//	指定時間分加速走行する
-// arg1： count	走行時間
-// arg2： rs		走行後停止するか　1:する　それ以外:しない
-// return：null
-//+++++++++++++++++++++++++++++++++++++++++++++++
-void driveC(uint16_t count, unsigned char rs)			//arg　時間　停止許可　＊時間制限でモータ回せる関数
-{
-
-	ResetDistance();
-	center.vel_target = center.omega_target = 0;
-	utsutsu_time = 0;
-
-	//====回転開始====
-	MF.FLAG.VCTRL = 1;
-	MF.FLAG.ACTRL = 0;
-	MF.FLAG.XCTRL = 0;
-	MF.FLAG.WCTRL = 1;
-
-	MF.FLAG.ACCL = 1;
-	MF.FLAG.DECL = 0;
-	MF.FLAG.WACCL = 0;
-	MF.FLAG.WDECL = 0;
-
-	StartMotion();											//走行開始
-
-	//====回転====
-	while(utsutsu_time < count * 0.5);			//一定時間経過まで待機
-	MF.FLAG.ACCL = 0;
-	MF.FLAG.DECL = 1;
-	while(utsutsu_time < count);
-
-	if(rs){
-		vel_ctrl_R.dir = vel_ctrl_L.dir = 0;
-		WaitMs(100);			//速度がゼロに収束するまで待つ
-	}
-	//----停止許可があれば停止----
-	StopMotion();											//走行終了、停止許可があれば停止
-
-	center.vel_target = 0;
-
-	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
-	omega_control.i_out = 0;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//driveW
-//	角速度制御走行
-// arg1：theta・・・目標角度
-// arg2：rs・・・走行後停止するか　1:する　それ以外:しない
-// return：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
-void driveW(int16_t theta)			//arg　時間　停止許可
+void DriveSlalom(int16_t theta)
 {
 	float offset = 0;
 	float offset_fix = 0;
@@ -448,13 +296,11 @@ void driveW(int16_t theta)			//arg　時間　停止許可
 
 	//====回転開始====
 	MF.FLAG.VCTRL = 1;
-	MF.FLAG.ACTRL = 0;
-	MF.FLAG.XCTRL = 0;
 	MF.FLAG.WCTRL = 1;
 
-	if(theta > 0){				//左旋回
+	if(theta > 0){					//Left Turn
 		center.omega_dir = 1;
-	}else if(theta < 0){			//右旋回
+	}else if(theta < 0){			//Right Turn
 		center.omega_dir = -1;
 	}
 	MF.FLAG.ACCL = 1;
@@ -465,21 +311,19 @@ void driveW(int16_t theta)			//arg　時間　停止許可
 	StartMotion();
 
 	offset = (0.5 * maxindex_w * params_now.omega_max) * KWP;
-	//====回転====
-	if(center.omega_dir == 1){
 
+	//====回転====
+	if(center.omega_dir == 1){				//Left Turn
 		offset_fix = 0.5;
 
 		while(center.angle + offset < theta - offset_fix);
 		MF.FLAG.WACCL = 0;
 		MF.FLAG.WDECL = 1;
-		while(center.angle  < theta - offset_fix){
-			if(center.omega_target == 0){
-				break;
-			}
-		}
-	} else if(center.omega_dir == -1){			//右旋回
 
+		while(center.angle  < theta - offset_fix){
+			if(center.omega_target == 0) break;
+		}
+	} else if(center.omega_dir == -1){		//Right Turn
 		offset_fix = 0.5;
 
 		while(center.angle - offset > theta + offset_fix);
@@ -487,16 +331,14 @@ void driveW(int16_t theta)			//arg　時間　停止許可
 		MF.FLAG.WDECL = 1;
 
 		while(center.angle > theta + offset_fix){
-			if(center.omega_target == 0){
-				break;
-			}
+			if(center.omega_target == 0) break;
+
 		}
 	}
 
 	omega_control.dir = 0;
 	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
 	omega_control.i_out = 0;
-
 }
 
 void StartMotion(void){
@@ -556,45 +398,36 @@ void SetMotionDirection(uint8_t d_dir)
 	switch(d_dir & 0x0f){									//0~3ビット目を取り出す
 		//----正回転----
 		case 0x00:
-			MF.FLAG.L_DIR = 1;				//左を前進方向に設定  Realy Need?
-			vel_ctrl_L.dir= 1;
-
+			vel_ctrl_L.dir= 1;				//左モータを正方向に
 			HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,RESET);
 			HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,SET);
 
 			break;
 		//----逆回転----
 		case 0x01:
-			MF.FLAG.L_DIR = 0;				//左を後進方向に設定
-			vel_ctrl_L.dir = -1;
-
+			vel_ctrl_L.dir = -1;			//左モータを逆方向に
 			HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,SET);
 			HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,RESET);
-
 			break;
 	}
 	//====右モータ====
-	switch(d_dir & 0xf0){									//4~7ビット目を取り出す
-		case 0x00:											//0x00の場合
-			MF.FLAG.R_DIR = 1;					//右を前進方向に設定
-			vel_ctrl_R.dir = 1;
-
+	switch(d_dir & 0xf0){					//4~7ビット目を取り出す
+		case 0x00:
+			vel_ctrl_R.dir = 1;				//右を前進方向に設定
 			HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,RESET);
 			HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,SET);
-
 			break;
-		case 0x10:
-			MF.FLAG.R_DIR = 0;					//右を後進方向に設定
-			vel_ctrl_R.dir = -1;
 
+		case 0x10:
+			vel_ctrl_R.dir = -1;				//右を後進方向に設定
 			HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,SET);
 			HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,RESET);
-
 			break;
 	}
 }
 
-void DisableMotor(){
+void DisableMotor(void)
+{
 	HAL_GPIO_WritePin(STBY_GPIO_Port, STBY_Pin,RESET);
 
 	HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,RESET);
@@ -607,8 +440,6 @@ void DisableMotor(){
 	omega_control.i_out = 0;
 
 	MF.FLAG.VCTRL = 0;
-	MF.FLAG.ACTRL = 0;
-	MF.FLAG.XCTRL = 0;
 	MF.FLAG.WCTRL = 0;
 
 	MF.FLAG.ACCL = 0;
@@ -616,32 +447,24 @@ void DisableMotor(){
 	MF.FLAG.WACCL = 0;
 	MF.FLAG.WDECL = 0;
 
-
-
 }
 
-float CalculatePID(pid_control pid){
-
-	return 0;
-}
-
-void DriveTest(uint8_t *mode){
+void DriveTest(uint8_t *mode)
+{
+	uint8_t i = 0;
 
 	while(1){
-		printf("test_drive:\n");						//UARTで送信
-		ModeSelect(mode);								//モード選択をさせる
+		printf("test_drive:\n");
+		ModeSelect(mode);
 		WaitMs(50);
 		StartWaiting();
 
-		switch(*mode){										//モード番号により分岐
+		switch(*mode){
 			//----位置の調整----
 			case 0:
 
-				SetMotionDirection(FORWARD);
-
-				StartMotion();
-				HAL_Delay(1000);
-				StopMotion();
+				SetMotionDirection(BACK);
+				FixPosition(1);
 				HAL_Delay(1000);
 
 				break;
@@ -651,7 +474,7 @@ void DriveTest(uint8_t *mode){
 				StartTimer();
 				SetMotionDirection(FORWARD);
 				utsutsu_time = 0;
-				HalfSectionAccel(GET_WALL_ON);
+				HalfSectionAccel(GET_WALL_OFF);
 				HalfSectionDecel();
 
 				break;
@@ -660,71 +483,46 @@ void DriveTest(uint8_t *mode){
 			case 2:
 				StartTimer();
 
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
-				SpinR90();
+				for(i=0;i<16;i++){
+					SpinR90();
+				}
 
 				break;
 
 			//----左90回転----
 			case 3:
 				StartTimer();
-
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-				SpinL90();
-
+				for(i=0;i<16;i++){
+					SpinL90();
+				}
 				break;
 
 			//----180回転----
 			case 4:
 				StartTimer();
+				for(i=0;i<16;i++){
+					Spin180();
+				}
+				break;
 
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
-				Spin180();
+			case 5:
+				StartTimer();
+				SetMotionDirection(FORWARD);
+				HalfSectionAccel(GET_WALL_OFF);
+				for(i=0;i<16;i++){
+					SlalomR90();
+					HalfSectionAccel(GET_WALL_OFF);
+				}
+				break;
 
-
+			case 6:
+				StartTimer();
+				SetMotionDirection(FORWARD);
+				HalfSectionAccel(GET_WALL_OFF);
+				for(i=0;i<16;i++){
+					SlalomL90();
+					HalfSectionAccel(GET_WALL_OFF);
+				}
 				break;
 
 			case 7:
@@ -732,23 +530,17 @@ void DriveTest(uint8_t *mode){
 				break;
 
 			case 8:
-
 				break;
 
 			default:
-
 				printf("GoodBy, Drive\r\n");
 
 				return;
 		}
 		StopTimer();
 		DisableMotor();
-
 		printf("Drive Out\n");
-
 	}
-
 	printf("drive_Finish: %d\n",*mode);
-
 }
 

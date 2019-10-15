@@ -6,8 +6,8 @@
 /*-----------------------------------------------------------
 		足立法探索走行α(一区画走行)
 -----------------------------------------------------------*/
-void SearchOneSection(){
-
+void SearchOneSection(uint8_t goal_length)
+{
 	//====マップデータ初期化====
 	InitializeMap();
 	GyroInit();
@@ -16,7 +16,7 @@ void SearchOneSection(){
 	m_step = r_cnt = 0;									//歩数と経路カウンタの初期化
 	GetWallData();
 	WriteMap();											//地図の初期化
-	MakeStepMap(GOAL_SIZE);								//歩数図の初期化
+	MakeStepMap(goal_length);								//歩数図の初期化
 	MakeRoute_NESW();									//最短経路探索(route配列に動作が格納される)
 
 	SetMotionDirection(FORWARD);
@@ -59,7 +59,8 @@ void SearchOneSection(){
 		UpdatePosition();									//マイクロマウス内部位置情報でも前進処理
 		ConfRoute_NESW();									//最短経路で進行可能か判定
 
-	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
+//	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
+	}while(CheckGoal(MOUSE.X,MOUSE.Y,goal_length));
 															//現在座標とgoal座標が等しくなるまで実行
 	WaitMs(2000);											//スタートでは***2秒以上***停止しなくてはならない
 	Melody(g6,300);
@@ -71,25 +72,25 @@ void SearchOneSection(){
 	DisableMotor();
 }
 
-void SearchContinuous(){
-
+void SearchContinuous(uint8_t goal_length)
+{
 	//====マップデータ初期化====
-	InitializeMap();
+	if(MF.FLAG.SEARCH){
+		InitializeMap();
+	}
 	GyroInit();
 
 	//====歩数等初期化====
 	m_step = r_cnt = 0;									//歩数と経路カウンタの初期化
 	GetWallData();
 	WriteMap();											//地図の初期化
-	MakeStepMap(GOAL_SIZE);								//歩数図の初期化
+	MakeStepMap(goal_length);								//歩数図の初期化
 	MakeRoute_NESW();									//最短経路探索(route配列に動作が格納される)
 
 	Melody(c6,1000);
 
 	SetMotionDirection(FORWARD);
 	StartTimer();
-
-	HAL_Delay(10);
 
 	if(wall_ff.val > WALL_TURN_VALUE ){
 		Spin180();
@@ -103,11 +104,9 @@ void SearchContinuous(){
 	r_cnt++;
 	ConfRoute_NESW();
 
-
 	//====探索走行====
 	do{
-
-		switch(route[r_cnt++]){			//route配列によって進行を決定。経路カウンタを進める
+		switch(route[r_cnt++]){
 
 			case STRAIGHT:
 				GoOneSectionContinuous();
@@ -144,7 +143,6 @@ void SearchContinuous(){
 				GetWallData();
 				break;
 
-			//----左折----
 			case TURN_LEFT:
 				HalfSectionDecel();
 
@@ -156,13 +154,13 @@ void SearchContinuous(){
 
 				HalfSectionAccel(GET_WALL_ON);;
 				break;
-
 		}
 
 		UpdatePosition();
 		ConfRoute_NESW();
 
-	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
+//	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
+	}while(CheckGoal(MOUSE.X,MOUSE.Y,goal_length));
 
 	HalfSectionDecel();
 	WaitMs(2000);
@@ -173,112 +171,19 @@ void SearchContinuous(){
 
 }
 
-void searchSA_ESNW()
-{
-
-	//====歩数等初期化====
-	m_step = r_cnt = 0;									//歩数と経路カウンタの初期化
-	GetWallData();										//壁情報の初期化, 後壁はなくなる
-	WriteMap();										//地図の初期化
-	MakeStepMap(GOAL_SIZE);										//歩数図の初期化
-	MakeRoute_ESNW();									//最短経路探索(route配列に動作が格納される)
-
-	StartTimer();
-	printf("Michishirube\r\n");
-	SetMotionDirection(FORWARD);
-
-	if(wall_ff.dif > wall_ff.threshold){
-		Spin180();
-		HAL_Delay(100);
-		UpdateDirection(DIR_SPIN_180);
-		SetMotionDirection(FORWARD);
-	}
-
-	HalfSectionAccel(GET_WALL_ON);;
-	UpdatePosition();
-	ConfRoute_ESNW();
-	//====Serch Loop Start====
-	do{
-
-		switch(route[r_cnt++]){								//route配列によって進行を決定。経路カウンタを進める
-
-			case STRAIGHT:
-				GoOneSectionContinuous();
-				break;
-
-			case TURN_RIGHT:
-				if(wall_l.dif > wall_l.dif + WALL_OFF){
-					MF.FLAG.SET = 1;
-				}
-				HalfSectionDecel();
-				SpinR90();
-				HAL_Delay(100);
-				UpdateDirection(DIR_SPIN_R90);
-				SetMotionDirection(FORWARD);
-				if(MF.FLAG.SET){
-					FixPosition(1);
-					MF.FLAG.SET = 0;
-				}
-				HalfSectionAccel(GET_WALL_ON);;
-				break;
-
-			case TURN_BACK:
-				HalfSectionDecel();
-				if(wall_ff.dif > wall_ff.threshold){
-					MF.FLAG.SET = 1;
-				}
-				Spin180();
-				HAL_Delay(100);
-				UpdateDirection(DIR_SPIN_180);
-				SetMotionDirection(FORWARD);
-
-				if(MF.FLAG.SET){
-					FixPosition(1);
-					MF.FLAG.SET = 0;
-				}
-				HalfSectionAccel(GET_WALL_ON);;
-				break;
-
-			case TURN_LEFT:
-				if(wall_r.dif > wall_r.threshold + WALL_OFF){
-					MF.FLAG.SET = 1;
-				}
-				HalfSectionDecel();
-				SpinL90();
-				HAL_Delay(100);
-				UpdateDirection(DIR_SPIN_L90);
-				SetMotionDirection(FORWARD);
-				if(MF.FLAG.SET){
-					FixPosition(1);
-					MF.FLAG.SET = 0;
-				}
-				HalfSectionAccel(GET_WALL_ON);;
-				break;
-		}
-		UpdatePosition();
-		ConfRoute_ESNW();
-
-
-	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
-	HalfSectionDecel();
-	WaitMs(2000);
-	Melody(g6,300);
-	Melody(f6,300);
-	Melody(e6,300);
-
-}
-
-void SearchSlalom()
+void SearchSlalom(uint8_t goal_length)
 {
 	//====マップデータ初期化====
-	InitializeMap();
+	if(MF.FLAG.SEARCH){
+		InitializeMap();
+	}
 	GyroInit();
 
 	//====歩数等初期化====
 	m_step = r_cnt = 0;									//歩数と経路カウンタの初期化
 	GetWallData();
 	WriteMap();											//地図の初期化
-	MakeStepMap(GOAL_SIZE);								//歩数図の初期化
+	MakeStepMap(goal_length);							//歩数図の初期化
 	MakeRoute_NESW();									//最短経路探索(route配列に動作が格納される)
 
 	Melody(c6,1000);
@@ -293,6 +198,11 @@ void SearchSlalom()
 		SetMotionDirection(FORWARD);
 	}
 
+	if(goal_x == 0 && goal_y == 0){
+
+	}else{
+		DriveAccel(SET_MM);
+	}
 	HalfSectionAccel(GET_WALL_ON);;
 	UpdatePosition();
 	r_cnt++;
@@ -318,7 +228,7 @@ void SearchSlalom()
 				HalfSectionDecel();
 				if(wall_ff.val > WALL_TURN_VALUE){
 					MF.FLAG.SET = 1;
-					Melody(c6,1000);
+//					Melody(c6,1000);
 				}
 				Spin180();
 				HAL_Delay(100);
@@ -343,7 +253,10 @@ void SearchSlalom()
 		UpdatePosition();
 		ConfRoute_NESW();
 
-	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
+//	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
+
+	}while(CheckGoal(MOUSE.X,MOUSE.Y,goal_length) != GOAL_OK);
+
 	HalfSectionDecel();
 	WaitMs(2000);
 	Melody(g6,300);
@@ -352,87 +265,6 @@ void SearchSlalom()
 
 }
 
-void searchSLA_ESNW()
-{
-	//====歩数等初期化====
-	m_step = r_cnt = 0;									//歩数と経路カウンタの初期化
-	GetWallData();										//壁情報の初期化, 後壁はなくなる
-	WriteMap();										//地図の初期化
-	MakeStepMap(GOAL_SIZE);										//歩数図の初期化
-	MakeRoute_ESNW();									//最短経路探索(route配列に動作が格納される)
-
-	StartTimer();
-	printf("Michishirube\r\n");
-	SetMotionDirection(FORWARD);
-
-	if(wall_ff.dif > wall_ff.threshold){
-		Spin180();
-		HAL_Delay(100);
-		UpdateDirection(DIR_SPIN_180);
-		SetMotionDirection(FORWARD);
-	}
-
-	HalfSectionAccel(GET_WALL_ON);;
-	UpdatePosition();
-	ConfRoute_NESW();
-	//====Search Loop Start====
-	do{
-
-		switch(route[r_cnt++]){								//route配列によって進行を決定。経路カウンタを進める
-
-			case STRAIGHT:
-				GoOneSectionContinuous();
-				break;
-
-			case TURN_RIGHT:
-				SlalomR90();
-				UpdateDirection(DIR_SPIN_R90);
-				SetMotionDirection(FORWARD);
-				break;
-
-			case TURN_BACK:
-				HalfSectionDecel();
-				if(wall_ff.threshold > wall_ff.threshold){
-					MF.FLAG.SET = 1;
-				}
-				Spin180();
-				HAL_Delay(100);
-				UpdateDirection(DIR_SPIN_180);
-				SetMotionDirection(FORWARD);
-
-				if(MF.FLAG.SET){
-					FixPosition(0);
-					MF.FLAG.SET = 0;
-				}
-				HalfSectionAccel(GET_WALL_ON);;
-				break;
-
-			case TURN_LEFT:
-				SlalomL90();
-				UpdateDirection(DIR_SPIN_L90);
-				SetMotionDirection(FORWARD);
-
-				break;
-		}
-		UpdatePosition();
-		ConfRoute_ESNW();
-
-
-	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
-	HalfSectionDecel();
-	WaitMs(2000);
-	Melody(g6,300);
-	Melody(f6,300);
-	Melody(e6,300);
-
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//UpdatePosition
-//	マイクロマウス内部位置情報で前進させる
-// arg ：なし
-// return：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void UpdatePosition()
 {
 	switch(MOUSE.DIR){
@@ -452,13 +284,6 @@ void UpdatePosition()
 	printf("x: %d, y: %d, DIR: %x\n",MOUSE.X,MOUSE.Y,MOUSE.DIR);
 }
 
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//ConfRoute
-//	進路を判定する
-// arg　：なし
-// return：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void ConfRoute_NESW()
 {
 	//----壁情報書き込み----
@@ -466,7 +291,7 @@ void ConfRoute_NESW()
 
 	//----最短経路上に壁があれば進路変更----
 	if(wall_info & route[r_cnt]){
-		MakeStepMap(GOAL_SIZE);								//歩数マップを更新
+		MakeStepMap(GOAL_LENGTH);							//歩数マップを更新
 		MakeRoute_NESW();									//最短経路を更新
 		r_cnt = 0;											//経路カウンタを0に
 	}
@@ -479,18 +304,12 @@ void ConfRoute_ESNW()
 
 	//----最短経路上に壁があれば進路変更----
 	if(wall_info & route[r_cnt]){
-		MakeStepMap(GOAL_SIZE);										//歩数マップを更新
-		MakeRoute_ESNW();										//最短経路を更新
+		MakeStepMap(GOAL_LENGTH);							//歩数マップを更新
+		MakeRoute_ESNW();									//最短経路を更新
 		r_cnt = 0;											//経路カウンタを0に
 	}
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//InitializeMap
-//	マップ格納配列map[][]の初期化をする
-// arg ：なし
-// return ：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void InitializeMap()
 {
 	//====変数宣言====
@@ -515,13 +334,6 @@ void InitializeMap()
 	}
 }
 
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//WriteMap
-//	マップデータを書き込む
-// arg　：　なし
-// return ： なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void WriteMap()
 {
 	//====変数宣言====
@@ -570,20 +382,12 @@ void WriteMap()
 
 void UpdateDirection(uint8_t t_pat)
 {
-	MOUSE.DIR = (MOUSE.DIR + t_pat) & 0x03;							//Update Mouse Direction Along [t_pat]
+	MOUSE.DIR = (MOUSE.DIR + t_pat) & 0x03;					//Update Mouse Direction Along [t_pat]
 }
 
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//make_step_map
-//	歩数マップを作成する
-// 引数：なし
-// 戻り値：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
-void MakeStepMap(uint8_t goal_size)
+void MakeStepMap(uint8_t goal_length)
 {
-	//====変数宣言====
-	uint8_t x, y;											//for文用変数
+	uint8_t x, y;
 	uint8_t m_temp;											//Keep Step number
 
 	//====Clear Step Map====
@@ -595,7 +399,8 @@ void MakeStepMap(uint8_t goal_size)
 
 	//====Set Step Number in Goal Axis====
 	step_map[goal_y][goal_x] = 0;
-	if(goal_size == 4) {
+
+	if(goal_length == 2) {
 		step_map[goal_y + 1][goal_x] = 0;
 		step_map[goal_y][goal_x + 1] = 0;
 		step_map[goal_y + 1][goal_x + 1] = 0;
@@ -610,7 +415,7 @@ void MakeStepMap(uint8_t goal_size)
 		for( y = 0; y <= 0x0f; y++){						//各Y座標で実行
 			for( x = 0; x <= 0x0f; x++){					//各X座標で実行
 				//----現在最大の歩数を発見したとき----
-				if( step_map[y][x] == m_step){					//歩数格納変数m_stepの値が現在最大の歩数
+				if( step_map[y][x] == m_step){				//歩数格納変数m_stepの値が現在最大の歩数
 					m_temp = map[y][x];						//map配列からマップデータを取り出す
 					if(MF.FLAG.SCND){						//二次走行用のマップを作成する場合(二次走行時はMF.FLAG.SCNDをTrueにする)
 						m_temp >>= 4;						//上位4bitを使うので4bit分右にシフトさせる
@@ -647,20 +452,13 @@ void MakeStepMap(uint8_t goal_size)
 	}while(step_map[MOUSE.Y][MOUSE.X] == 0xff);		//現在座標が未記入ではなくなるまで実行
 }
 
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//MakeRoute
-//	最短経路を導出する
-// arg ：なし
-// return ：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void MakeRoute_NESW()
 {
 	//====変数宣言====
-	uint8_t i = 0;												//カウンタ
-	uint8_t x, y;													//X、Y座標
-	uint8_t dir_temp =  MOUSE.DIR;									//方向の保管用変数
-	uint8_t m_temp;												//マップデータ一時保持
+	uint8_t i = 0;
+	uint8_t x, y;
+	uint8_t dir_temp =  MOUSE.DIR;
+	uint8_t m_temp;					//マップデータ一時保持
 
 	//====最短経路を初期化====
 	do{
@@ -668,7 +466,7 @@ void MakeRoute_NESW()
 	}while(i != 0);												//iが0でない間実行(iがオーバーフローして0になるまで実行？)
 
 	//====歩数カウンタをセット====
-	m_step = step_map[MOUSE.Y][MOUSE.X];				//現在座標の歩数マップ値を取得
+	m_step = step_map[MOUSE.Y][MOUSE.X];
 
 	//====x, yに現在座標を書き込み====
 	x = (uint8_t)MOUSE.X;
@@ -685,13 +483,13 @@ void MakeRoute_NESW()
 		if(!(m_temp & 0x08) && (step_map[y+1][x] < m_step)){		//北側に壁が無く、現在地より小さい歩数マップ値であれば
 			route[i] = (0x00 - MOUSE.DIR) & 0x03;					//route配列に進行方向を記録
 			m_step = step_map[y+1][x];								//最大歩数マップ値を更新
-			y++;												//北に進んだのでY座標をインクリメント
+			y++;													//北に進んだのでY座標をインクリメント
 		}
 		//----東を見る----
 		else if(!(m_temp & 0x04) && (step_map[y][x+1] < m_step)){	//東側に壁が無く、現在地より小さい歩数マップ値であれば
 			route[i] = (0x01 - MOUSE.DIR) & 0x03;					//route配列に進行方向を記録
 			m_step = step_map[y][x+1];								//最大歩数マップ値を更新
-			x++;												//東に進んだのでX座標をインクリメント
+			x++;													//東に進んだのでX座標をインクリメント
 		}
 		//----南を見る----
 		else if(!(m_temp & 0x02) && (step_map[y-1][x] < m_step)){	//南側に壁が無く、現在地より小さい歩数マップ値であれば
@@ -716,11 +514,11 @@ void MakeRoute_NESW()
 			route[i] = 0x44;									//格納データ形式を変更
 			break;
 		case 0x02:												//Uターンする場合
-			UpdateDirection(DIR_SPIN_180);								//内部情報の方向を180度回転
+			UpdateDirection(DIR_SPIN_180);						//内部情報の方向を180度回転
 			route[i] = 0x22;									//格納データ形式を変更
 			break;
 		case 0x03:												//左折する場合
-			UpdateDirection(DIR_SPIN_L90);								//内部情報の方向を90度右回転
+			UpdateDirection(DIR_SPIN_L90);						//内部情報の方向を90度右回転
 			route[i] = 0x11;									//格納データ形式を変更
 			break;
 		default:												//それ以外の場合
@@ -769,7 +567,7 @@ void MakeRoute_ESNW()
 		else if(!(m_temp & 0x02) && (step_map[y-1][x] < m_step)){	//南側に壁が無く、現在地より小さい歩数マップ値であれば
 			route[i] = (0x02 - MOUSE.DIR) & 0x03;					//route配列に進行方向を記録
 			m_step = step_map[y-1][x];								//最大歩数マップ値を更新
-			y--;												//南に進んだのでY座標をデクリメント
+			y--;													//南に進んだのでY座標をデクリメント
 		}
 		//----北を見る----
 		else if(!(m_temp & 0x08) && (step_map[y+1][x] < m_step)){		//北側に壁が無く、現在地より小さい歩数マップ値であれば
@@ -808,5 +606,40 @@ void MakeRoute_ESNW()
 		}
 		i++;													//カウンタをインクリメント
 	}while( step_map[y][x] != 0);								//進んだ先の歩数マップ値が0(=ゴール)になるまで実行
+
 	MOUSE.DIR = dir_temp;										//方向を始めの状態に戻す
 }
+
+
+uint8_t CheckGoal(uint8_t x, uint8_t y, uint8_t goal_length)
+{
+	uint8_t goal_check_x, goal_check_y;
+	uint8_t i;
+	uint8_t x_flag = 0;
+	uint8_t y_flag = 0;
+
+	for(i=0;i < goal_length;i++){
+		if(x == goal_x + i && x_flag == 0){
+			goal_check_x = GOAL_OK;
+			x_flag = 1;
+		}else if(x_flag == 0){
+			goal_check_x = GOAL_FAIL;
+		}
+		if(y == goal_y + i && y_flag == 0){
+			goal_check_y = GOAL_OK;
+			y_flag = 1;
+		}else if(y_flag == 0){
+			goal_check_y = GOAL_FAIL;
+		}
+	}
+
+	if((goal_check_x == GOAL_OK) && (goal_check_y == GOAL_OK)) {
+		MF.FLAG.SEARCH = 0;
+		return GOAL_OK;
+	}
+	else{
+		return GOAL_FAIL;
+	}
+
+}
+

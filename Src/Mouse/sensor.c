@@ -2,31 +2,23 @@
 #include "tim.h"
 #include "adc.h"
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//GetWallData
-//	壁情報取得を取得する
-// 引数：なし
-// 戻り値：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void GetWallData()
 {
-	//----壁情報の初期化----
-	wall_info = 0x00;									//壁情報を初期化
+	//----Clear Wall Buff----
+	wall_info = 0x00;
 
 	//----Check Front----
 	if(wall_ff.val > wall_ff.threshold){
-		wall_info |= 0x88;								//壁情報を更新
+		wall_info |= 0x88;
 	}
 	//----Check Right----
 	if(wall_r.val > wall_r.threshold){
-		wall_info |= 0x44;								//壁情報を更新
+		wall_info |= 0x44;
 	}
 	//----Check Left----
 	if(wall_l.val > wall_l.threshold){
 		wall_info |= 0x11;								//Apdating Wall Data
 	}
-
-//	printf("L:%d, F:%d R:%d\n",wall_l.val, wall_ff.val, wall_r.val);
 
 }
 
@@ -45,7 +37,6 @@ void EncoderGyroTest()
 	while(1){
 //		totalR_mm += -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi * (dif_pulse_r % 4096) / 4096;
 //		totalL_mm += -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi * (dif_pulse_l % 4096) / 4096;
-
 		printf("R_dist:%4lf L_dist%4lf Gyro:%4lf \n",encoder_r.distance,encoder_l.distance,center.angle);
 		WaitMs(500);
 	}

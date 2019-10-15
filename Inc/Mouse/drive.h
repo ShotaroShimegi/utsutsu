@@ -6,22 +6,12 @@ typedef struct{
 	float out;
 } pid_control;
 
-/*
-typedef struct{
-	float dif;			//角速度偏差
-	float p_out;			//P制御の出力値
-	float i_out;			//I制御の出力値
-	int8_t dir;			//回転方向
-	float out;
-} omega_ctrl;
-*/
-
 typedef struct{
 	int16_t pulse;			//Raw Value
 	int16_t  dif;
 	int64_t sum; 			//Raw Integral
 	float distance;			//Converted Value [mm]
-	float velocity;			//uint m/s
+	float velocity;			//unit m/s
 } encoder;
 
 typedef struct{
@@ -33,6 +23,7 @@ typedef struct{
 	float pre_omega_deg;	//角度計算用の保存用 radian単位
 
 	int8_t omega_dir;		//角速度変化方向
+	int8_t velocity_dir;
 	float distance;			//重心走行距離
 	float angle;			//重心角度　degree単位
 
@@ -72,12 +63,12 @@ typedef struct{
 	volatile pid_control vel_ctrl_L;
 	volatile pid_control omega_control;
 
-	volatile uint16_t utsutsu_time,utsutsu_time2, ms_time;
+	volatile uint16_t utsutsu_time, ms_time;
 	volatile float maxindex, maxindex_w;		//時間・加速必要時間・角加速必要時間？
 
 	volatile float Kvolt,Kxr;				//加速度計算するための電流定数，距離変換のための定数
 
-#else									//対応ファイルでEXTERNが定義されていない場合
+#else
 	/*** 重心・位置　構造体 ***/
 	extern volatile gravity center;
 	extern volatile encoder encoder_r;
@@ -90,7 +81,7 @@ typedef struct{
 	/***　角速度制御 構造体***/
 	extern volatile pid_control omega_control;
 
-	extern volatile uint16_t utsutsu_time,utsutsu_time2, ms_time;
+	extern volatile uint16_t utsutsu_time,ms_time;
 	extern volatile float maxindex,maxindex_w;
 
 	extern volatile float Kvolt,Kxr;
@@ -100,35 +91,27 @@ typedef struct{
 /*============================================================
 		Funciton Private Declaration
 ============================================================*/
-	//====Basic Function====
-	//----基幹関数----
-	void DriveAccel(float);
-	void DriveDecel(uint16_t, unsigned char);
-	void DriveSpin(float);
-
-	void driveC(uint16_t, unsigned char);		//time drive
-	void driveX(uint16_t);						//abgle control drive
-	void driveW(int16_t);						//omega control drive
-
-	void SetMotionDirection(uint8_t);
-	void DisableMotor(void);
-
+	//====Peripheral Function====
 	void StartMotion(void);
 	void StopMotion(void);
+	void DisableMotor(void);
+	void SetMotionDirection(uint8_t);
 
+	//====Basic Function====
+	void DriveAccel(float);
+	void DriveDecel(float, unsigned char);
+	void DriveSpin(float);
+	void DriveSlalom(int16_t);
 
+	//====Drive Function====
 	void HalfSectionAccel(uint8_t);
 	void HalfSectionDecel();
-
 	void GoOneSectionStop();
 	void GoOneSectionContinuous();
-
 	void SpinR90();
 	void SpinL90();
 	void Spin180();
-
 	void FixPosition(uint8_t);
-
 	void SlalomR90();
 	void SlalomL90();
 

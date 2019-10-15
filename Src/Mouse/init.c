@@ -14,7 +14,6 @@ void VariableInit(void){
 	wall_l.base = wall_r.base = wall_fl.base = wall_fr.base = wall_ff.base = 0;
 	wall_l.threshold = wall_r.threshold = wall_fl.threshold = wall_fr.threshold = wall_ff.threshold = 0;
 	utsutsu_time = 0;
-	utsutsu_time2 = 0;
 
 	/*** Initialize Encoder Structure ***/
 	encoder_r.pulse = 0;
@@ -73,14 +72,15 @@ void VariableInit(void){
 	gain_search1.vel_kiL = 0.01f;
 	gain_search1.omega_kp = 0.20f;
 	gain_search1.omega_ki = 0.04f;
-	gain_search1.wall_kp = 0.0005f;
-	gain_search1.wall_kd = 0.00f;
+	gain_search1.wall_kp = 0.001f;
+	gain_search1.wall_kd = 0.01f;
 
 	SetParams(&params_search1);
 	SetGain(&gain_search1);
 
 	/*** Initialize Center Structure ***/
 	center.velocity = 0;
+	center.velocity_dir = 0;
 	center.vel_target = 0;
 	center.omega_deg = 0;
 	center.omega_target = 0;

@@ -11,6 +11,9 @@
 #define TURN_BACK 0x22
 #define TURN_LEFT 0x11
 
+#define GOAL_OK 0
+#define GOAL_FAIL 1
+
 /*============================================================
 		各種定数･変数宣言
 ============================================================*/
@@ -39,7 +42,7 @@
 	#else
 		/*グローバル変数の宣言*/
 		extern uint8_t map[16][16];							//マップ格納配列
-		extern uint8_t step_map[16][16];					//歩数マップ格納配列
+		extern uint8_t step_map[16][16];
 		extern uint8_t wall_info;
 		extern uint8_t m_step;
 		extern uint16_t goal_x, goal_y;						//Goal Node
@@ -51,21 +54,20 @@
 		関数プロトタイプ宣言
 ============================================================*/
 	//====Sernch Function====
-	void SearchOneSection();
-	void SearchContinuous();
-	void searchSA_ESNW();
-
-	void SearchSlalom();
-	void searchSLA_ESNW();
+	void SearchOneSection(uint8_t);
+	void SearchContinuous(uint8_t);
+	void SearchSlalom(uint8_t);
 
 	void UpdatePosition();
-	void ConfRoute_NESW();									//次ルートの確認
+	void ConfRoute_NESW();
 	void ConfRoute_ESNW();
-	void InitializeMap();									//マップデータ初期化
-	void WriteMap();										//マップ書き込み
+	void InitializeMap();
+	void WriteMap();
 	void UpdateDirection(uint8_t);
-	void MakeStepMap(uint8_t);								//歩数マップ作成
-	void MakeRoute_NESW();									//最短経路検索
+	void MakeStepMap(uint8_t);
+	void MakeRoute_NESW();
 	void MakeRoute_ESNW();
+
+	uint8_t CheckGoal(uint8_t,uint8_t,uint8_t);
 
 #endif /* SEARCH_H_ */

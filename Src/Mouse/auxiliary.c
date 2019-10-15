@@ -1,26 +1,11 @@
 #include "Mouse/global.h"
 #include "tim.h"
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//WaitMs
-//	ミリ秒待機する
-// 引数1：ms・・・待機時間[ミリ秒]
-// 戻り値：無し
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void WaitMs(unsigned int ms)
 {
 	HAL_Delay(ms);
 }
 
-/*------------------------------------------------------------
-		モードセレクト
-------------------------------------------------------------*/
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//select_mode
-//	モードセレクトを行う
-// 引数1：mode・・・モード番号を格納する変数のアドレス
-// 戻り値：無し
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void ModeSelect(uint8_t *mode)
 {
 	uint16_t encR,encL;
@@ -28,12 +13,12 @@ void ModeSelect(uint8_t *mode)
 	uint16_t nowL = 0;
 	uint16_t preR;
 
-	*mode = 0x00;									//変数の初期化
+	*mode = 0x00;
 	TIM3->CNT = 0;
 	TIM4->CNT = 0;
 
 	//====Show Mode====
-	printf(" mode: 0\r");						//モードをUARTで送信
+	printf(" mode: 0\r");
 
 	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
 	HAL_TIM_Encoder_Start(&htim4,TIM_CHANNEL_ALL);
@@ -41,7 +26,6 @@ void ModeSelect(uint8_t *mode)
 	//====Mode Select do====
 	do{
 		preR = nowR;
-		//preL = nowL;
 
 		encL = TIM3->CNT;
 		encR = TIM4->CNT;
@@ -52,7 +36,7 @@ void ModeSelect(uint8_t *mode)
 		//WaitMs(50);
 		 *mode = nowR;
 		//LEDで現在の値を表示
-		LedDisplay(mode);			//LEDがActiveLowの場合
+		LedDisplay(mode);
 		if(nowR - preR != 0){
 			printf(" mode:%2d\r\n", *mode);
 			Melody(c6 + (60 * *mode),100);
@@ -77,9 +61,9 @@ void MelodySummer(void)
 	Melody(d7,100);
 	Melody(e7,100);
 	Melody(d7,100);
-	HAL_Delay(50);
+	WaitMs(50);
 	Melody(c7,50);
-	HAL_Delay(50);
+	WaitMs(50);
 	Melody(c7,200);
 }
 
@@ -91,7 +75,7 @@ void MelodyMrLawrence()
 	Melody(a6,100);
 	Melody(d7,100);
 
-	HAL_Delay(400);
+	WaitMs(400);
 
 	Melody(d7,100);
 	Melody(e7,100);
@@ -133,7 +117,7 @@ void Melody(uint32_t hz, uint32_t ms)
 	if(HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_4) != HAL_OK){
 		Error_Handler();
 	}
-	HAL_Delay(ms);
+	WaitMs(ms);
 
 	if(HAL_TIM_PWM_Stop(&htim8,TIM_CHANNEL_4) != HAL_OK){
 		Error_Handler();
@@ -169,11 +153,11 @@ void FirstAction(void)
 
 	MF.FLAG.CTRL = 0;
 	GetControlBaseValue();
-	AutoCalibration(0.30,0.60);
+	AutoCalibration(0.50,0.50);
 
 	SetMotionDirection(FORWARD);
-	DriveAccel(SET_MM * 0.5);
-	DriveDecel(SET_MM * 0.5, 1);
+//	DriveAccel(SET_MM * 0.5);
+//	DriveDecel(SET_MM * 0.5, 1);
 
 	DisableMotor();
 
@@ -202,13 +186,12 @@ void SetGain(gain *instance)
 void AutoCalibration(float constant_l, float constant_r)
 {
 //	wall_l.threshold = (uint16_t)(wall_l.dif * constant_l);
+//	wall_r.threshold = (uint16_t)(wall_r.dif * constant_r);
+//	printf("threshold %d, %d :: dif %d, %d\r\n",wall_l.threshold, wall_r.threshold, wall_l.dif, wall_r.dif);
 
 	wall_l.threshold = WALL_BASE_L;
 	wall_ff.threshold = WALL_BASE_F;
 	wall_r.threshold = WALL_BASE_R;
-
-//	wall_r.threshold = (uint16_t)(wall_r.dif * constant_r);
-	printf("threshold %d, %d :: dif %d, %d\r\n",wall_l.threshold, wall_r.threshold, wall_l.dif, wall_r.dif);
 
 }
 void LedDisplay(uint8_t *led)
