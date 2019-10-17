@@ -90,7 +90,6 @@ void SpinL90(void)
 void SlalomL90(void)
 {
 	MF.FLAG.CTRL = 1;
-
 	SetMotionDirection(FORWARD);
 	DriveAccel(params_search1.L90_before);
 
@@ -114,22 +113,17 @@ void Spin180()
 
 }
 
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//FixPosition
-//	機体の尻を壁に当てて場所を区画中央に合わせる
-// arg：なし
-// return：なし
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void FixPosition(uint8_t flag)
 {
 	MF.FLAG.CTRL = 0;
 
 	SetMotionDirection(BACK);
-//	WaitMs(200);
+	WaitMs(200);
 
-	DriveAccel(-SET_MM * 0.5);
-	DriveDecel(-SET_MM * 0.5,1);
+	ResetDistance();
+
+	DriveAccel(-(SET_MM * 0.5f));
+	DriveDecel(-(SET_MM * 0.5f),1);
 
 	SetMotionDirection(FORWARD);				//前進するようにモータの回転方向を設定
 
@@ -137,8 +131,8 @@ void FixPosition(uint8_t flag)
 	if(flag == 0){
 		DriveAccel(SET_MM);
 	}else{
-		DriveAccel(SET_MM * 0.5);
-		DriveDecel(SET_MM * 0.5,1);
+		DriveAccel(SET_MM * 0.5f);
+		DriveDecel(SET_MM * 0.5f,1);
 	}
 
 }
@@ -314,7 +308,7 @@ void DriveSlalom(int16_t theta)
 
 	//====回転====
 	if(center.omega_dir == 1){				//Left Turn
-		offset_fix = 0.5;
+		offset_fix = 0.5f;
 
 		while(center.angle + offset < theta - offset_fix);
 		MF.FLAG.WACCL = 0;
@@ -324,7 +318,7 @@ void DriveSlalom(int16_t theta)
 			if(center.omega_target == 0) break;
 		}
 	} else if(center.omega_dir == -1){		//Right Turn
-		offset_fix = 0.5;
+		offset_fix = 0.2f;
 
 		while(center.angle - offset > theta + offset_fix);
 		MF.FLAG.WACCL = 0;
@@ -507,22 +501,26 @@ void DriveTest(uint8_t *mode)
 
 			case 5:
 				StartTimer();
+				GyroInit();
 				SetMotionDirection(FORWARD);
 				HalfSectionAccel(GET_WALL_OFF);
 				for(i=0;i<16;i++){
 					SlalomR90();
-					HalfSectionAccel(GET_WALL_OFF);
+					GoOneSectionContinuous(GET_WALL_OFF);
 				}
+				HalfSectionDecel();
 				break;
 
 			case 6:
 				StartTimer();
+				GyroInit();
 				SetMotionDirection(FORWARD);
 				HalfSectionAccel(GET_WALL_OFF);
 				for(i=0;i<16;i++){
 					SlalomL90();
-					HalfSectionAccel(GET_WALL_OFF);
+					GoOneSectionContinuous(GET_WALL_OFF);
 				}
+				HalfSectionDecel();
 				break;
 
 			case 7:

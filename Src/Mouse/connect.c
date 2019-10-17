@@ -21,6 +21,7 @@ void GyroInit(void)
 	WriteByte(CONFIG,0x00);
 	HAL_Delay(10);
 	WriteByte(GYRO_CONFIG,0x18);
+	HAL_Delay(10);
 
 	gyro_base = ReadGyro();
 

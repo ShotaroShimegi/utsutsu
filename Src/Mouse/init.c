@@ -54,12 +54,12 @@ void VariableInit(void){
 	params_search1.accel = 4.0f;						//Unit is [m/s/s]
 
 	val1 = HALF_MM / params_search1.vel_max * 0.001; 			//Time of Running 90mm
-	params_search1.omega_max = 1.5 * Pi / 2 / val1;				//Max Angular-Velocity [rad/s]
+	params_search1.omega_max = 1.5f * Pi * 0.5f / val1;				//Max Angular-Velocity [rad/s]
 	params_search1.omega_accel = 3 * params_search1.omega_max / val1; 	//Angular Acceleration [rad/s/s]
 
-	params_search1.R90_before = 30;		//35
+	params_search1.R90_before = 35;		//35
 	params_search1.R90_after = 53;
-	params_search1.L90_before = 30;
+	params_search1.L90_before = 35;
 	params_search1.L90_after = 53;
 
 //	params_search1.omega_max = 6.0f;			//Unit is [rad/s]
@@ -72,8 +72,8 @@ void VariableInit(void){
 	gain_search1.vel_kiL = 0.01f;
 	gain_search1.omega_kp = 0.20f;
 	gain_search1.omega_ki = 0.04f;
-	gain_search1.wall_kp = 0.001f;
-	gain_search1.wall_kd = 0.01f;
+	gain_search1.wall_kp = 0.005f;
+	gain_search1.wall_kd = 0.03f;
 
 	SetParams(&params_search1);
 	SetGain(&gain_search1);

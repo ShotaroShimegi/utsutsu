@@ -156,9 +156,6 @@ void FirstAction(void)
 	AutoCalibration(0.50,0.50);
 
 	SetMotionDirection(FORWARD);
-//	DriveAccel(SET_MM * 0.5);
-//	DriveDecel(SET_MM * 0.5, 1);
-
 	DisableMotor();
 
 }

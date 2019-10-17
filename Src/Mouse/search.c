@@ -74,6 +74,8 @@ void SearchOneSection(uint8_t goal_length)
 
 void SearchContinuous(uint8_t goal_length)
 {
+	uint8_t fix_flag = 0;
+
 	//====マップデータ初期化====
 	if(MF.FLAG.SEARCH){
 		InitializeMap();
@@ -98,7 +100,11 @@ void SearchContinuous(uint8_t goal_length)
 		UpdateDirection(DIR_SPIN_180);
 		SetMotionDirection(FORWARD);
 	}
+	if(goal_x == 0 && goal_y == 0){
 
+	}else{
+		DriveAccel(SET_MM);
+	}
 	HalfSectionAccel(GET_WALL_ON);;
 	UpdatePosition();
 	r_cnt++;
@@ -125,20 +131,17 @@ void SearchContinuous(uint8_t goal_length)
 			case TURN_BACK:
 				HalfSectionDecel();
 				if(wall_ff.val > WALL_TURN_VALUE){
-					MF.FLAG.SET = 1;
-					Melody(c6,1000);
+					fix_flag = 1;
 				}
 				Spin180();
-				HAL_Delay(100);
+//				HAL_Delay(100);
 				UpdateDirection(DIR_SPIN_180);
 				SetMotionDirection(FORWARD);
 
-				if(MF.FLAG.SET){
-					FixPosition(1);
-					MF.FLAG.SET = 0;
+				if(fix_flag == 1){
+					FixPosition(0);
+					fix_flag = 0;
 				}
-
-				MF.FLAG.CTRL = 1;
 				DriveAccel(HALF_MM);
 				GetWallData();
 				break;
@@ -173,6 +176,8 @@ void SearchContinuous(uint8_t goal_length)
 
 void SearchSlalom(uint8_t goal_length)
 {
+	uint8_t fix_flag = 0;
+
 	//====マップデータ初期化====
 	if(MF.FLAG.SEARCH){
 		InitializeMap();
@@ -225,20 +230,20 @@ void SearchSlalom(uint8_t goal_length)
 				break;
 
 			case TURN_BACK:
-				HalfSectionDecel();
 				if(wall_ff.val > WALL_TURN_VALUE){
-					MF.FLAG.SET = 1;
-//					Melody(c6,1000);
+					fix_flag = 1;
 				}
+				HalfSectionDecel();
+
 				Spin180();
 				HAL_Delay(100);
 				UpdateDirection(DIR_SPIN_180);
-				SetMotionDirection(FORWARD);
 
-				if(MF.FLAG.SET){
+				if(fix_flag == 1){
 					FixPosition(0);
-					MF.FLAG.SET = 0;
+					fix_flag = 0;
 				}
+				SetMotionDirection(FORWARD);
 				HalfSectionAccel(GET_WALL_ON);;
 				break;
 

@@ -10,8 +10,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	TIM_OC_InitTypeDef sConfigOC;
 	uint8_t buff = 0;
-	float wall_gain_fix_r = 1;
-	float wall_gain_fix_l = 1;
+	float wall_gain_fix_r = 1.0f;
+	float wall_gain_fix_l = 1.0f;
 	float duty_right = 0.0f;
 	float duty_left = 0.0f;
 
@@ -80,15 +80,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			if(wall_r.val > wall_r.threshold)	{
 				buff = buff | 0x08;
-				wall_gain_fix_r = 0.5f;
-			}else{
 				wall_gain_fix_r = 1.0f;
+			}else{
+				wall_gain_fix_r = 2.0f;
 			}
 			if(wall_l.val > wall_l.threshold)	{
 				buff = buff | 0x02;
-				wall_gain_fix_r = 0.5f;
+				wall_gain_fix_l = 1.0f;
 			}else{
-				wall_gain_fix_r = 1.0f;
+				wall_gain_fix_l = 2.0f;
 			}
 
 			LedDisplay(&buff);
@@ -127,15 +127,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				vel_ctrl_L.out = 0;
 			}
 
-			if(MF.FLAG.CTRL && center.vel_target > 0.1){
+			if(MF.FLAG.CTRL && center.vel_target > 0.1f){
 				wall_l.dif = wall_l.val - wall_l.base;
-				wall_r.dif = wall_l.val - wall_l.base;
+				wall_r.dif = wall_r.val - wall_r.base;
 
 				wall_l.diff = wall_l.dif - wall_l.pre;
 				wall_r.diff = wall_r.dif - wall_r.pre;
 
 				if(SREF_MIN_L < wall_l.dif && wall_l.dif < SREF_MAX_L){
-					wall_l.out = wall_gain_fix_l * gain_search1.wall_kp * wall_l.dif;
+					wall_l.out = 1.20f * wall_gain_fix_l * gain_search1.wall_kp * wall_l.dif;
 					wall_l.out += gain_search1.wall_kd * wall_l.diff;
 				}
 				if(SREF_MIN_R < wall_r.dif && wall_r.dif < SREF_MAX_R){
@@ -151,7 +151,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				wall_l.out = 0;
 			}
 
-			utsutsu_time++;
+//			utsutsu_time++;
 
 			if(utsutsu_time >= MEMORY){
 				utsutsu_time = MEMORY - 1;
