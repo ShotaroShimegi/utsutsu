@@ -115,6 +115,8 @@ void Spin180()
 
 void FixPosition(uint8_t flag)
 {
+	float save_params = params_now.vel_max;
+
 	MF.FLAG.CTRL = 0;
 
 	SetMotionDirection(BACK);
@@ -122,8 +124,12 @@ void FixPosition(uint8_t flag)
 
 	ResetDistance();
 
+	params_now.vel_max = 0.20f;
+
 	DriveAccel(-(SET_MM * 0.5f));
-	DriveDecel(-(SET_MM * 0.5f),1);
+	DriveDecel(-(SET_MM * 0.6f),1);
+
+	params_now.vel_max = save_params;
 
 	SetMotionDirection(FORWARD);				//前進するようにモータの回転方向を設定
 
@@ -176,9 +182,6 @@ void DriveDecel(float dist, unsigned char rs)
 {
 	float ics = center.distance;
 	float offset;
-
-	//====走行====
-	MF.FLAG.CTRL = 0;
 
 	//----走行開始----
 	MF.FLAG.WCTRL = 1;

@@ -12,8 +12,20 @@ void UtsutsuSystem()
 	GyroInit();
 	VariableInit();
 	CheckBattery();
-	StopTimer();
+//	StopTimer();
 	MF.FLAG.SEARCH = 1;
+
+	StartTimer();
+	StartWaiting();
+
+	SetMotionDirection(FORWARD);
+	utsutsu_time = 0;
+	HalfSectionAccel(GET_WALL_OFF);
+	HalfSectionAccel(GET_WALL_OFF);
+	HalfSectionAccel(GET_WALL_OFF);
+	HalfSectionDecel();
+	StopTimer();
+
 
 	printf("----Start Utsutsu System----\n");
 

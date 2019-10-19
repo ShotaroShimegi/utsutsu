@@ -98,13 +98,17 @@ void SearchContinuous(uint8_t goal_length)
 		Spin180();
 		HAL_Delay(100);
 		UpdateDirection(DIR_SPIN_180);
-		SetMotionDirection(FORWARD);
+		if(wall_ff.val > wall_ff.threshold){
+			FixPosition(0);
+		}
+
 	}
 	if(goal_x == 0 && goal_y == 0){
 
 	}else{
 		DriveAccel(SET_MM);
 	}
+	SetMotionDirection(FORWARD);
 	HalfSectionAccel(GET_WALL_ON);;
 	UpdatePosition();
 	r_cnt++;
@@ -200,7 +204,9 @@ void SearchSlalom(uint8_t goal_length)
 		Spin180();
 		HAL_Delay(100);
 		UpdateDirection(DIR_SPIN_180);
-		SetMotionDirection(FORWARD);
+		if(wall_ff.val > wall_ff.threshold){
+			FixPosition(0);
+		}
 	}
 
 	if(goal_x == 0 && goal_y == 0){
@@ -208,6 +214,7 @@ void SearchSlalom(uint8_t goal_length)
 	}else{
 		DriveAccel(SET_MM);
 	}
+	SetMotionDirection(FORWARD);
 	HalfSectionAccel(GET_WALL_ON);;
 	UpdatePosition();
 	r_cnt++;

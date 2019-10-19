@@ -80,19 +80,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			if(wall_r.val > wall_r.threshold)	{
 				buff = buff | 0x08;
-				wall_gain_fix_r = 1.0f;
+				wall_gain_fix_r = 0.8f;
 			}else{
-				wall_gain_fix_r = 2.0f;
+				wall_gain_fix_r = 0.8f;
 			}
 			if(wall_l.val > wall_l.threshold)	{
 				buff = buff | 0x02;
-				wall_gain_fix_l = 1.0f;
+				wall_gain_fix_l = 0.8f;
 			}else{
-				wall_gain_fix_l = 2.0f;
+				wall_gain_fix_l = 0.80f;
 			}
 
 			LedDisplay(&buff);
-
 			UpdateEncoder();
 			UpdateGyro();
 
@@ -101,7 +100,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				//偏差角速度の算出
 				omega_control.dif = (center.omega_dir * center.omega_target) - center.omega_rad;
 				omega_control.p_out = gain_now.omega_kp * omega_control.dif;
+
 				omega_control.i_out += gain_now.omega_ki * omega_control.dif;
+
 				omega_control.out = omega_control.p_out + omega_control.i_out;
 			}else{
 				omega_control.out = 0;
@@ -117,7 +118,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				//偏差のI制御
 				vel_ctrl_R.i_out += gain_now.vel_kiR * vel_ctrl_R.dif;
 				vel_ctrl_L.i_out += gain_now.vel_kiL * vel_ctrl_L.dif;
-
 				//PID制御値を統合
 				vel_ctrl_R.out = vel_ctrl_R.p_out + vel_ctrl_R.i_out;
 				vel_ctrl_L.out = vel_ctrl_L.p_out + vel_ctrl_L.i_out;
@@ -151,7 +151,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				wall_l.out = 0;
 			}
 
-//			utsutsu_time++;
+			utsutsu_time++;
 
 			if(utsutsu_time >= MEMORY){
 				utsutsu_time = MEMORY - 1;
@@ -163,12 +163,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				test4[utsutsu_time] = wall_l.val;
 */
 //				Translation
-/*
+
 				test1[utsutsu_time] = encoder_r.velocity;
 				test2[utsutsu_time] = encoder_l.velocity;
 				test3[utsutsu_time] = center.vel_target;
 				test4[utsutsu_time] = center.velocity;
-*/
+
 //				Revolution
 
 /*				test1[utsutsu_time] = center.omega_rad;
