@@ -27,6 +27,8 @@
 		float omega_ki;
 		float wall_kp;
 		float wall_kd;
+		float angle_kp;
+		float angle_kd;
 	} gain;
 
 #define MEMORY 4000

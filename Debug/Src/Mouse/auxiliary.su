@@ -4,10 +4,10 @@ auxiliary.c:57:6:MelodySummer	8	static
 auxiliary.c:70:6:MelodyMrLawrence	8	static
 auxiliary.c:94:6:Melody	48	static
 auxiliary.c:127:6:StartWaiting	8	static
-auxiliary.c:149:6:FirstAction	8	static
-auxiliary.c:163:6:SetParams	16	static
-auxiliary.c:171:6:SetGain	16	static
-auxiliary.c:183:6:AutoCalibration	16	static
-auxiliary.c:194:6:LedDisplay	16	static
-auxiliary.c:204:6:ResetDistance	8	static
-auxiliary.c:216:6:CheckBattery	8	static
+auxiliary.c:152:6:FirstAction	8	static
+auxiliary.c:166:6:SetParams	16	static
+auxiliary.c:174:6:SetGain	16	static
+auxiliary.c:188:6:AutoCalibration	16	static
+auxiliary.c:199:6:LedDisplay	16	static
+auxiliary.c:209:6:ResetDistance	8	static
+auxiliary.c:221:6:CheckBattery	8	static

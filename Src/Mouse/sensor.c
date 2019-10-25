@@ -93,6 +93,8 @@ void CheckSensor()
 		LedDisplay(&buff);
 		WaitMs(1000);
 		}
+	center.angle = 0.0f;
+
 
 }
 

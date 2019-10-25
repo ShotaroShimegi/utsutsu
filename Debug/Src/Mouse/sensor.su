@@ -3,10 +3,10 @@ sensor.c:25:6:EncoderGyroTest	40	static
 sensor.c:46:6:StartTimer	8	static
 sensor.c:62:6:StopTimer	8	static
 sensor.c:71:6:CheckSensor	16	static
-sensor.c:99:6:Tim6WaitUs	24	static
-sensor.c:105:9:GetEncoderLeft	16	static
-sensor.c:118:9:GetEncoderRight	16	static
-sensor.c:134:6:UpdateGyro	16	static
-sensor.c:142:6:UpdateEncoder	16	static
-sensor.c:159:5:GetADC	32	static
-sensor.c:174:6:GetControlBaseValue	8	static
+sensor.c:101:6:Tim6WaitUs	24	static
+sensor.c:107:9:GetEncoderLeft	16	static
+sensor.c:120:9:GetEncoderRight	16	static
+sensor.c:136:6:UpdateGyro	16	static
+sensor.c:144:6:UpdateEncoder	16	static
+sensor.c:161:5:GetADC	32	static
+sensor.c:176:6:GetControlBaseValue	8	static

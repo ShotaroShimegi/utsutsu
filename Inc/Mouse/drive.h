@@ -1,8 +1,8 @@
 typedef struct{
-	float dif;			//速度偏差
-	float p_out;			//P制御出力値
-	float i_out;			//I制御出力
-	int8_t dir;		//モータの回転方向
+	float dif;
+	float p_out;
+	float i_out;
+	int8_t dir;
 	float out;
 } pid_control;
 
@@ -26,6 +26,8 @@ typedef struct{
 	int8_t velocity_dir;
 	float distance;			//重心走行距離
 	float angle;			//重心角度　degree単位
+	float pre_angle;
+	float angle_target;
 
 } gravity;
 

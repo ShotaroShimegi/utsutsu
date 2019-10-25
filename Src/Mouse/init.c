@@ -50,7 +50,7 @@ void VariableInit(void){
 	gyro_base = 0;
 
 	//parameter 設定
-	params_search1.vel_max = 0.50f;						//Unit is [m/s] = [mm/ms]
+	params_search1.vel_max = 0.40f;						//Unit is [m/s] = [mm/ms]
 	params_search1.accel = 4.0f;						//Unit is [m/s/s]
 
 	val1 = HALF_MM / params_search1.vel_max * 0.001; 			//Time of Running 90mm
@@ -66,14 +66,16 @@ void VariableInit(void){
 //	params_search1.omega_accel = 25.0f;		//Unit is [rad/s/s]
 
 	/*** Set Parameter for Search　***/
-	gain_search1.vel_kpR = 3.5f;
-	gain_search1.vel_kpL = 3.5f;
-	gain_search1.vel_kiR = 0.01f;
+	gain_search1.vel_kpR = 3.5f;	//3.5f
+	gain_search1.vel_kpL = 3.5f;	//3.5f
+	gain_search1.vel_kiR = 0.01f;	//0.01f
 	gain_search1.vel_kiL = 0.01f;
-	gain_search1.omega_kp = 0.20f;
-	gain_search1.omega_ki = 0.04f;
-	gain_search1.wall_kp = 0.005f;
-	gain_search1.wall_kd = 0.03f;
+	gain_search1.omega_kp = 0.06f;	//0.2f
+	gain_search1.omega_ki = 0.002f;	//0.01f
+	gain_search1.wall_kp = 0.001f;	//0.001f
+	gain_search1.wall_kd = 0.00f;
+	gain_search1.angle_kp = 0.005f;
+	gain_search1.angle_kd = 0.0f;
 
 	SetParams(&params_search1);
 	SetGain(&gain_search1);
@@ -89,6 +91,8 @@ void VariableInit(void){
 	center.omega_dir = 0;
 	center.distance = 0;
 	center.angle = 0;
+	center.pre_angle = 0.0f;
+	center.angle_target = 0.0f;
 
 	maxindex_w = val1 / 3;					// Time for Rotate
 

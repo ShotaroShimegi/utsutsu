@@ -6,26 +6,31 @@ void UtsutsuSystem()
 	uint16_t i = 0;
 
 	DisableMotor();
-
 	MelodySummer();
+
+//	StartWaiting();
 
 	GyroInit();
 	VariableInit();
 	CheckBattery();
-//	StopTimer();
 	MF.FLAG.SEARCH = 1;
 
-	StartTimer();
-	StartWaiting();
-
+/*	StartTimer();
+	FirstAction();
 	SetMotionDirection(FORWARD);
+	center.angle_target = 0.0f;
 	utsutsu_time = 0;
-	HalfSectionAccel(GET_WALL_OFF);
-	HalfSectionAccel(GET_WALL_OFF);
-	HalfSectionAccel(GET_WALL_OFF);
-	HalfSectionDecel();
-	StopTimer();
 
+	HalfSectionAccel(GET_WALL_OFF);
+	SlalomL90();
+	GoOneSectionContinuous();
+	utsutsu_time = 0;
+
+	SlalomL90();
+	HalfSectionDecel();
+
+*/	StopTimer();
+	DisableMotor();
 
 	printf("----Start Utsutsu System----\n");
 

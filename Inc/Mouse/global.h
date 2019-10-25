@@ -90,9 +90,9 @@
 #define WALL_START 300
 
 //----Sensor Control for Threshoud----
-#define SREF_MIN_L 50
+#define SREF_MIN_L 100
 #define SREF_MAX_L 4000
-#define SREF_MIN_R 50
+#define SREF_MIN_R 100
 #define SREF_MAX_R 4000
 
 /*------------------------------------------------------------
@@ -100,8 +100,8 @@
  ------------------------------------------------------------*/
 
 //----Goal Node----
-#define GOAL_X 7
-#define GOAL_Y 7
+#define GOAL_X 0
+#define GOAL_Y 6
 #define GOAL_LENGTH 1
 
 #ifndef __MOUSE_FLAGS__
@@ -120,7 +120,7 @@ typedef union {
 		uint8_t VCTRL :1;		//並進制御フラグ(B8)
 		uint8_t WCTRL :1;		//回転制御フラグ(B9)
 		uint8_t FAIL :1;		//フェイルセーフフラグ(B10)
-		uint8_t RESV11 :1;		//予備フラグ(B11)
+		uint8_t ACTRL :1;		//予備フラグ(B11)
 		uint8_t RESV12 :1;		//予備フラグ(B12)
 		uint8_t RESV13 :1;		//予備フラグ(B13)
 		uint8_t RESV14 :1;		//予備フラグ(B14)

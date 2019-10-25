@@ -3,6 +3,7 @@
 void GyroInit(void)
 {
 	uint8_t who_am_i = ReadByte(WHO_AM_I);
+	uint8_t i = 0;
 	printf("Who am I ? -> 0x%x\n", who_am_i);
 
 	if(who_am_i != GYRO_CORREST_REACTION){
@@ -23,8 +24,10 @@ void GyroInit(void)
 	WriteByte(GYRO_CONFIG,0x18);
 	HAL_Delay(10);
 
-	gyro_base = ReadGyro();
-
+	for(i=0;i<100;i++){
+		gyro_base += ReadGyro();
+	}
+		gyro_base = gyro_base * 0.01;
 }
 
 float ReadGyro(void){

@@ -175,7 +175,6 @@ void SearchContinuous(uint8_t goal_length)
 	Melody(f6,300);
 	Melody(e6,300);
 
-
 }
 
 void SearchSlalom(uint8_t goal_length)
@@ -196,7 +195,6 @@ void SearchSlalom(uint8_t goal_length)
 	MakeRoute_NESW();									//最短経路探索(route配列に動作が格納される)
 
 	Melody(c6,1000);
-
 	SetMotionDirection(FORWARD);
 	StartTimer();
 
@@ -208,6 +206,10 @@ void SearchSlalom(uint8_t goal_length)
 			FixPosition(0);
 		}
 	}
+
+//	center.angle_target = 0.0f;
+	utsutsu_time = 0;
+	MF.FLAG.CTRL = 0;
 
 	if(goal_x == 0 && goal_y == 0){
 

@@ -144,6 +144,9 @@ void StartWaiting(void)
 			break;
 		}
 	}
+
+	center.angle = 0.0f;
+	center.angle_target = 0.0f;
 }
 
 void FirstAction(void)
@@ -178,6 +181,8 @@ void SetGain(gain *instance)
 	gain_now.omega_ki = instance->omega_ki;
 	gain_now.wall_kp = instance->wall_kp;
 	gain_now.wall_kd = instance->wall_kd;
+	gain_now.angle_kp = instance->angle_kp;
+	gain_now.angle_kd = instance->angle_kd;
 }
 
 void AutoCalibration(float constant_l, float constant_r)
