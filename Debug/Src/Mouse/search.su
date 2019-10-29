@@ -11,3 +11,5 @@ search.c:402:6:MakeStepMap	24	static
 search.c:469:6:MakeRoute_NESW	16	static
 search.c:547:6:MakeRoute_ESNW	16	static
 search.c:628:9:CheckGoal	24	static
+search.c:660:6:SaveMapInEeprom	16	static
+search.c:678:6:LoadMapFromEeprom	16	static

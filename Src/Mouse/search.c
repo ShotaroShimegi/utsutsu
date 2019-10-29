@@ -657,3 +657,33 @@ uint8_t CheckGoal(uint8_t x, uint8_t y, uint8_t goal_length)
 
 }
 
+void SaveMapInEeprom(void){
+  eeprom_enable_write();
+  int i,j;
+
+  for(i=0;i<16;i++){
+	  for(j=0;j<16;j++){
+		  map[i][j] = 0x44;
+	  }
+  }
+
+  for(i = 0; i < 16; i++){
+    for(j = 0; j < 16; j++){
+      eeprom_write_halfword(i*16 + j, (uint16_t) map[i][j]);
+    }
+  }
+  eeprom_disable_write();
+}
+
+void LoadMapFromEeprom(void)
+{
+  int i,j;
+
+  InitializeMap();
+
+  for(i = 0; i < 16; i++){
+    for(j = 0; j < 16; j++){
+      map[i][j] = (uint8_t) eeprom_read_halfword(i*16 + j);
+    }
+  }
+}

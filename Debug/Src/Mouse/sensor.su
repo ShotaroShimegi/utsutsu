@@ -10,3 +10,4 @@ sensor.c:136:6:UpdateGyro	16	static
 sensor.c:144:6:UpdateEncoder	16	static
 sensor.c:161:5:GetADC	32	static
 sensor.c:176:6:GetControlBaseValue	8	static
+sensor.c:184:6:WallStructureInit	16	static

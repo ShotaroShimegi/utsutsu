@@ -6,8 +6,8 @@ void UtsutsuSystem()
 	uint16_t i = 0;
 
 	DisableMotor();
-	MelodySummer();
-
+//	MelodySummer();
+	MelodyRayearth();
 //	StartWaiting();
 
 	GyroInit();
@@ -33,6 +33,14 @@ void UtsutsuSystem()
 	DisableMotor();
 
 	printf("----Start Utsutsu System----\n");
+
+	SaveMapInEeprom();
+	LoadMapFromEeprom();
+
+	for(i=0;i<16;i++){
+		printf("MAP %d is 0x%x\n",i,map[i][16]);
+		HAL_Delay(100);
+	}
 
 	while(1){
 

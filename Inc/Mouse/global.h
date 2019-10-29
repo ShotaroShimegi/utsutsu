@@ -10,6 +10,8 @@
 #include "search.h"
 #include "connect.h"
 #include "init.h"
+#include "eeprom.h"
+#include "music.h"
 
 /*============================================================
  各種定数・変数宣言
@@ -47,42 +49,14 @@
 #define MASS 0.1f
 #define VOLT_BAT 7.4f
 
-//---メロディ周波数---
-#define c6 1046
-#define c6h 1108
-#define d6 1174
-#define d6h 1244
-#define e6 1318
-
-#define f6 1397
-#define f6h 1480
-#define g6 1568
-#define g6h 1661
-#define a6 1760
-#define a6h 1865
-#define b6 1976
-
-#define c7 2093
-#define c7h 2217
-#define d7 2349
-#define d7h 2489
-#define e7 2637
-
-#define f7 2794
-#define f7h 2960
-#define g7 3136
-#define g7h 3222
-#define a7 3520
-#define a7h 3729
-#define b7 3951
 
 /*------------------------------------------------------------
  センサ系
  ------------------------------------------------------------*/
 //----Sensor Threshoud----
 #define WALL_BASE_F 150
-#define WALL_BASE_L 150
-#define WALL_BASE_R 100
+#define WALL_BASE_L 120	//150
+#define WALL_BASE_R 80 //100
 #define WALL_OFF 100
 
 #define WALL_TURN_VALUE 120
@@ -90,9 +64,9 @@
 #define WALL_START 300
 
 //----Sensor Control for Threshoud----
-#define SREF_MIN_L 100
+#define SREF_MIN_L 20
 #define SREF_MAX_L 4000
-#define SREF_MIN_R 100
+#define SREF_MIN_R 20
 #define SREF_MAX_R 4000
 
 /*------------------------------------------------------------
@@ -100,8 +74,8 @@
  ------------------------------------------------------------*/
 
 //----Goal Node----
-#define GOAL_X 0
-#define GOAL_Y 6
+#define GOAL_X 1
+#define GOAL_Y 1
 #define GOAL_LENGTH 1
 
 #ifndef __MOUSE_FLAGS__

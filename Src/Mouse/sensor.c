@@ -180,3 +180,14 @@ void GetControlBaseValue(){
 	wall_r.base = wall_r.val;
 	wall_l.base = wall_l.val;
 }
+
+void WallStructureInit(wall_sensor *instance){
+	instance->base = 0;
+	instance->dif = 0;
+	instance->diff = 0;
+	instance->out = 0.0f;
+	instance->pre = 0;
+	instance->threshold = 0;
+	instance->val = 0;
+
+}

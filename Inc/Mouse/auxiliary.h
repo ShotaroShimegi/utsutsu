@@ -63,17 +63,12 @@
 	void WaitMs(unsigned int);
 
 	void ModeSelect(uint8_t *mode);
-	void MelodySummer(void);
-	void MelodyMrLawrence(void);
-
-	void Melody(uint32_t,uint32_t);
 	void StartWaiting(void);
 	void FirstAction(void);
 
 	void AutoCalibration(float,float);
 	void SetParams(params *instance);
 	void SetGain(gain *instance);
-
 	void LedDisplay(uint8_t *led);
 	void ResetDistance(void);
 	void CheckBattery(void);

@@ -33,7 +33,7 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
  ../Inc/main.h ../Inc/spi.h ../Inc/tim.h ../Inc/usart.h ../Inc/gpio.h \
  ../Inc/Mouse/global.h ../Inc/Mouse/auxiliary.h ../Inc/Mouse/drive.h \
  ../Inc/Mouse/sensor.h ../Inc/Mouse/search.h ../Inc/Mouse/connect.h \
- ../Inc/Mouse/init.h
+ ../Inc/Mouse/init.h ../Inc/Mouse/eeprom.h ../Inc/Mouse/music.h
 
 ../Inc/main.h:
 
@@ -124,3 +124,7 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
 ../Inc/Mouse/connect.h:
 
 ../Inc/Mouse/init.h:
+
+../Inc/Mouse/eeprom.h:
+
+../Inc/Mouse/music.h:

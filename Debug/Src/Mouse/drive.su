@@ -17,3 +17,4 @@ drive.c:367:6:StopMotion	8	static
 drive.c:391:6:SetMotionDirection	16	static
 drive.c:427:6:DisableMotor	8	static
 drive.c:450:6:DriveTest	24	static
+drive.c:548:6:PIDStructureInit	16	static

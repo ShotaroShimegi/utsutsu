@@ -14,36 +14,28 @@
 		int16_t dif;			// = (Raw -base)
 		int16_t pre;			//For D-control
 		int16_t diff;			//D-Control
-		float out;
-
-		uint16_t threshold;
+		float out;				//output for Duty
+		uint16_t threshold;		//For Wall Check
 	}wall_sensor;
 
-
-	//====変数====
 	#ifdef MAIN_C_
-		/*グローバル変数の定義*/
-		//----LEDポート----
-		volatile wall_sensor wall_r;
-		volatile wall_sensor wall_fr;
-		volatile wall_sensor wall_ff;
-		volatile wall_sensor wall_fl;
-		volatile wall_sensor wall_l;
+		wall_sensor wall_r;
+		wall_sensor wall_fr;
+		wall_sensor wall_ff;
+		wall_sensor wall_fl;
+		wall_sensor wall_l;
 
-		//----その他----
 		volatile uint8_t tp;
 		volatile float gyro_base;
 
 	#else
 
-		//----壁センサ構造体----
-		extern volatile wall_sensor wall_r;
-		extern volatile wall_sensor wall_fr;
-		extern volatile wall_sensor wall_ff;
-		extern volatile wall_sensor wall_fl;
-		extern volatile wall_sensor wall_l;
+		extern wall_sensor wall_r;
+		extern wall_sensor wall_fr;
+		extern wall_sensor wall_ff;
+		extern wall_sensor wall_fl;
+		extern wall_sensor wall_l;
 
-		//----その他----
 		extern volatile uint8_t tp;
 		extern volatile float gyro_base;
 
@@ -67,6 +59,7 @@
 	void UpdateGyro(void);
 
 	int GetADC(ADC_HandleTypeDef *hadc, uint32_t channel);
+	void WallStructureInit(wall_sensor*);
 
 
 #endif /* SENSOR_H_ */

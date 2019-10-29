@@ -1,4 +1,4 @@
-Src/Mouse/search.o: ../Src/Mouse/search.c ../Inc/Mouse/global.h \
+Src/Mouse/eeprom.o: ../Src/Mouse/eeprom.c ../Inc/Mouse/global.h \
  ../Inc/Mouse/auxiliary.h ../Inc/Mouse/drive.h ../Inc/Mouse/sensor.h \
  ../Inc/adc.h ../Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \

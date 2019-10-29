@@ -152,13 +152,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				wall_r.diff = wall_r.dif - wall_r.pre;
 
 				if(SREF_MIN_L < wall_l.dif && wall_l.dif < SREF_MAX_L){
-					wall_l.out = 1.20f * wall_gain_fix_l * gain_search1.wall_kp * wall_l.dif;
+//					wall_l.out = 1.20f * wall_gain_fix_l * gain_search1.wall_kp * wall_l.dif;
+					wall_l.out = wall_gain_fix_l * gain_search1.wall_kp * wall_l.dif;
+
 					wall_l.out += gain_search1.wall_kd * wall_l.diff;
 				}
 				if(SREF_MIN_R < wall_r.dif && wall_r.dif < SREF_MAX_R){
 					wall_r.out = wall_gain_fix_r * gain_search1.wall_kp * wall_r.dif;
 					wall_r.out += gain_search1.wall_kd * wall_r.diff;
 				}
+
+				if(wall_r.out > 0.1f) wall_r.out = 0.1f;
+				if(wall_l.out > 0.1f) wall_l.out = 0.1f;
+
 
 				wall_l.pre = wall_l.dif;
 				wall_r.pre = wall_r.dif;
@@ -252,11 +258,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				test4[utsutsu_time] = center.distance;
 */
 //				Slalom
-				test1[utsutsu_time] = center.omega_dir * center.omega_target;
+/*				test1[utsutsu_time] = center.omega_dir * center.omega_target;
 				test2[utsutsu_time] = center.omega_rad;;
 				test3[utsutsu_time] = center.vel_target;
 				test4[utsutsu_time] = center.velocity;
-
+*/
 			}
 
 			break;

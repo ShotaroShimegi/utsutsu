@@ -61,9 +61,9 @@ typedef struct{
 	volatile encoder encoder_l;
 
 	/*** Structure [Velocity Control] [Angular Velocity Control]***/
-	volatile pid_control vel_ctrl_R;
-	volatile pid_control vel_ctrl_L;
-	volatile pid_control omega_control;
+	pid_control vel_ctrl_R;
+	pid_control vel_ctrl_L;
+	pid_control omega_control;
 
 	volatile uint16_t utsutsu_time, ms_time;
 	volatile float maxindex, maxindex_w;		//時間・加速必要時間・角加速必要時間？
@@ -71,19 +71,16 @@ typedef struct{
 	volatile float Kvolt,Kxr;				//加速度計算するための電流定数，距離変換のための定数
 
 #else
-	/*** 重心・位置　構造体 ***/
 	extern volatile gravity center;
 	extern volatile encoder encoder_r;
 	extern volatile encoder encoder_l;
 
 	/*** 速度制御 構造体***/
-	extern volatile pid_control vel_ctrl_R;
-	extern volatile pid_control vel_ctrl_L;
+	extern pid_control vel_ctrl_R;
+	extern pid_control vel_ctrl_L;
+	extern pid_control omega_control;
 
-	/***　角速度制御 構造体***/
-	extern volatile pid_control omega_control;
-
-	extern volatile uint16_t utsutsu_time,ms_time;
+	extern uint16_t utsutsu_time,ms_time;
 	extern volatile float maxindex,maxindex_w;
 
 	extern volatile float Kvolt,Kxr;
@@ -118,5 +115,6 @@ typedef struct{
 	void SlalomL90();
 
 	void DriveTest(uint8_t *mode);
+	void PIDStructureInit(pid_control *);
 
 #endif /* DRIVE_H_ */

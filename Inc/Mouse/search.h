@@ -69,5 +69,7 @@
 	void MakeRoute_ESNW();
 
 	uint8_t CheckGoal(uint8_t,uint8_t,uint8_t);
+	void SaveMapInEeprom(void);
+	void LoadMapFromEeprom(void);
 
 #endif /* SEARCH_H_ */

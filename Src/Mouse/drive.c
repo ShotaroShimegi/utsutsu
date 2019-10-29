@@ -21,7 +21,7 @@
 
 void HalfSectionAccel(uint8_t wall_read)
 {
-	MF.FLAG.CTRL = 0;
+	MF.FLAG.CTRL = 1;
 	DriveAccel(HALF_MM);
 	if(wall_read) {
 		GetWallData();
@@ -142,8 +142,8 @@ void DriveAccel(float dist)
 	float ics = center.distance;
 
 	MF.FLAG.VCTRL = 1;
-	MF.FLAG.WCTRL = 0;
-	if(dist > 0)MF.FLAG.ACTRL = 1;
+	MF.FLAG.WCTRL = 1;
+	if(dist > 0)MF.FLAG.ACTRL = 0;
 	else MF.FLAG.ACTRL = 0;
 
 	MF.FLAG.WDECL = 0;
@@ -178,9 +178,9 @@ void DriveDecel(float dist, unsigned char rs)
 	float offset;
 
 	//----走行開始----
-	MF.FLAG.WCTRL = 0;
+	MF.FLAG.WCTRL = 1;
 	MF.FLAG.VCTRL = 1;
-	if(dist > 0)MF.FLAG.ACTRL = 1;
+	if(dist > 0)MF.FLAG.ACTRL = 0;
 	else MF.FLAG.ACTRL = 0;
 
 	MF.FLAG.WDECL = 0;
@@ -545,3 +545,11 @@ void DriveTest(uint8_t *mode)
 	printf("drive_Finish: %d\n",*mode);
 }
 
+void PIDStructureInit(pid_control *instance)
+{
+	instance->dif = 0.0f;
+	instance->dir = 0;
+	instance->i_out = 0.0f;
+	instance->p_out = 0.0f;
+	instance->out = 0.0f;
+}

@@ -1,6 +1,4 @@
-Src/Mouse/search.o: ../Src/Mouse/search.c ../Inc/Mouse/global.h \
- ../Inc/Mouse/auxiliary.h ../Inc/Mouse/drive.h ../Inc/Mouse/sensor.h \
- ../Inc/adc.h ../Inc/main.h \
+Src/Mouse/music.o: ../Src/Mouse/music.c ../Inc/tim.h ../Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
@@ -32,18 +30,12 @@ Src/Mouse/search.o: ../Src/Mouse/search.c ../Inc/Mouse/global.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- ../Inc/Mouse/search.h ../Inc/Mouse/connect.h ../Inc/spi.h \
- ../Inc/Mouse/init.h ../Inc/Mouse/eeprom.h ../Inc/Mouse/music.h
+ ../Inc/Mouse/global.h ../Inc/Mouse/auxiliary.h ../Inc/Mouse/drive.h \
+ ../Inc/Mouse/sensor.h ../Inc/adc.h ../Inc/Mouse/search.h \
+ ../Inc/Mouse/connect.h ../Inc/spi.h ../Inc/Mouse/init.h \
+ ../Inc/Mouse/eeprom.h ../Inc/Mouse/music.h
 
-../Inc/Mouse/global.h:
-
-../Inc/Mouse/auxiliary.h:
-
-../Inc/Mouse/drive.h:
-
-../Inc/Mouse/sensor.h:
-
-../Inc/adc.h:
+../Inc/tim.h:
 
 ../Inc/main.h:
 
@@ -108,6 +100,16 @@ Src/Mouse/search.o: ../Src/Mouse/search.c ../Inc/Mouse/global.h \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
+
+../Inc/Mouse/global.h:
+
+../Inc/Mouse/auxiliary.h:
+
+../Inc/Mouse/drive.h:
+
+../Inc/Mouse/sensor.h:
+
+../Inc/adc.h:
 
 ../Inc/Mouse/search.h:
 

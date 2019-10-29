@@ -33,7 +33,8 @@ Src/Mouse/interrupt.o: ../Src/Mouse/interrupt.c ../Inc/Mouse/global.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Inc/Mouse/search.h ../Inc/Mouse/connect.h ../Inc/spi.h \
- ../Inc/Mouse/init.h ../Inc/tim.h ../Inc/Mouse/sensor.h
+ ../Inc/Mouse/init.h ../Inc/Mouse/eeprom.h ../Inc/Mouse/music.h \
+ ../Inc/tim.h ../Inc/Mouse/sensor.h
 
 ../Inc/Mouse/global.h:
 
@@ -116,6 +117,10 @@ Src/Mouse/interrupt.o: ../Src/Mouse/interrupt.c ../Inc/Mouse/global.h \
 ../Inc/spi.h:
 
 ../Inc/Mouse/init.h:
+
+../Inc/Mouse/eeprom.h:
+
+../Inc/Mouse/music.h:
 
 ../Inc/tim.h:
 

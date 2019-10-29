@@ -9,10 +9,16 @@ void VariableInit(void){
 	uint16_t i;
 	//----壁センサ系----
 	tp = 0;
-	wall_l.dif = wall_r.dif = wall_fl.dif = wall_fr.dif = wall_ff.dif = 0;
-	wall_l.val = wall_r.val = wall_fl.val = wall_fr.val = wall_ff.val = 0;
-	wall_l.base = wall_r.base = wall_fl.base = wall_fr.base = wall_ff.base = 0;
-	wall_l.threshold = wall_r.threshold = wall_fl.threshold = wall_fr.threshold = wall_ff.threshold = 0;
+	WallStructureInit(&wall_fl);
+	WallStructureInit(&wall_l);
+	WallStructureInit(&wall_ff);
+	WallStructureInit(&wall_r);
+	WallStructureInit(&wall_fr);
+	PIDStructureInit(&vel_ctrl_R);
+	PIDStructureInit(&vel_ctrl_L);
+	PIDStructureInit(&omega_control);
+
+
 	utsutsu_time = 0;
 
 	/*** Initialize Encoder Structure ***/
@@ -27,27 +33,6 @@ void VariableInit(void){
 	encoder_l.sum = 0;
 	encoder_l.distance = 0;
 	encoder_l.velocity = 0.0;
-
-	/*** Initialize Velocity-Control Structure ***/
-	vel_ctrl_R.dif = 0;
-	vel_ctrl_R.p_out = 0;
-	vel_ctrl_R.i_out = 0;
-	vel_ctrl_R.dir = 1;
-	vel_ctrl_R.out = 0;
-
-	vel_ctrl_L.dif = 0;
-	vel_ctrl_L.p_out = 0;
-	vel_ctrl_L.i_out = 0;
-	vel_ctrl_L.dir = 1;
-	vel_ctrl_L.out = 0;
-
-	/*** Initialize Omega-Control Structure ***/
-	omega_control.dif = 0;
-	omega_control.p_out = 0;
-	omega_control.i_out = 0;
-	omega_control.dir = 0;
-	omega_control.out = 0;
-	gyro_base = 0;
 
 	//parameter 設定
 	params_search1.vel_max = 0.40f;						//Unit is [m/s] = [mm/ms]
@@ -72,7 +57,7 @@ void VariableInit(void){
 	gain_search1.vel_kiL = 0.01f;
 	gain_search1.omega_kp = 0.06f;	//0.2f
 	gain_search1.omega_ki = 0.002f;	//0.01f
-	gain_search1.wall_kp = 0.001f;	//0.001f
+	gain_search1.wall_kp = 0.0005f;	//0.001f
 	gain_search1.wall_kd = 0.00f;
 	gain_search1.angle_kp = 0.005f;
 	gain_search1.angle_kd = 0.0f;
@@ -127,7 +112,6 @@ void VariableInit(void){
 //		HAL_Delay(1);
 	}
 	printf("Array Delete Completed\n");
-
 
 	HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,SET);
 	HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,SET);
