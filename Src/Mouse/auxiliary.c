@@ -95,18 +95,38 @@ void FirstAction(void)
 
 void SetParams(params *instance)
 {
+	//====Params Structure====
 	params_now.vel_max = instance->vel_max;
+	params_now.big_vel_max = instance->big_vel_max;
 	params_now.accel = instance->accel;
 	params_now.omega_max = instance->omega_max;
 	params_now.omega_accel = instance->omega_accel;
+	params_now.big90_omega_max = instance->big90_omega_max;
+	params_now.big90_omega_accel = instance->big90_omega_accel;
+	params_now.big180_omega_max = instance->big180_omega_max;
+	params_now.big180_omega_accel = instance->big180_omega_accel;
+
+	params_now.TURN90_before = instance->TURN90_before;
+	params_now.TURN90_after = instance->TURN90_after;
+	params_now.big90_before = instance->big90_before;
+	params_now.big90_after = instance->big90_after;
+	params_now.big180_before = instance->big180_before;
+	params_now.big180_after = instance->big180_after;
+
+	center.velocity_max = instance->vel_max;
+	center.accel = instance->accel;
+	center.omega_max = instance->omega_max;
+	center.omega_accel = instance->omega_accel;
+
+	accel_time = params_now.vel_max / params_now.accel;		//Time for Accel
+	omega_accel_time = accel_time / 3;
+
 }
 
 void SetGain(gain *instance)
 {
-	gain_now.vel_kpR = instance->vel_kpR;
-	gain_now.vel_kiR = instance->vel_kiR;
-	gain_now.vel_kpL = instance->vel_kpL;
-	gain_now.vel_kiL = instance->vel_kiL;
+	gain_now.vel_kp = instance->vel_kp;
+	gain_now.vel_ki = instance->vel_ki;
 	gain_now.omega_kp = instance->omega_kp;
 	gain_now.omega_ki = instance->omega_ki;
 	gain_now.wall_kp = instance->wall_kp;
@@ -168,3 +188,48 @@ void CheckBattery(void)
 	printf("Voltage ALL GREEN\n");
 
 }
+
+void CalculateNormalParams(params *instance,float velocity,float accel)
+{
+	float time_90mm = HALF_MM / velocity * 0.001;
+
+	instance->vel_max = velocity;									//Unit is [m/s] = [mm/ms]
+	instance->accel = accel;										//Unit is [m/s/s]
+	instance->omega_max = 3.0f / (1.0f+3.0f) * 2.0f * (Pi * 0.5f) / time_90mm;	//Max Angular-Velocity [rad/s]
+	instance->omega_accel = 3.0f * instance->omega_max / time_90mm; 	//Angular Acceleration [rad/s/s]
+
+}
+
+void CalculateBigParams(params *instance,float velocity,float accel)
+{
+	float time_180mm = ONE_MM / velocity * 0.001;
+	float time_360mm = 2 * ONE_MM / velocity * 0.001;
+
+	instance->big90_omega_max = 2 /(1+2) * 2 * Pi * 0.5f /time_180mm;
+	instance->big90_omega_accel = 2 * instance->big90_omega_max / time_180mm;
+	instance->big180_omega_max = 2.5 / (1+2.5) * 2 * Pi / time_360mm;
+	instance->big180_omega_accel = 2 * instance->big180_omega_max / time_360mm;
+
+}
+
+void AssignOffsetParams(params *instance, uint8_t turn90_before,uint8_t turn90_after,uint8_t big90_before,uint8_t big90_after,uint8_t big180_before,uint8_t big180_after)
+{
+	instance->TURN90_before = turn90_before;
+	instance->TURN90_after = turn90_after;
+	instance->big90_before = big90_before;
+	instance->big90_after = big90_after;
+	instance->big180_before = big180_before;
+	instance->big180_after = big180_after;
+
+}
+
+
+// Not Completed Function
+void FailSafe(void){
+	if(1){
+
+	}
+	StopTimer();
+
+}
+

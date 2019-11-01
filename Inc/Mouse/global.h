@@ -56,7 +56,7 @@
 //----Sensor Threshoud----
 #define WALL_BASE_F 150
 #define WALL_BASE_L 120	//150
-#define WALL_BASE_R 80 //100
+#define WALL_BASE_R 70 //100
 #define WALL_OFF 100
 
 #define WALL_TURN_VALUE 120
@@ -64,9 +64,9 @@
 #define WALL_START 300
 
 //----Sensor Control for Threshoud----
-#define SREF_MIN_L 20
+#define SREF_MIN_L 0
 #define SREF_MAX_L 4000
-#define SREF_MIN_R 20
+#define SREF_MIN_R 0
 #define SREF_MAX_R 4000
 
 /*------------------------------------------------------------
@@ -74,9 +74,9 @@
  ------------------------------------------------------------*/
 
 //----Goal Node----
-#define GOAL_X 1
-#define GOAL_Y 1
-#define GOAL_LENGTH 1
+#define GOAL_X 7
+#define GOAL_Y 7
+#define GOAL_LENGTH 2
 
 #ifndef __MOUSE_FLAGS__
 #define __MOUSE_FLAGS__

@@ -12,6 +12,10 @@
 	#define GYRO_ZOUT_H 0x47
 	#define GYRO_ZOUT_L 0x48
 
+	#define ACCEL_CONFIG 0x1c
+	#define ACCEL_XOUT_H 0x3b
+	#define ACCEL_XOUT_L 0x3c
+
 /*============================================================
 		関数プロトタイプ宣言
 ============================================================*/

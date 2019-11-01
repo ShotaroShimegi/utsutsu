@@ -21,7 +21,7 @@
 
 void HalfSectionAccel(uint8_t wall_read)
 {
-	MF.FLAG.CTRL = 1;
+	MF.FLAG.CTRL = 0;
 	DriveAccel(HALF_MM);
 	if(wall_read) {
 		GetWallData();
@@ -30,21 +30,20 @@ void HalfSectionAccel(uint8_t wall_read)
 
 void HalfSectionDecel()
 {
-	MF.FLAG.CTRL = 1;
-	DriveDecel(HALF_MM,1);									//
+	MF.FLAG.CTRL = 0;
+	DriveDecel(HALF_MM,1);
 }
-
 
 void GoOneSectionStop()
 {
  	HalfSectionAccel(GET_WALL_ON);
 	HalfSectionDecel();
-
 	ResetDistance();
 	DisableMotor();
 }
 
-void GoOneSectionContinuous(){
+void GoOneSectionContinuous()
+{
 	HalfSectionAccel(GET_WALL_OFF);
 	HalfSectionAccel(GET_WALL_ON);
 }
@@ -64,14 +63,11 @@ void SlalomR90()
 {
 	MF.FLAG.CTRL = 0;
 	SetMotionDirection(FORWARD);
-	DriveAccel(params_search1.R90_before);
-
+	DriveAccel(params_search1.TURN90_before);
 	MF.FLAG.CTRL = 0;
 	DriveSlalom(-90);
-
 	MF.FLAG.CTRL = 0;
-	DriveAccel(params_search1.R90_after);
-
+	DriveAccel(params_search1.TURN90_after);
 	GetWallData();
 
 }
@@ -80,7 +76,6 @@ void SlalomR90()
 void SpinL90(void)
 {
 	MF.FLAG.CTRL = 0;
-
 	SetMotionDirection(TURN_L);
 	DriveSpin(ROT_ANGLE_L90);
 	DisableMotor();
@@ -91,13 +86,11 @@ void SlalomL90(void)
 {
 	MF.FLAG.CTRL = 1;
 	SetMotionDirection(FORWARD);
-	DriveAccel(params_search1.L90_before);
-
+	DriveAccel(params_search1.TURN90_before);
 	MF.FLAG.CTRL = 0;
 	DriveSlalom(90);
-
 	MF.FLAG.CTRL = 1;
-	DriveAccel(params_search1.L90_after);
+	DriveAccel(params_search1.TURN90_after);
 	GetWallData();
 
 }
@@ -114,19 +107,17 @@ void Spin180()
 
 void FixPosition(uint8_t flag)
 {
-	float save_params = params_now.vel_max;
-
 	MF.FLAG.CTRL = 0;
 	SetMotionDirection(BACK);
 	WaitMs(200);
 	ResetDistance();
 
-	params_now.vel_max = 0.20f;
-	DriveAccel(-(SET_MM * 0.5f));
-	DriveDecel(-(SET_MM * 0.6f),1);
-	params_now.vel_max = save_params;
+	center.velocity_max = 0.20f;
+	DriveAccel(-(SET_MM * 0.7f));
+	DriveDecel(-(SET_MM * 0.7f),1);
+	center.velocity_max = params_now.vel_max;
 
-	SetMotionDirection(FORWARD);				//前進するようにモータの回転方向を設定
+	SetMotionDirection(FORWARD);
 	MF.FLAG.CTRL = 1;
 	if(flag == 0){
 		DriveAccel(SET_MM);
@@ -143,18 +134,18 @@ void DriveAccel(float dist)
 
 	MF.FLAG.VCTRL = 1;
 	MF.FLAG.WCTRL = 1;
-	if(dist > 0)MF.FLAG.ACTRL = 0;
-	else MF.FLAG.ACTRL = 0;
 
 	MF.FLAG.WDECL = 0;
 	MF.FLAG.WACCL = 0;
 	MF.FLAG.ACCL = 1;
 	MF.FLAG.DECL = 0;
 
+	if(dist > 0)	MF.FLAG.ACTRL = 0;
+	else 			MF.FLAG.ACTRL = 0;
+
 	center.omega_target = 0;
 
 	StartMotion();
-
 	//----走行----
 	if(dist >= 0.0f){
 		while(center.distance < ics + dist){
@@ -190,7 +181,7 @@ void DriveDecel(float dist, unsigned char rs)
 
 	StartMotion();
 
-	offset = rs * 0.5 * params_now.vel_max * maxindex * 1000;
+	offset = rs * 0.5 * params_now.vel_max * accel_time * 1000;
 	offset += 8.0f;
 
 	//----走行----
@@ -209,7 +200,6 @@ void DriveDecel(float dist, unsigned char rs)
 			MF.FLAG.WCTRL = 0;
 			MF.FLAG.VCTRL = 0;
 
-			//----停止措置----
 			StopMotion();
 			vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
 			omega_control.i_out = 0;
@@ -240,7 +230,7 @@ void DriveSpin(float theta)
 
 	ResetDistance();
 
-	offset = (0.5 * maxindex_w * params_now.omega_max) * KWP;		//減速に必要な角度の絶対値計算
+	offset = (0.5 * omega_accel_time * params_now.omega_max) * KWP;		//減速に必要な角度の絶対値計算
 	center.vel_target = 0;
 	center.omega_target = 0;
 	omega_control.i_out = 0;
@@ -291,48 +281,95 @@ void DriveSlalom(int16_t theta)
 //	center.angle = 0;
 	center.omega_target = 0;
 
-	//====回転開始====
+	//====Set MF FLAGS====
 	MF.FLAG.VCTRL = 1;
 	MF.FLAG.WCTRL = 1;
 	MF.FLAG.ACTRL = 0;
-
-	if(theta > 0){					//Left Turn
-		center.omega_dir = 1;
-	}else if(theta < 0){			//Right Turn
-		center.omega_dir = -1;
-	}
 	MF.FLAG.ACCL = 1;
 	MF.FLAG.DECL = 0;
 	MF.FLAG.WACCL = 1;
 	MF.FLAG.WDECL = 0;
 
+	if(theta > 0)		center.omega_dir = 1;	//Left Turn
+	else if(theta < 0)	center.omega_dir = -1;	//Right Turn
+
 	StartMotion();
 
-	offset = (0.5 * maxindex_w * params_now.omega_max) * KWP;
+	offset = (0.5 * omega_accel_time * center.omega_max) * KWP;
 
-	//====回転====
-	if(center.omega_dir == 1){				//Left Turn
+	if(center.omega_dir == 1)					//Left Turn
+	{
 		offset_fix = 0.5f;
-
 		while(center.angle + offset < ics + theta - offset_fix);
 		MF.FLAG.WACCL = 0;
 		MF.FLAG.WDECL = 1;
-
 		while(center.angle < ics + theta - offset_fix){
 			if(center.omega_target == 0) break;
 		}
-	} else if(center.omega_dir == -1){		//Right Turn
+	}
+	else if(center.omega_dir == -1)			//Right Turn
+	{
 		offset_fix = 0.2f;
-
 		while(center.angle - offset > ics + theta + offset_fix);
 		MF.FLAG.WACCL = 0;
 		MF.FLAG.WDECL = 1;
-
-		while(center.angle > ics + theta + offset_fix){
+		while(center.angle > ics + theta + offset_fix)
+		{
 			if(center.omega_target == 0) break;
-
 		}
 	}
+	center.angle_target += theta;
+	omega_control.dir = 0;
+	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
+	omega_control.i_out = 0;
+}
+
+void DriveSlalomFree(params *instance, int16_t theta)
+{
+	float offset = 0;
+	float offset_fix = 0;
+	float ics = center.angle;
+	ResetDistance();
+
+	//====Change Center Structure====
+	center.omega_target = 0.0f;
+	center.accel = 0.0f;
+	center.omega_accel =0.0f;
+
+	//====Set MF FLAG====
+	MF.FLAG.VCTRL = 1;
+	MF.FLAG.WCTRL = 1;
+	MF.FLAG.ACTRL = 0;
+
+	MF.FLAG.ACCL = 1;
+	MF.FLAG.DECL = 0;
+	MF.FLAG.WACCL = 1;
+	MF.FLAG.WDECL = 0;
+
+	if(theta > 0)		center.omega_dir = 1;	//Left Turn
+	else if(theta < 0)	center.omega_dir = -1;	//Right Turn
+
+	StartMotion();
+
+	offset = (0.5 * omega_accel_time * params_now.omega_max) * KWP;
+
+	if(center.omega_dir == 1){				//Left Turn
+		while(center.angle + offset < ics + theta - offset_fix);
+		MF.FLAG.WACCL = 0;
+		MF.FLAG.WDECL = 1;
+		while(center.angle < ics + theta - offset_fix){
+			if(center.omega_target == 0) break;
+		}
+
+	} else if(center.omega_dir == -1){		//Right Turn
+		while(center.angle - offset > ics + theta + offset_fix);
+		MF.FLAG.WACCL = 0;
+		MF.FLAG.WDECL = 1;
+		while(center.angle > ics + theta + offset_fix){
+			if(center.omega_target == 0) break;
+		}
+	}
+
 	center.angle_target += theta;
 	omega_control.dir = 0;
 	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
@@ -381,43 +418,35 @@ void StopMotion(void)
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++
-//SetMotionDirection
-//	進行方向を設定する
-// arg1：d_dir・・・どの方向に進行するか  0桁目で左、1桁目で右の方向設定
-// return：なし
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
 void SetMotionDirection(uint8_t d_dir)
 {
 	HAL_GPIO_WritePin(STBY_GPIO_Port, STBY_Pin,SET);
-
-	//====左モータ====
-	switch(d_dir & 0x0f){									//0~3ビット目を取り出す
-		//----正回転----
+	//====Left Motor====
+	switch(d_dir & 0x0f){
+		//----FORWARD----
 		case 0x00:
-			vel_ctrl_L.dir= 1;				//左モータを正方向に
+			vel_ctrl_L.dir= 1;
 			HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,RESET);
 			HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,SET);
-
 			break;
-		//----逆回転----
+		//----BACK----
 		case 0x01:
-			vel_ctrl_L.dir = -1;			//左モータを逆方向に
+			vel_ctrl_L.dir = -1;
 			HAL_GPIO_WritePin(MOTOR_L_DIR1_GPIO_Port, MOTOR_L_DIR1_Pin,SET);
 			HAL_GPIO_WritePin(MOTOR_L_DIR2_GPIO_Port, MOTOR_L_DIR2_Pin,RESET);
 			break;
 	}
-	//====右モータ====
-	switch(d_dir & 0xf0){					//4~7ビット目を取り出す
+	//====Right Motor====
+	switch(d_dir & 0xf0){
+	//----FORWARD----
 		case 0x00:
-			vel_ctrl_R.dir = 1;				//右を前進方向に設定
+			vel_ctrl_R.dir = 1;
 			HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,RESET);
 			HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,SET);
 			break;
-
+	//----BACK----
 		case 0x10:
-			vel_ctrl_R.dir = -1;				//右を後進方向に設定
+			vel_ctrl_R.dir = -1;
 			HAL_GPIO_WritePin(MOTOR_R_DIR1_GPIO_Port, MOTOR_R_DIR1_Pin,SET);
 			HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,RESET);
 			break;
@@ -437,14 +466,7 @@ void DisableMotor(void)
 	vel_ctrl_R.i_out = vel_ctrl_L.i_out = 0;
 	omega_control.i_out = 0;
 
-	MF.FLAG.VCTRL = 0;
-	MF.FLAG.WCTRL = 0;
-
-	MF.FLAG.ACCL = 0;
-	MF.FLAG.DECL = 0;
-	MF.FLAG.WACCL = 0;
-	MF.FLAG.WDECL = 0;
-
+	MF.FLAGS = 0x0000;
 }
 
 void DriveTest(uint8_t *mode)

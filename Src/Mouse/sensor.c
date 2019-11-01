@@ -57,7 +57,7 @@ void StartTimer()
 
 }
 
-//静止している時のみ使うこと
+//Only Use Velocity = 0
 
 void StopTimer()
 {
@@ -83,7 +83,7 @@ void CheckSensor()
 //	HAL_TIM_Base_Start_IT(&htim6);	<- Do not Use
 
 	while(1){
-		printf("ad_l: %4d ad_ff:%4d ad_r:%4d \n", wall_l.val,wall_ff.val,wall_r.val);
+		printf("ad_l: %4d ad_ff:%4d ad_r:%4d \n", wall_l.val, wall_ff.val,wall_r.val);
 		if(wall_fr.val > wall_fr.threshold)	buff = buff | 0x10;
 		if(wall_r.val > wall_r.threshold)	buff = buff | 0x08;
 		if(wall_ff.val > wall_ff.threshold)	buff = buff | 0x04;
@@ -173,7 +173,8 @@ int GetADC(ADC_HandleTypeDef *hadc, uint32_t channel)
   return HAL_ADC_GetValue(hadc);
 }
 
-void GetControlBaseValue(){
+void GetControlBaseValue()
+{
 	DisableMotor();
 	StartTimer();
 	HAL_Delay(100);
@@ -181,7 +182,8 @@ void GetControlBaseValue(){
 	wall_l.base = wall_l.val;
 }
 
-void WallStructureInit(wall_sensor *instance){
+void WallStructureInit(wall_sensor *instance)
+{
 	instance->base = 0;
 	instance->dif = 0;
 	instance->diff = 0;
@@ -189,5 +191,27 @@ void WallStructureInit(wall_sensor *instance){
 	instance->pre = 0;
 	instance->threshold = 0;
 	instance->val = 0;
-
 }
+void CenterStructureInit(gravity *instance)
+{
+	instance->velocity = 0;
+	instance->velocity_dir = 0;
+	instance->vel_target = 0;
+	instance->omega_deg = 0;
+	instance->omega_target = 0;
+	instance->pre_omega_deg = 0;
+	instance->omega_rad = 0;
+	instance->omega_dir = 0;
+	instance->distance = 0;
+	instance->angle = 0;
+	instance->pre_angle = 0.0f;
+	instance->angle_target = 0.0f;
+}
+void EncoderStructureInit(encoder *instance){
+	instance->pulse = 0;
+	instance->dif = 0;
+	instance->sum = 0;
+	instance->distance = 0;
+	instance->velocity = 0.0f;
+}
+

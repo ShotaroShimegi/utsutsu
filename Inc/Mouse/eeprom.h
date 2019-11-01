@@ -23,6 +23,9 @@ uint16_t eeprom_read_halfword(uint32_t);
 
 uint32_t eeprom_read_word(uint32_t);
 
+void SaveMapInEeprom(void);
+
+void LoadMapFromEeprom(void);
 
 
 #endif /* INC_EEPROM_H_ */

@@ -6,8 +6,7 @@ void UtsutsuSystem()
 	uint16_t i = 0;
 
 	DisableMotor();
-//	MelodySummer();
-	MelodyRayearth();
+	MelodySummer();
 //	StartWaiting();
 
 	GyroInit();
@@ -20,6 +19,7 @@ void UtsutsuSystem()
 	SetMotionDirection(FORWARD);
 	center.angle_target = 0.0f;
 	utsutsu_time = 0;
+	SpinR90();
 
 	HalfSectionAccel(GET_WALL_OFF);
 	SlalomL90();
@@ -28,19 +28,11 @@ void UtsutsuSystem()
 
 	SlalomL90();
 	HalfSectionDecel();
-
-*/	StopTimer();
+*/
+	StopTimer();
 	DisableMotor();
 
 	printf("----Start Utsutsu System----\n");
-
-	SaveMapInEeprom();
-	LoadMapFromEeprom();
-
-	for(i=0;i<16;i++){
-		printf("MAP %d is 0x%x\n",i,map[i][16]);
-		HAL_Delay(100);
-	}
 
 	while(1){
 
@@ -57,7 +49,6 @@ void UtsutsuSystem()
 				printf("%4lf, %4lf, %4lf, %4lf\n",test1[i],test2[i],test3[i],test4[i]);
 			}
 			printf("ALL\r\n");
-
 			break;
 
 		  //----Search Mode for One Section Running----
@@ -67,15 +58,13 @@ void UtsutsuSystem()
 
 			StartWaiting();
 			FirstAction();
-
-//			GetWallData();
 			SearchOneSection(GOAL_LENGTH);
 			goal_x = goal_y = 0;
 			WaitMs(100);
 			SearchOneSection(1);
 
 			goal_x = GOAL_X;
-			goal_y = GOAL_Y;						//ゴール座標設定
+			goal_y = GOAL_Y;
 			break;
 
 			//----Search Mode for Continuous Running----
@@ -160,13 +149,11 @@ void UtsutsuSystem()
 
 			break;
 
-			//----走行テスト----
 		case 11:
 		    DriveTest(&mode);
 			WaitMs(100);
 			break;
 
-			//----エンコーダテスト----
 		case 12:
 			StartWaiting();
 			EncoderGyroTest();
@@ -179,7 +166,6 @@ void UtsutsuSystem()
 			/*Stone Mode*/
 			MF.FLAG.VCTRL = 1;
 			MF.FLAG.WCTRL = 1;
-
 			MF.FLAG.ACCL = 0;
 			MF.FLAG.DECL = 0;
 			MF.FLAG.WACCL = 0;
@@ -194,11 +180,15 @@ void UtsutsuSystem()
 			}
 			break;
 
-			//----センサ値, 差を確認----
+		case 14:
+			MF.FLAG.SEARCH = 0;
+			MF.FLAG.SCND = 1;
+			MelodyUrara();
+			break;
+
 		default:
 			HAL_Delay(100);
 			VariableInit();
-//			StartWaiting();
 			CheckSensor();
 			WaitMs(100);
 			break;

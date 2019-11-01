@@ -6,23 +6,28 @@
 	typedef struct{
 		//motion parameter
 		float vel_max;
+		float big_vel_max;
 		float accel;
 		float omega_max;
 		float omega_accel;
+		float big90_omega_max;
+		float big90_omega_accel;
+		float big180_omega_max;
+		float big180_omega_accel;
 
 		//distance parameter
-		uint8_t R90_before;
-		uint8_t R90_after;
-		uint8_t L90_before;
-		uint8_t L90_after;
+		uint8_t TURN90_before;
+		uint8_t TURN90_after;
+		uint8_t big90_before;
+		uint8_t big90_after;
+		uint8_t big180_before;
+		uint8_t big180_after;
 
 	} params;
 
 	typedef struct{
-		float vel_kpR;
-		float vel_kpL;
-		float vel_kiR;
-		float vel_kiL;
+		float vel_kp;
+		float vel_ki;
 		float omega_kp;
 		float omega_ki;
 		float wall_kp;
@@ -35,20 +40,21 @@
 
 	#ifdef MAIN_C_										//call from main.c
 		/*Gloabl Variable Define*/
-		volatile params params_now;
-		volatile gain gain_now;
-		volatile params params_search1;
-		volatile gain gain_search1;
+		params params_now;
+		gain gain_now;
+		params params_search1;
+		gain gain_search1;
+
 		volatile float test1[MEMORY];
 		volatile float test2[MEMORY];
 		volatile float test3[MEMORY];
 		volatile float test4[MEMORY];
 
 	#else
-		extern volatile params params_now;
-		extern volatile gain gain_now;
-		extern volatile params params_search1;
-		extern volatile gain gain_search1;
+		extern params params_now;
+		extern gain gain_now;
+		extern params params_search1;
+		extern gain gain_search1;
 		extern volatile float test1[MEMORY];
 		extern volatile float test2[MEMORY];
 		extern volatile float test3[MEMORY];
@@ -59,7 +65,6 @@
 /*============================================================
 		関数プロトタイプ宣言
 ============================================================*/
-	//====その他====
 	void WaitMs(unsigned int);
 
 	void ModeSelect(uint8_t *mode);
@@ -72,6 +77,12 @@
 	void LedDisplay(uint8_t *led);
 	void ResetDistance(void);
 	void CheckBattery(void);
+
+	void CalculateNormalParams(params *instance, float,float);
+	void CalculateBigParams(params *instance,float,float);
+	void AssignOffsetParams(params *instance, uint8_t,uint8_t,uint8_t,uint8_t,uint8_t,uint8_t);
+
+	void FailSafe(void);
 
 	void UtsutsuSystem();
 

@@ -33,28 +33,29 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			HAL_GPIO_WritePin(LED_FF_GPIO_Port, LED_FF_Pin,RESET);
 			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin,RESET);
 
-			//====並進加減速処理====
-				//----減速----
+			//====Velocity Control====
 			if(MF.FLAG.VCTRL){
-				if(MF.FLAG.DECL){
-					center.vel_target -= params_now.accel * 0.001;
+				if(MF.FLAG.DECL)
+				{
+					center.vel_target -= center.accel * 0.001;
 					if(center.vel_target < 0)center.vel_target = 0.0f;
 				}
-				//----加速----
-				else if(MF.FLAG.ACCL){
-					center.vel_target += params_now.accel * 0.001;
-					if(center.vel_target > params_now.vel_max)center.vel_target = params_now.vel_max;
+
+				else if(MF.FLAG.ACCL)
+				{
+					center.vel_target += center.accel * 0.001;
+					if(center.vel_target > center.velocity_max)		center.vel_target = center.velocity_max;
 				}
 			}
 			//====回転加速処理====
 			if(MF.FLAG.WCTRL){
 				if(MF.FLAG.WDECL){
-					center.omega_target -= params_now.omega_accel * 0.001;
+					center.omega_target -= center.omega_accel * 0.001;
 					if(center.omega_target < 0)	center.omega_target = 0.0f;
 				}
 				else if(MF.FLAG.WACCL){
-					center.omega_target += params_now.omega_accel * 0.001;
-					if(center.omega_target > params_now.omega_max)	center.omega_target = params_now.omega_max;
+					center.omega_target += center.omega_accel * 0.001;
+					if(center.omega_target > center.omega_max)	center.omega_target = center.omega_max;
 				}
 			}
 
@@ -96,9 +97,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			UpdateEncoder();
 			UpdateGyro();
 
-			//PID
-			if(MF.FLAG.WCTRL){
-				//偏差角速度の算出
+			if(MF.FLAG.WCTRL)
+			{
 				omega_control.dif = (center.omega_dir * center.omega_target) - center.omega_rad;
 				omega_control.p_out = gain_now.omega_kp * omega_control.dif;
 				if((omega_control.i_out >= 0.1f) && (omega_control.dif > 0) ){
@@ -108,7 +108,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				}
 
 				omega_control.out = omega_control.p_out + omega_control.i_out;
-			}else{
+			}
+			else
+			{
 				omega_control.out = 0;
 			}
 
@@ -118,18 +120,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				vel_ctrl_L.dif = (center.vel_target * vel_ctrl_L.dir) - center.velocity;
 
 				//偏差のP制御
-				vel_ctrl_R.p_out = gain_now.vel_kpR * vel_ctrl_R.dif;
-				vel_ctrl_L.p_out = gain_now.vel_kpL * vel_ctrl_L.dif;
+				vel_ctrl_R.p_out = gain_now.vel_kp * vel_ctrl_R.dif;
+				vel_ctrl_L.p_out = gain_now.vel_kp * vel_ctrl_L.dif;
 				//偏差のI制御
 				if((vel_ctrl_R.i_out >= 0.1f) && (vel_ctrl_R.dif > 0) ){
 					vel_ctrl_R.i_out = 0.1f;
 				}else{
-					vel_ctrl_R.i_out += gain_now.vel_kiR * vel_ctrl_R.dif;
+					vel_ctrl_R.i_out += gain_now.vel_ki * vel_ctrl_R.dif;
 				}
 				if((vel_ctrl_L.i_out >= 0.1f) && (vel_ctrl_L.dif > 0) ){
 					vel_ctrl_L.i_out = 0.1f;
 				}else{
-					vel_ctrl_L.i_out += gain_now.vel_kiL * vel_ctrl_L.dif;
+					vel_ctrl_L.i_out += gain_now.vel_ki * vel_ctrl_L.dif;
 				}
 
 //				vel_ctrl_R.i_out += gain_now.vel_kiR * vel_ctrl_R.dif;
@@ -152,9 +154,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				wall_r.diff = wall_r.dif - wall_r.pre;
 
 				if(SREF_MIN_L < wall_l.dif && wall_l.dif < SREF_MAX_L){
-//					wall_l.out = 1.20f * wall_gain_fix_l * gain_search1.wall_kp * wall_l.dif;
 					wall_l.out = wall_gain_fix_l * gain_search1.wall_kp * wall_l.dif;
-
 					wall_l.out += gain_search1.wall_kd * wall_l.diff;
 				}
 				if(SREF_MIN_R < wall_r.dif && wall_r.dif < SREF_MAX_R){
@@ -165,7 +165,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				if(wall_r.out > 0.1f) wall_r.out = 0.1f;
 				if(wall_l.out > 0.1f) wall_l.out = 0.1f;
 
-
 				wall_l.pre = wall_l.dif;
 				wall_r.pre = wall_r.dif;
 
@@ -173,9 +172,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				wall_r.out = 0;
 				wall_l.out = 0;
 			}
-
-			utsutsu_time++;
-
 			break;
 		case 3:
 			if(MF.FLAG.ACTRL && (center.vel_target > 0.1f)){
@@ -185,9 +181,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				angle_out = 0.0f;
 			}
 
-
-			duty_left = vel_ctrl_L.out - omega_control.out + wall_l.out - angle_out;
-			duty_right = vel_ctrl_R.out + omega_control.out + wall_r.out + angle_out;
+			duty_left = vel_ctrl_L.out - omega_control.out - wall_r.out + wall_l.out  - angle_out;
+			duty_right = vel_ctrl_R.out + omega_control.out + wall_r.out - wall_l.out + angle_out;
 
 			if(duty_left < 0){
 				duty_left = -duty_left;
@@ -207,10 +202,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,SET);
 			}
 
-			if(duty_left > 0.5f) duty_left = 0.5f;
+			if(duty_left > 0.50f) duty_left = 0.50f;
 			if(duty_left < 0.01f) duty_left = 0.01f;
 
-			if(duty_right > 0.5f) duty_right = 0.5f;
+			if(duty_right > 0.50f) duty_right = 0.50f;
 			if(duty_right < 0.01f) duty_right = 0.01f;
 
 	//Config Setting
@@ -235,7 +230,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(utsutsu_time >= MEMORY){
 				utsutsu_time = MEMORY - 1;
 			}else{
-//				Wall Sensor
+				//Wall Sensor
+				utsutsu_time++;
 /*				test1[utsutsu_time] = wall_r.val;
 				test2[utsutsu_time] = wall_r.out;
 				test3[utsutsu_time] = wall_l.out;
@@ -259,7 +255,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 */
 //				Slalom
 /*				test1[utsutsu_time] = center.omega_dir * center.omega_target;
-				test2[utsutsu_time] = center.omega_rad;;
+				test2[utsutsu_time] = center.omega_rad;
 				test3[utsutsu_time] = center.vel_target;
 				test4[utsutsu_time] = center.velocity;
 */

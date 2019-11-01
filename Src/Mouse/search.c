@@ -8,7 +8,6 @@
 -----------------------------------------------------------*/
 void SearchOneSection(uint8_t goal_length)
 {
-	//====マップデータ初期化====
 	InitializeMap();
 	GyroInit();
 
@@ -76,10 +75,9 @@ void SearchContinuous(uint8_t goal_length)
 {
 	uint8_t fix_flag = 0;
 
-	//====マップデータ初期化====
-	if(MF.FLAG.SEARCH){
-		InitializeMap();
-	}
+	if(MF.FLAG.SEARCH)	InitializeMap();
+	if(MF.FLAG.SCND)	LoadMapFromEeprom();
+
 	GyroInit();
 
 	//====歩数等初期化====
@@ -89,7 +87,7 @@ void SearchContinuous(uint8_t goal_length)
 	MakeStepMap(goal_length);								//歩数図の初期化
 	MakeRoute_NESW();									//最短経路探索(route配列に動作が格納される)
 
-	Melody(c6,1000);
+	MelodyRayearth();
 
 	SetMotionDirection(FORWARD);
 	StartTimer();
@@ -170,10 +168,13 @@ void SearchContinuous(uint8_t goal_length)
 	}while(CheckGoal(MOUSE.X,MOUSE.Y,goal_length));
 
 	HalfSectionDecel();
+	StopTimer();
+	if(!MF.FLAG.SCND){
+	   SaveMapInEeprom();
+	}
+	StartTimer();
 	WaitMs(2000);
-	Melody(g6,300);
-	Melody(f6,300);
-	Melody(e6,300);
+	MelodyGoal();
 
 }
 
@@ -181,10 +182,9 @@ void SearchSlalom(uint8_t goal_length)
 {
 	uint8_t fix_flag = 0;
 
-	//====マップデータ初期化====
-	if(MF.FLAG.SEARCH){
-		InitializeMap();
-	}
+	if(MF.FLAG.SEARCH)	InitializeMap();
+	if(MF.FLAG.SCND)	LoadMapFromEeprom();
+
 	GyroInit();
 
 	//====歩数等初期化====
@@ -194,7 +194,8 @@ void SearchSlalom(uint8_t goal_length)
 	MakeStepMap(goal_length);							//歩数図の初期化
 	MakeRoute_NESW();									//最短経路探索(route配列に動作が格納される)
 
-	Melody(c6,1000);
+	MelodyRayearth();
+
 	SetMotionDirection(FORWARD);
 	StartTimer();
 
@@ -272,11 +273,13 @@ void SearchSlalom(uint8_t goal_length)
 	}while(CheckGoal(MOUSE.X,MOUSE.Y,goal_length) != GOAL_OK);
 
 	HalfSectionDecel();
+	StopTimer();
+	if(!MF.FLAG.SCND){
+	   SaveMapInEeprom();
+	}
+	StartTimer();
 	WaitMs(2000);
-	Melody(g6,300);
-	Melody(f6,300);
-	Melody(e6,300);
-
+	MelodyGoal();
 }
 
 void UpdatePosition()
@@ -657,33 +660,56 @@ uint8_t CheckGoal(uint8_t x, uint8_t y, uint8_t goal_length)
 
 }
 
-void SaveMapInEeprom(void){
-  eeprom_enable_write();
-  int i,j;
-
-  for(i=0;i<16;i++){
-	  for(j=0;j<16;j++){
-		  map[i][j] = 0x44;
-	  }
-  }
-
-  for(i = 0; i < 16; i++){
-    for(j = 0; j < 16; j++){
-      eeprom_write_halfword(i*16 + j, (uint16_t) map[i][j]);
-    }
-  }
-  eeprom_disable_write();
-}
-
-void LoadMapFromEeprom(void)
+void MakePass(void)
 {
-  int i,j;
+	uint16_t i = 0;
+	uint16_t half_straight_count = 0;
 
-  InitializeMap();
+	while(1){
+		switch(route[i]){
+			case STRAIGHT:
+				half_straight_count += 2;
+				pass[i] = half_straight_count;
 
-  for(i = 0; i < 16; i++){
-    for(j = 0; j < 16; j++){
-      map[i][j] = (uint8_t) eeprom_read_halfword(i*16 + j);
-    }
-  }
+				if((route[i+1] == TURN_RIGHT) && (route[i+2] == STRAIGHT)){
+					//BigTurnR90();
+					i += 2;
+				}else if((route[i+1] == TURN_RIGHT) && (route[i+2] == TURN_RIGHT) && (route[i+3] == STRAIGHT)){
+					//BigTurnR180();
+					i += 3;
+				}else if((route[i+1] == TURN_LEFT) && (route[i+2] == STRAIGHT)){
+					//BigTurnL90():
+					i += 2;
+				}else if((route[i+1] == TURN_LEFT) && (route[i+2] == TURN_LEFT) && (route[i+3] == STRAIGHT)){
+					//BigTurnL180();
+					i += 3;
+				}else{
+
+				}
+
+				break;
+
+			case TURN_RIGHT:
+				half_straight_count = 0;
+				i++;
+				break;
+
+			case TURN_LEFT:
+				half_straight_count = 0;
+				i++;
+				break;
+
+			default:
+				break;
+		}
+	}
+
+
 }
+
+void ReadPass(void)
+{
+
+
+}
+

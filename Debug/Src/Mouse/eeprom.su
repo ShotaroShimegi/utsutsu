@@ -4,3 +4,5 @@ eeprom.c:50:19:eeprom_write_halfword	32	static
 eeprom.c:63:19:eeprom_write_word	32	static
 eeprom.c:76:10:eeprom_read_halfword	24	static
 eeprom.c:89:10:eeprom_read_word	24	static
+eeprom.c:96:6:SaveMapInEeprom	16	static
+eeprom.c:109:6:LoadMapFromEeprom	16	static

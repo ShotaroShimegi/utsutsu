@@ -39,6 +39,8 @@
 		uint16_t goal_x, goal_y;							//ゴール座標
 		uint8_t route[256];									//最短経路格納配列
 		uint8_t r_cnt;										//経路カウンタ
+
+		int8_t pass[1024];
 	#else
 		/*グローバル変数の宣言*/
 		extern uint8_t map[16][16];							//マップ格納配列
@@ -48,6 +50,8 @@
 		extern uint16_t goal_x, goal_y;						//Goal Node
 		extern uint8_t route[256];							//Shortest Route Array
 		extern uint8_t r_cnt;								//経路カウンタ
+
+		extern int8_t pass[1024];
 	#endif
 
 /*============================================================
@@ -69,7 +73,7 @@
 	void MakeRoute_ESNW();
 
 	uint8_t CheckGoal(uint8_t,uint8_t,uint8_t);
-	void SaveMapInEeprom(void);
-	void LoadMapFromEeprom(void);
+	void MakePass(void);
+	void ReadPass(void);
 
 #endif /* SEARCH_H_ */

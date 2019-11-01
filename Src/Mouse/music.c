@@ -24,6 +24,35 @@ void MelodyRayearth(void){
 	Melody(a5h,600);
 }
 
+void MelodyGoal(void)
+{
+	Melody(g6,300);
+	Melody(f6,300);
+	Melody(e6,300);
+}
+
+void MelodyUrara(void){
+	Melody(d7,200);
+	Melody(a6,200);
+	WaitMs(10);
+	Melody(a6,400);
+	WaitMs(50);
+
+	Melody(d7,200);
+	Melody(a6,200);
+	WaitMs(10);
+	Melody(a6,400);
+	WaitMs(50);
+
+	Melody(d7,200);
+	Melody(c7,200);
+	Melody(d7,200);
+	Melody(c7,200);
+	Melody(a6,400);
+	WaitMs(50);
+
+}
+
 void MelodyMrLawrence()
 {
 	Melody(d7,100);

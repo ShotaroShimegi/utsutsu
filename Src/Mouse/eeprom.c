@@ -92,3 +92,27 @@ uint32_t eeprom_read_word(uint32_t address){
   val = *(__IO uint32_t*)address;
   return val;
 }
+
+void SaveMapInEeprom(void)
+{
+  eeprom_enable_write();
+  int i,j;
+
+  for(i = 0; i < 16; i++){
+    for(j = 0; j < 16; j++){
+      eeprom_write_halfword(i*16 + j, (uint16_t) map[i][j]);
+    }
+  }
+  eeprom_disable_write();
+}
+
+void LoadMapFromEeprom(void)
+{
+  int i,j;
+
+  for(i = 0; i < 16; i++){
+    for(j = 0; j < 16; j++){
+      map[i][j] = (uint8_t) eeprom_read_halfword(i*16 + j);
+    }
+  }
+}

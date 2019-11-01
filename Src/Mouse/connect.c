@@ -24,6 +24,8 @@ void GyroInit(void)
 	HAL_Delay(10);
 	WriteByte(GYRO_CONFIG,0x18);
 	HAL_Delay(10);
+	WriteByte(ACCEL_CONFIG,0x18);
+	HAL_Delay(10);
 
 	for(i=0;i<100;i++){
 		gyro_base += ReadGyro();
@@ -37,6 +39,10 @@ float ReadGyro(void){
 	omega_raw_z = (int16_t)(ReadByte(GYRO_ZOUT_H) << 8 | ReadByte(GYRO_ZOUT_L));	//0x47が上位，0x48が下位の16bitデータでジャイロ値を取得
 	omega = (float)(omega_raw_z / GYRO_FIX);
 	return omega;
+}
+
+float ReadAccelYaw(void){
+	return 0.0f;
 }
 
 void GetGyroOffset(uint16_t num){

@@ -6,31 +6,6 @@ typedef struct{
 	float out;
 } pid_control;
 
-typedef struct{
-	int16_t pulse;			//Raw Value
-	int16_t  dif;
-	int64_t sum; 			//Raw Integral
-	float distance;			//Converted Value [mm]
-	float velocity;			//unit m/s
-} encoder;
-
-typedef struct{
-	float velocity;			//重心速度
-	float vel_target;		//重心目標速度
-	float omega_rad;		//重心角速度　radian単位
-	float omega_deg;		//重心角速度　degree単位
-	float omega_target;		//重心目標角速度
-	float pre_omega_deg;	//角度計算用の保存用 radian単位
-
-	int8_t omega_dir;		//角速度変化方向
-	int8_t velocity_dir;
-	float distance;			//重心走行距離
-	float angle;			//重心角度　degree単位
-	float pre_angle;
-	float angle_target;
-
-} gravity;
-
 #ifndef DRIVE_H_
 
 	#define DRIVE_H_									//読み込んだことを表す
@@ -55,33 +30,24 @@ typedef struct{
 	//====変数====
 #ifdef MAIN_C_
 
-	/*** Structure [Gravity-Center] [encoder] ***/
-	volatile gravity center;
-	volatile encoder encoder_r;
-	volatile encoder encoder_l;
-
 	/*** Structure [Velocity Control] [Angular Velocity Control]***/
 	pid_control vel_ctrl_R;
 	pid_control vel_ctrl_L;
 	pid_control omega_control;
 
 	volatile uint16_t utsutsu_time, ms_time;
-	volatile float maxindex, maxindex_w;		//時間・加速必要時間・角加速必要時間？
+	volatile float accel_time,omega_accel_time,big_accel_time;
 
 	volatile float Kvolt,Kxr;				//加速度計算するための電流定数，距離変換のための定数
 
 #else
-	extern volatile gravity center;
-	extern volatile encoder encoder_r;
-	extern volatile encoder encoder_l;
 
-	/*** 速度制御 構造体***/
 	extern pid_control vel_ctrl_R;
 	extern pid_control vel_ctrl_L;
 	extern pid_control omega_control;
 
 	extern uint16_t utsutsu_time,ms_time;
-	extern volatile float maxindex,maxindex_w;
+	extern volatile float accel_time,omega_accel_time,big_accel_time;
 
 	extern volatile float Kvolt,Kxr;
 
@@ -101,6 +67,7 @@ typedef struct{
 	void DriveDecel(float, unsigned char);
 	void DriveSpin(float);
 	void DriveSlalom(int16_t);
+	void DriveSlalomFree(params*,int16_t);
 
 	//====Drive Function====
 	void HalfSectionAccel(uint8_t);
