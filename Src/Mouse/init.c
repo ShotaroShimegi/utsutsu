@@ -40,7 +40,7 @@ void VariableInit(void)
 	gain_search1.vel_ki = 0.01f;	//0.01f
 	gain_search1.omega_kp = 0.06f;	//0.2f
 	gain_search1.omega_ki = 0.002f;	//0.01f
-	gain_search1.wall_kp = 0.006f;	//0.004f
+	gain_search1.wall_kp = 0.004f;	//0.004f
 	gain_search1.wall_kd = 0.00f;
 	gain_search1.angle_kp = 0.005f;
 	gain_search1.angle_kd = 0.0f;
