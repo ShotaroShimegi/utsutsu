@@ -23,6 +23,7 @@
 		float vel_target;
 		float accel;
 		float velocity_max;
+		float velocity_min;
 		int8_t velocity_dir;
 
 		float omega_rad;		//Unit is [rad/s]

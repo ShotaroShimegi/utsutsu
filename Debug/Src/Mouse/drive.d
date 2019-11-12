@@ -34,7 +34,7 @@ Src/Mouse/drive.o: ../Src/Mouse/drive.c ../Inc/Mouse/global.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Inc/Mouse/search.h ../Inc/Mouse/connect.h ../Inc/spi.h \
  ../Inc/Mouse/init.h ../Inc/Mouse/eeprom.h ../Inc/Mouse/music.h \
- ../Inc/tim.h
+ ../Inc/Mouse/map.h ../Inc/tim.h
 
 ../Inc/Mouse/global.h:
 
@@ -121,5 +121,7 @@ Src/Mouse/drive.o: ../Src/Mouse/drive.c ../Inc/Mouse/global.h \
 ../Inc/Mouse/eeprom.h:
 
 ../Inc/Mouse/music.h:
+
+../Inc/Mouse/map.h:
 
 ../Inc/tim.h:

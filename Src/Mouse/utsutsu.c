@@ -19,14 +19,10 @@ void UtsutsuSystem()
 	SetMotionDirection(FORWARD);
 	center.angle_target = 0.0f;
 	utsutsu_time = 0;
-	SpinR90();
 
 	HalfSectionAccel(GET_WALL_OFF);
-	SlalomL90();
-	GoOneSectionContinuous();
 	utsutsu_time = 0;
-
-	SlalomL90();
+	BigSlalomL180();
 	HalfSectionDecel();
 */
 	StopTimer();
@@ -37,7 +33,6 @@ void UtsutsuSystem()
 	while(1){
 
 	  ModeSelect(&mode);
-
 	  WaitMs(500);
 	  //----mode action----
 	  switch(mode)
@@ -148,6 +143,19 @@ void UtsutsuSystem()
 			StopTimer();
 
 			break;
+		case 10:
+			printf("Wall Data Output\n");
+
+//			LoadMapFromEeprom();
+
+			ConvertMapIntoWall();
+
+//			PrintHorizontalWallData();
+//			PrintVerticalWallData();
+			PrintWallData();
+			printf("Output Finish\n");
+
+			break;
 
 		case 11:
 		    DriveTest(&mode);
@@ -156,6 +164,7 @@ void UtsutsuSystem()
 
 		case 12:
 			StartWaiting();
+			GyroInit();
 			EncoderGyroTest();
 			WaitMs(100);
 			break;
@@ -173,6 +182,7 @@ void UtsutsuSystem()
 
 			center.vel_target = 0;
 			center.omega_target = 0;
+
 			SetMotionDirection(FORWARD);
 			StartMotion();
 			while(1){
@@ -183,6 +193,7 @@ void UtsutsuSystem()
 		case 14:
 			MF.FLAG.SEARCH = 0;
 			MF.FLAG.SCND = 1;
+			LoadMapFromEeprom();
 			MelodyUrara();
 			break;
 

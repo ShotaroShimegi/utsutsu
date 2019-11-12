@@ -33,7 +33,7 @@ Src/Mouse/music.o: ../Src/Mouse/music.c ../Inc/tim.h ../Inc/main.h \
  ../Inc/Mouse/global.h ../Inc/Mouse/auxiliary.h ../Inc/Mouse/drive.h \
  ../Inc/Mouse/sensor.h ../Inc/adc.h ../Inc/Mouse/search.h \
  ../Inc/Mouse/connect.h ../Inc/spi.h ../Inc/Mouse/init.h \
- ../Inc/Mouse/eeprom.h ../Inc/Mouse/music.h
+ ../Inc/Mouse/eeprom.h ../Inc/Mouse/music.h ../Inc/Mouse/map.h
 
 ../Inc/tim.h:
 
@@ -122,3 +122,5 @@ Src/Mouse/music.o: ../Src/Mouse/music.c ../Inc/tim.h ../Inc/main.h \
 ../Inc/Mouse/eeprom.h:
 
 ../Inc/Mouse/music.h:
+
+../Inc/Mouse/map.h:

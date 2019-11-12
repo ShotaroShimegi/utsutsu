@@ -23,6 +23,7 @@
 "Src/Mouse/eeprom.o"
 "Src/Mouse/init.o"
 "Src/Mouse/interrupt.o"
+"Src/Mouse/map.o"
 "Src/Mouse/music.o"
 "Src/Mouse/search.o"
 "Src/Mouse/sensor.o"

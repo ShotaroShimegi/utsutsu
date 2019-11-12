@@ -117,9 +117,10 @@ void SetParams(params *instance)
 	center.accel = instance->accel;
 	center.omega_max = instance->omega_max;
 	center.omega_accel = instance->omega_accel;
+	center.velocity_min = 0.0f;
 
-	accel_time = params_now.vel_max / params_now.accel;		//Time for Accel
-	omega_accel_time = accel_time / 3;
+	accel_time = params_now.vel_max / params_now.accel;		//Time for Straight Accel
+//	omega_accel_time = accel_time / 3;
 
 }
 
@@ -181,17 +182,16 @@ void CheckBattery(void)
 
 		printf("Voltage Out!\n");
 		MelodyMrLawrence();
-		while(1){
-		}
+		while(1);
+
 	}
-
 	printf("Voltage ALL GREEN\n");
-
 }
 
 void CalculateNormalParams(params *instance,float velocity,float accel)
 {
 	float time_90mm = HALF_MM / velocity * 0.001;
+	omega_accel_time = time_90mm / 3.0f;
 
 	instance->vel_max = velocity;									//Unit is [m/s] = [mm/ms]
 	instance->accel = accel;										//Unit is [m/s/s]
@@ -205,10 +205,13 @@ void CalculateBigParams(params *instance,float velocity,float accel)
 	float time_180mm = ONE_MM / velocity * 0.001;
 	float time_360mm = 2 * ONE_MM / velocity * 0.001;
 
-	instance->big90_omega_max = 2 /(1+2) * 2 * Pi * 0.5f /time_180mm;
-	instance->big90_omega_accel = 2 * instance->big90_omega_max / time_180mm;
-	instance->big180_omega_max = 2.5 / (1+2.5) * 2 * Pi / time_360mm;
-	instance->big180_omega_accel = 2 * instance->big180_omega_max / time_360mm;
+	big90_omega_accel_time = time_180mm / 2.0f;
+	big180_omega_accel_time = time_360mm / 2.5f;
+
+	instance->big90_omega_max = 2.0f /(1.0f + 2.0f) * 2.0f * Pi * 0.5f /time_180mm;
+	instance->big90_omega_accel = 2.0f * instance->big90_omega_max / time_180mm;
+	instance->big180_omega_max = 2.5f / (1.0f + 2.5f) * 2.0f * Pi / time_360mm;
+	instance->big180_omega_accel = 2.0f * instance->big180_omega_max / time_360mm;
 
 }
 
@@ -220,16 +223,27 @@ void AssignOffsetParams(params *instance, uint8_t turn90_before,uint8_t turn90_a
 	instance->big90_after = big90_after;
 	instance->big180_before = big180_before;
 	instance->big180_after = big180_after;
-
 }
 
 
 // Not Completed Function
-void FailSafe(void){
-	if(1){
-
-	}
+void FailSafe(void)
+{
+	DisableMotor();
 	StopTimer();
+	WaitMs(500);
+	MelodyMrLawrence();
+	while(1);
+
+}
+
+void FailCheck(void)
+{
+	float dif_value;
+	dif_value = center.angle - center.angle_target;
+	if((dif_value > 30.0f) || (dif_value < -30.0f)){
+		FailSafe();
+	}
 
 }
 

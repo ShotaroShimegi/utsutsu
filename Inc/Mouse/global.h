@@ -12,6 +12,7 @@
 #include "init.h"
 #include "eeprom.h"
 #include "music.h"
+#include "map.h"
 
 /*============================================================
  各種定数・変数宣言
@@ -31,7 +32,7 @@
 
 #define GYRO_FIX 16.4			//Gain for Convert Gyro Value to Physical Unit，ジャイロデータシート参照
 #define KW 0.01744				//Pi/180　degree -> radian に変換する定数
-#define KWP 57.471
+#define KWP 57.471				//radisn -> degree Convert Value
 
 //----DC走行関連----
 #define HALF_MM 90
@@ -74,9 +75,9 @@
  ------------------------------------------------------------*/
 
 //----Goal Node----
-#define GOAL_X 7
-#define GOAL_Y 7
-#define GOAL_LENGTH 2
+#define GOAL_X 2
+#define GOAL_Y 2
+#define GOAL_LENGTH 1
 
 #ifndef __MOUSE_FLAGS__
 #define __MOUSE_FLAGS__

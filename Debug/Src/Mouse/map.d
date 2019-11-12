@@ -1,4 +1,4 @@
-Src/Mouse/utsutsu.o: ../Src/Mouse/utsutsu.c ../Inc/Mouse/global.h \
+Src/Mouse/map.o: ../Src/Mouse/map.c ../Inc/Mouse/global.h \
  ../Inc/Mouse/auxiliary.h ../Inc/Mouse/drive.h ../Inc/Mouse/sensor.h \
  ../Inc/adc.h ../Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \

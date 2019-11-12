@@ -192,6 +192,7 @@ void WallStructureInit(wall_sensor *instance)
 	instance->threshold = 0;
 	instance->val = 0;
 }
+
 void CenterStructureInit(gravity *instance)
 {
 	instance->velocity = 0;
@@ -207,6 +208,7 @@ void CenterStructureInit(gravity *instance)
 	instance->pre_angle = 0.0f;
 	instance->angle_target = 0.0f;
 }
+
 void EncoderStructureInit(encoder *instance){
 	instance->pulse = 0;
 	instance->dif = 0;

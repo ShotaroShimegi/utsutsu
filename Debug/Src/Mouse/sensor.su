@@ -11,5 +11,5 @@ sensor.c:144:6:UpdateEncoder	16	static
 sensor.c:161:5:GetADC	32	static
 sensor.c:176:6:GetControlBaseValue	8	static
 sensor.c:185:6:WallStructureInit	16	static
-sensor.c:195:6:CenterStructureInit	16	static
-sensor.c:210:6:EncoderStructureInit	16	static
+sensor.c:196:6:CenterStructureInit	16	static
+sensor.c:212:6:EncoderStructureInit	16	static

@@ -32,23 +32,23 @@ void MelodyGoal(void)
 }
 
 void MelodyUrara(void){
-	Melody(d7,200);
-	Melody(a6,200);
+	Melody(d7,100);
+	Melody(a6,100);
 	WaitMs(10);
-	Melody(a6,400);
+	Melody(a6,200);
 	WaitMs(50);
 
-	Melody(d7,200);
-	Melody(a6,200);
+	Melody(d7,100);
+	Melody(a6,100);
 	WaitMs(10);
-	Melody(a6,400);
+	Melody(a6,200);
 	WaitMs(50);
 
-	Melody(d7,200);
-	Melody(c7,200);
-	Melody(d7,200);
-	Melody(c7,200);
-	Melody(a6,400);
+	Melody(d7,100);
+	Melody(c7,100);
+	Melody(d7,100);
+	Melody(c7,100);
+	Melody(a6,200);
 	WaitMs(50);
 
 }

@@ -22,18 +22,10 @@ void VariableInit(void)
 	//parameter 設定
 //----	CalculateNormalParams(&params_Structure,velocity,accel)
 	CalculateNormalParams(&params_search1, 0.50f, 4.0f);
-	CalculateBigParams(&params_search1,0.50f,4.0f);
+	CalculateBigParams(&params_search1, 0.50f, 4.0f);
 
-//	AssignOffsetParams(&params_search1,turn90_before,turn90_after,big90_before,big90_after,big180_before,big180_after);
-	AssignOffsetParams(&params_search1,35,53,43,46,30,31);
-
-/*	params_search1.TURN90_before = 35;
-	params_search1.TURN90_after = 53;
-	params_search1.big90_before = 43;
-	params_search1.big90_after = 46;
-	params_search1.big180_before = 30;
-	params_search1.big180_after = 31;
-*/
+//	AssignOffsetParams(&params_search1, turn90_before, turn90_after, big90_before, big90_after, big180_before, big180_after);
+	AssignOffsetParams(&params_search1,35,53,43,70,23,90);
 
 	/*** Set Parameter for Search　***/
 	gain_search1.vel_kp = 3.5f;		//3.5f

@@ -83,6 +83,7 @@
 	void AssignOffsetParams(params *instance, uint8_t,uint8_t,uint8_t,uint8_t,uint8_t,uint8_t);
 
 	void FailSafe(void);
+	void FailCheck(void);
 
 	void UtsutsuSystem();
 

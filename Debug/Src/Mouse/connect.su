@@ -1,4 +1,4 @@
 connect.c:3:6:GyroInit	24	static
-connect.c:36:7:ReadGyro	24	static
-connect.c:44:7:ReadAccelYaw	4	static
-connect.c:48:6:GetGyroOffset	24	static
+connect.c:37:7:ReadGyro	24	static
+connect.c:45:7:ReadAccelYaw	4	static
+connect.c:49:6:GetGyroOffset	24	static

@@ -27,6 +27,14 @@ typedef struct{
 	#define GET_WALL_ON 1
 	#define GET_WALL_OFF 0
 
+	//----Pass Action Number----
+	#define R90 -1
+	#define L90 -2
+	#define BIG_R90 -3
+	#define BIG_L90 -4
+	#define BIG_R180 -5
+	#define BIG_L180 -6
+
 	//====変数====
 #ifdef MAIN_C_
 
@@ -36,7 +44,8 @@ typedef struct{
 	pid_control omega_control;
 
 	volatile uint16_t utsutsu_time, ms_time;
-	volatile float accel_time,omega_accel_time,big_accel_time;
+	volatile float accel_time,omega_accel_time;
+	volatile float big90_omega_accel_time,big180_omega_accel_time;
 
 	volatile float Kvolt,Kxr;				//加速度計算するための電流定数，距離変換のための定数
 
@@ -46,8 +55,9 @@ typedef struct{
 	extern pid_control vel_ctrl_L;
 	extern pid_control omega_control;
 
-	extern uint16_t utsutsu_time,ms_time;
-	extern volatile float accel_time,omega_accel_time,big_accel_time;
+	extern uint16_t utsutsu_time, ms_time;
+	extern volatile float accel_time,omega_accel_time;
+	extern volatile float big90_omega_accel_time, big180_omega_accel_time;
 
 	extern volatile float Kvolt,Kxr;
 
@@ -67,7 +77,8 @@ typedef struct{
 	void DriveDecel(float, unsigned char);
 	void DriveSpin(float);
 	void DriveSlalom(int16_t);
-	void DriveSlalomFree(params*,int16_t);
+	void DriveSlalomFree(int16_t,float,float,float);
+	void DriveTrapezoid(uint16_t,float,float);
 
 	//====Drive Function====
 	void HalfSectionAccel(uint8_t);
@@ -80,6 +91,11 @@ typedef struct{
 	void FixPosition(uint8_t);
 	void SlalomR90();
 	void SlalomL90();
+	void BigSlalomR90();
+	void BigSlalomL90();
+	void BigSlalomR180();
+	void BigSlalomL180();
+	void GoStraightTrapezoid(uint16_t,float,float);
 
 	void DriveTest(uint8_t *mode);
 	void PIDStructureInit(pid_control *);

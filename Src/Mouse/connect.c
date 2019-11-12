@@ -29,6 +29,7 @@ void GyroInit(void)
 
 	for(i=0;i<100;i++){
 		gyro_base += ReadGyro();
+		HAL_Delay(1);
 	}
 		gyro_base = gyro_base * 0.01;
 }

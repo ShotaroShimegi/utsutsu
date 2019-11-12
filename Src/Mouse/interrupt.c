@@ -40,7 +40,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					center.vel_target -= center.accel * 0.001;
 					if(center.vel_target < 0)center.vel_target = 0.0f;
 				}
-
 				else if(MF.FLAG.ACCL)
 				{
 					center.vel_target += center.accel * 0.001;
@@ -51,11 +50,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(MF.FLAG.WCTRL){
 				if(MF.FLAG.WDECL){
 					center.omega_target -= center.omega_accel * 0.001;
-					if(center.omega_target < 0)	center.omega_target = 0.0f;
+					if(center.omega_target < center.velocity_min)	center.omega_target = center.velocity_min;
 				}
 				else if(MF.FLAG.WACCL){
 					center.omega_target += center.omega_accel * 0.001;
 					if(center.omega_target > center.omega_max)	center.omega_target = center.omega_max;
+				}else{
+//					FailCheck();
 				}
 			}
 
@@ -82,13 +83,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			if(wall_r.val > wall_r.threshold)	{
 				buff = buff | 0x08;
-				wall_gain_fix_r = 0.8f;
+				wall_gain_fix_r = 0.80f;
 			}else{
-				wall_gain_fix_r = 0.8f;
+				wall_gain_fix_r = 0.80f;
 			}
 			if(wall_l.val > wall_l.threshold)	{
 				buff = buff | 0x02;
-				wall_gain_fix_l = 0.8f;
+				wall_gain_fix_l = 0.80f;
 			}else{
 				wall_gain_fix_l = 0.80f;
 			}
@@ -96,6 +97,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			LedDisplay(&buff);
 			UpdateEncoder();
 			UpdateGyro();
+
 
 			if(MF.FLAG.WCTRL)
 			{
@@ -106,11 +108,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				}else{
 					omega_control.i_out += gain_now.omega_ki * omega_control.dif;
 				}
-
 				omega_control.out = omega_control.p_out + omega_control.i_out;
 			}
-			else
-			{
+			else{
 				omega_control.out = 0;
 			}
 
@@ -202,10 +202,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				HAL_GPIO_WritePin(MOTOR_R_DIR2_GPIO_Port, MOTOR_R_DIR2_Pin,SET);
 			}
 
-			if(duty_left > 0.50f) duty_left = 0.50f;
+			if(duty_left > 0.80f) duty_left = 0.80f;
 			if(duty_left < 0.01f) duty_left = 0.01f;
 
-			if(duty_right > 0.50f) duty_right = 0.50f;
+			if(duty_right > 0.80f) duty_right = 0.80f;
 			if(duty_right < 0.01f) duty_right = 0.01f;
 
 	//Config Setting
@@ -227,7 +227,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 			HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 
-			if(utsutsu_time >= MEMORY){
+			if(utsutsu_time >= MEMORY - 1){
 				utsutsu_time = MEMORY - 1;
 			}else{
 				//Wall Sensor
