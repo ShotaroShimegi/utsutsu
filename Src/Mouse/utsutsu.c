@@ -97,7 +97,6 @@ void UtsutsuSystem()
 			UpdateDirection(DIR_SPIN_180);
 			break;
 
-
 	  	  case 4:
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
@@ -107,33 +106,20 @@ void UtsutsuSystem()
 
 			SearchSlalom(GOAL_LENGTH);
 			goal_x = goal_y = 0;
-			SearchSlalom(1);
+			SearchSlalom(RETURN_GOAL_LENGTH);
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
 			Spin180();									//180度回転
 			UpdateDirection(DIR_SPIN_180);
-
 			StopTimer();
 
 			break;
 			//////////////////////////////////
 
 		case 5:
-			goal_x = GOAL_X;
-			goal_y = GOAL_Y;
-
-			StartWaiting();
-			FirstAction();
-
-			goal_x = goal_y = 0;
-
-			goal_x = GOAL_X;
-			goal_y = GOAL_Y;
-
-			Spin180();
-			UpdateDirection(DIR_SPIN_180);
 			break;
+
 		case 6:
 			SetMotionDirection(FORWARD);
 			StartTimer();
@@ -141,20 +127,13 @@ void UtsutsuSystem()
 			HalfSectionAccel(GET_WALL_ON);
 			HalfSectionDecel();
 			StopTimer();
-
 			break;
+
 		case 10:
 			printf("Wall Data Output\n");
-
-//			LoadMapFromEeprom();
-
 			ConvertMapIntoWall();
-
-//			PrintHorizontalWallData();
-//			PrintVerticalWallData();
 			PrintWallData();
 			printf("Output Finish\n");
-
 			break;
 
 		case 11:

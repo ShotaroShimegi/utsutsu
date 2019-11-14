@@ -227,6 +227,7 @@ void DriveDecel(float dist, unsigned char rs)
 	//----走行開始----
 	MF.FLAG.WCTRL = 1;
 	MF.FLAG.VCTRL = 1;
+
 	if(dist > 0)MF.FLAG.ACTRL = 0;
 	else MF.FLAG.ACTRL = 0;
 
@@ -235,10 +236,13 @@ void DriveDecel(float dist, unsigned char rs)
 	MF.FLAG.ACCL = 1;
 	MF.FLAG.DECL = 0;
 
-	StartMotion();
+	center.velocity_max = params_now.vel_max;
+	center.velocity_min = 0.0f;
 
 	offset = 0.5 * params_now.vel_max * accel_time * 1000;
 	offset += 8.0f;
+
+	StartMotion();
 
 	//----走行----
 	if(dist >= 0.0){
@@ -432,10 +436,11 @@ void DriveSlalomFree(int16_t theta, float omega_max, float omega_accel,float ome
 }
 
 //---Not Completed Function
-void DriveTrapezoid(uint16_t distance,float vel_max,float accel)
+void DriveTrapezoid(uint16_t distance,float vel_max,float vel_min, float accel)
 {
 	float ics = center.distance;
-//	float offset;
+	float vel_dif;
+	float offset;
 
 	//Change Max Speed
 	center.velocity_max = vel_max;
@@ -450,21 +455,28 @@ void DriveTrapezoid(uint16_t distance,float vel_max,float accel)
 	MF.FLAG.DECL = 0;
 
 	if(distance > 0)	MF.FLAG.ACTRL = 0;
-	else 			MF.FLAG.ACTRL = 0;
+	else 				MF.FLAG.ACTRL = 0;
 
+	offset = 0.5f * accel_time * vel_min * 1000;
 	center.omega_target = 0;
 
 	StartMotion();
-	//----走行----
+	//----Go Forward----
 	if(distance >= 0.0f){
-		while(center.distance < ics + distance){
-/*		if(MF.FLAG.WALL && flag == 0){
-			encoder_r.distance = (dist + ics - 60) / Kxr;
-			encoder_l.distance = (dist + ics - 60) / Kxr;
-			MF.FLAG.WALL = 0;
-			flag = 1;
+		while(center.distance + offset < ics + distance){
+			if(center.vel_target ==  center.velocity_max){
+				vel_dif = center.vel_target - vel_min;
+				offset = 0.5f * 1000 * vel_dif * vel_dif / accel;
+				offset += 1000 * vel_min * vel_dif / accel;
+			}
 		}
-*/		}
+		center.velocity_min = vel_min;
+		MF.FLAG.ACCL = 0;
+		MF.FLAG.DECL = 1;
+
+		while(center.distance < ics + distance){
+			if(center.vel_target == center.velocity_min) break;
+		}
 	} else{
 		while(center.distance > ics + distance);
 	}
@@ -581,7 +593,6 @@ void DriveTest(uint8_t *mode)
 				SetMotionDirection(BACK);
 				FixPosition(1);
 				HAL_Delay(1000);
-
 				break;
 
 			//----一区画定速走行----
@@ -645,7 +656,12 @@ void DriveTest(uint8_t *mode)
 				break;
 
 			case 7:
-				MF.FLAG.CTRL = 1;
+				StartTimer();
+				SetMotionDirection(FORWARD);
+				utsutsu_time = 0;
+				MF.FLAG.CTRL = 0;
+				DriveTrapezoid(540,1.0f,0.5f,4.0f);
+				DriveDecel(HALF_MM,1);
 				break;
 
 			case 8:
@@ -653,11 +669,11 @@ void DriveTest(uint8_t *mode)
 
 			default:
 				printf("GoodBy, Drive\r\n");
-
+				StopTimer();
 				return;
 		}
 		StopTimer();
-		DisableMotor();
+		WaitMs(3000);
 		printf("Drive Out\n");
 	}
 	printf("drive_Finish: %d\n",*mode);

@@ -38,7 +38,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				if(MF.FLAG.DECL)
 				{
 					center.vel_target -= center.accel * 0.001;
-					if(center.vel_target < 0)center.vel_target = 0.0f;
+					if(center.vel_target < center.velocity_min) center.vel_target = center.velocity_min;
 				}
 				else if(MF.FLAG.ACCL)
 				{
@@ -123,24 +123,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				vel_ctrl_R.p_out = gain_now.vel_kp * vel_ctrl_R.dif;
 				vel_ctrl_L.p_out = gain_now.vel_kp * vel_ctrl_L.dif;
 				//偏差のI制御
-				if((vel_ctrl_R.i_out >= 0.1f) && (vel_ctrl_R.dif > 0) ){
-					vel_ctrl_R.i_out = 0.1f;
-				}else{
-					vel_ctrl_R.i_out += gain_now.vel_ki * vel_ctrl_R.dif;
-				}
-				if((vel_ctrl_L.i_out >= 0.1f) && (vel_ctrl_L.dif > 0) ){
-					vel_ctrl_L.i_out = 0.1f;
-				}else{
-					vel_ctrl_L.i_out += gain_now.vel_ki * vel_ctrl_L.dif;
-				}
+				if((vel_ctrl_R.i_out >= 0.1f) && (vel_ctrl_R.dif > 0) ) vel_ctrl_R.i_out = 0.1f;
+				else													vel_ctrl_R.i_out += gain_now.vel_ki * vel_ctrl_R.dif;
 
-//				vel_ctrl_R.i_out += gain_now.vel_kiR * vel_ctrl_R.dif;
-//				vel_ctrl_L.i_out += gain_now.vel_kiL * vel_ctrl_L.dif;
+				if((vel_ctrl_L.i_out >= 0.1f) && (vel_ctrl_L.dif > 0) )	vel_ctrl_L.i_out = 0.1f;
+				else													vel_ctrl_L.i_out += gain_now.vel_ki * vel_ctrl_L.dif;
 
 				//PID制御値を統合
 				vel_ctrl_R.out = vel_ctrl_R.p_out + vel_ctrl_R.i_out;
 				vel_ctrl_L.out = vel_ctrl_L.p_out + vel_ctrl_L.i_out;
-
 			}else{
 				vel_ctrl_R.out = 0;
 				vel_ctrl_L.out = 0;
@@ -230,7 +221,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(utsutsu_time >= MEMORY - 1){
 				utsutsu_time = MEMORY - 1;
 			}else{
-				//Wall Sensor
+//Wall Sensor
 				utsutsu_time++;
 /*				test1[utsutsu_time] = wall_r.val;
 				test2[utsutsu_time] = wall_r.out;
@@ -238,16 +229,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				test4[utsutsu_time] = wall_l.val;
 */
 //				Translation
-
-/*				test1[utsutsu_time] = encoder_r.velocity;
-				test2[utsutsu_time] = encoder_l.velocity;
-				test1[utsutsu_time] = center.angle;
-				test2[utsutsu_time] = angle_out;
+				test1[utsutsu_time] = center.distance;
+				test2[utsutsu_time] = center.omega_rad;
 				test3[utsutsu_time] = center.vel_target;
 				test4[utsutsu_time] = center.velocity;
-*/
-//				Revolution
 
+//				Revolution
 /*				test1[utsutsu_time] = center.omega_rad;
 				test2[utsutsu_time] = center.omega_dir * center.omega_target;
 				test3[utsutsu_time] = center.angle;
@@ -260,19 +247,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				test4[utsutsu_time] = center.velocity;
 */
 			}
-
 			break;
 		}
 		tp = (tp+1) % 4;
-
 	}	//---htim6 End---
-
 	else if(htim->Instance == htim1.Instance)
 	{
-	}//---htim1 End--
 
+	}//---htim1 End--
 	else if(htim->Instance == htim2.Instance)
 	{
+
 	}//---htim2 End--
 
 }

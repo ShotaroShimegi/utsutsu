@@ -38,12 +38,12 @@ void ModeSelect(uint8_t *mode)
 		//LEDで現在の値を表示
 		LedDisplay(mode);
 		if(nowR - preR != 0){
-			printf(" mode:%2d\r\n", *mode);
+			printf(" mode:%2d\n", *mode);
 			Melody(c6 + (60 * *mode),100);
 		}
 	}while(nowL != 1);
 
-	printf("Finish :  This is mode %2d\r\n", *mode);
+	printf("Finish :  This is mode %2d\n", *mode);
 	Melody(c6 + + (60 * *mode),500);
 
 	HAL_TIM_Encoder_Stop(&htim3,TIM_CHANNEL_ALL);

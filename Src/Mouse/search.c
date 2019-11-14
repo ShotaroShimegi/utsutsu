@@ -176,7 +176,7 @@ void SearchContinuous(uint8_t goal_length)
 
 }
 
-void SearchSlalom(uint8_t goal_length)
+void SearchSlalom(uint8_t goal_size)
 {
 	uint8_t fix_flag = 0;
 
@@ -188,7 +188,7 @@ void SearchSlalom(uint8_t goal_length)
 	m_step = r_cnt = 0;									//歩数と経路カウンタの初期化
 	GetWallData();
 	WriteMap();											//地図の初期化
-	MakeStepMap(goal_length);							//歩数図の初期化
+	MakeStepMap(goal_size);							//歩数図の初期化
 	MakeRoute_NESW();									//最短経路探索(route配列に動作が格納される)
 
 	MelodyRayearth();
@@ -262,9 +262,9 @@ void SearchSlalom(uint8_t goal_length)
 		UpdatePosition();
 		ConfRoute_NESW();
 
-	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
+//	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
 
-//	}while(CheckGoal(MOUSE.X,MOUSE.Y,goal_length) != GOAL_OK);
+	}while(CheckGoal(MOUSE.X,MOUSE.Y,goal_size) != GOAL_OK);
 
 	HalfSectionDecel();
 	StopTimer();
