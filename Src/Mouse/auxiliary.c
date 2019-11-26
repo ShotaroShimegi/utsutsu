@@ -114,9 +114,7 @@ void SetParams(params *instance)
 	params_now.big180_after = instance->big180_after;
 
 	center.velocity_max = instance->vel_max;
-	center.accel = instance->accel;
 	center.omega_max = instance->omega_max;
-	center.omega_accel = instance->omega_accel;
 	center.velocity_min = 0.0f;
 
 	accel_time = params_now.vel_max / params_now.accel;		//Time for Straight Accel
@@ -188,12 +186,13 @@ void CheckBattery(void)
 	printf("Voltage ALL GREEN\n");
 }
 
-void CalculateNormalParams(params *instance,float velocity,float accel)
+void CalculateNormalParams(params *instance,float velocity_max, float velocity,float accel)
 {
 	float time_90mm = HALF_MM / velocity * 0.001;
 	omega_accel_time = time_90mm / 3.0f;
 
 	instance->vel_max = velocity;									//Unit is [m/s] = [mm/ms]
+	instance->big_vel_max = velocity_max;
 	instance->accel = accel;										//Unit is [m/s/s]
 	instance->omega_max = 3.0f / (1.0f+3.0f) * 2.0f * (Pi * 0.5f) / time_90mm;	//Max Angular-Velocity [rad/s]
 	instance->omega_accel = 3.0f * instance->omega_max / time_90mm; 	//Angular Acceleration [rad/s/s]
@@ -203,19 +202,19 @@ void CalculateNormalParams(params *instance,float velocity,float accel)
 void CalculateBigParams(params *instance,float velocity,float accel)
 {
 	float time_180mm = ONE_MM / velocity * 0.001;
-	float time_360mm = 2 * ONE_MM / velocity * 0.001;
+	float time_360mm = 2 * ONE_MM / velocity * 0.001;				//Unit is [ms]
 
-	big90_omega_accel_time = time_180mm / 2.0f;
+	big90_omega_accel_time = time_180mm / 2.0f;						//Unit is [ms]
 	big180_omega_accel_time = time_360mm / 2.5f;
 
 	instance->big90_omega_max = 2.0f /(1.0f + 2.0f) * 2.0f * Pi * 0.5f /time_180mm;
 	instance->big90_omega_accel = 2.0f * instance->big90_omega_max / time_180mm;
 	instance->big180_omega_max = 2.5f / (1.0f + 2.5f) * 2.0f * Pi / time_360mm;
-	instance->big180_omega_accel = 2.0f * instance->big180_omega_max / time_360mm;
+	instance->big180_omega_accel =2.0f * instance->big180_omega_max / time_360mm;
 
 }
 
-void AssignOffsetParams(params *instance, uint8_t turn90_before,uint8_t turn90_after,uint8_t big90_before,uint8_t big90_after,uint8_t big180_before,uint8_t big180_after)
+void ApplyOffsetParams(params *instance, uint8_t turn90_before,uint8_t turn90_after,uint8_t big90_before,uint8_t big90_after,uint8_t big180_before,uint8_t big180_after)
 {
 	instance->TURN90_before = turn90_before;
 	instance->TURN90_after = turn90_after;
@@ -225,25 +224,45 @@ void AssignOffsetParams(params *instance, uint8_t turn90_before,uint8_t turn90_a
 	instance->big180_after = big180_after;
 }
 
+void ApplyGain(gain *instance, float vel_kp,float vel_ki, float omega_kp,float omega_ki,float wall_kp,float wall_kd, float angle_kp, float angle_kd){
 
-// Not Completed Function
+	instance->vel_kp = vel_kp;
+	instance->vel_ki = vel_ki;
+	instance->omega_kp = omega_kp;
+	instance->omega_ki = omega_ki;
+	instance->wall_kp = wall_kp;
+	instance->wall_kd = wall_kd;
+	instance->angle_kp = 0.005f;
+	instance->angle_kd = 0.0f;
+
+}
+
 void FailSafe(void)
 {
 	DisableMotor();
 	StopTimer();
 	WaitMs(500);
 	MelodyMrLawrence();
-	while(1);
+	while(1){
+//		printf("angle: %lf, target: %lf\n",center.angle,center.angle_target);
+		WaitMs(100);
+	}
 
 }
 
 void FailCheck(void)
 {
-	float dif_value;
-	dif_value = center.angle - center.angle_target;
-	if((dif_value > 30.0f) || (dif_value < -30.0f)){
+	float dif_angle;
+
+	dif_angle = center.angle - center.angle_target;
+
+	if((dif_angle > 20.0f) || (dif_angle < -20.0f)){
+		MelodySummer();
+		FailSafe();
+	}else if((center.accel > 14.0f) && (MF.FLAG.SCND == 1)){
 		FailSafe();
 	}
+
 
 }
 

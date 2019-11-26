@@ -45,6 +45,8 @@
 		uint16_t wall_horizontal[16];
 
 		int8_t pass[1024];
+		uint16_t pass_end_count;
+
 	#else
 		extern uint8_t map[16][16];							//マップ格納配列
 		extern uint8_t step_map[16][16];
@@ -57,8 +59,8 @@
 		extern uint16_t wall_vertical[17];					//
 		extern uint16_t wall_horizontal[17];				//
 
-
 		extern int8_t pass[1024];
+		extern uint16_t pass_end_count;
 	#endif
 
 		void InitializeMap();
@@ -68,7 +70,7 @@
 		void UpdateDirection(uint8_t);
 		void MakeStepMap(uint8_t);
 		void MakeRoute_NESW();
-		void ConfRoute_NESW();
+		void ConfRoute_NESW(uint8_t);
 
 		void ConvertMapIntoWall();
 		void PrintWallData();

@@ -78,7 +78,7 @@ typedef struct{
 	void DriveSpin(float);
 	void DriveSlalom(int16_t);
 	void DriveSlalomFree(int16_t,float,float,float);
-	void DriveTrapezoid(uint16_t,float,float,float);
+	void DriveTrapezoid(float,float,float,float);
 
 	//====Drive Function====
 	void HalfSectionAccel(uint8_t);

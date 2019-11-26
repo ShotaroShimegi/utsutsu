@@ -63,7 +63,7 @@
 		gravity center;
 
 		volatile uint8_t tp;
-		volatile float gyro_base;
+		volatile float gyro_omega_base,gyro_accel_base;
 
 
 	#else
@@ -79,7 +79,7 @@
 		extern gravity center;
 
 		extern volatile uint8_t tp;
-		extern volatile float gyro_base;
+		extern volatile float gyro_omega_base,gyro_accel_base;
 
 	#endif
 

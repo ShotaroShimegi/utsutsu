@@ -20,7 +20,9 @@
 		関数プロトタイプ宣言
 ============================================================*/
 		void GyroInit();
-		float ReadGyro(void);
-		void GetGyroOffset(uint16_t);
+		float ReadGyroOmegaZ(void);
+		float ReadGyroAccelX(void);
+		void GetOmegaOffset(uint16_t);
+		void GetAccelOffset(uint16_t);
 
 #endif /* CONNECT_H_ */

@@ -19,24 +19,26 @@ void VariableInit(void)
 	EncoderStructureInit(&encoder_r);
 	EncoderStructureInit(&encoder_l);
 
-	//parameter 設定
 //----	CalculateNormalParams(&params_Structure,velocity,accel)
-	CalculateNormalParams(&params_search1, 0.50f, 4.0f);
-	CalculateBigParams(&params_search1, 0.50f, 4.0f);
+	CalculateNormalParams(&params_search1,1.0f,0.40f, 4.0f);
+	CalculateBigParams(&params_search1, 0.40f, 4.0f);
 
-//	AssignOffsetParams(&params_search1, turn90_before, turn90_after, big90_before, big90_after, big180_before, big180_after);
-	AssignOffsetParams(&params_search1,35,53,43,70,23,90);
-
+//----  AssignOffsetParams(&params_search1, turn90_before, turn90_after, big90_before, big90_after, big180_before, big180_after);
+//	ApplyOffsetParams(&params_search1,35,53,43,70,23,70);	//90
+	ApplyOffsetParams(&params_search1,30,50,43,70,23,70);	//90
 	/*** Set Parameter for Search　***/
-	gain_search1.vel_kp = 3.5f;		//3.5f
+//---- ApplyGain(gain,vel_kp,vel_ki,omega_kp,omega_ki,wall_kp,wall_kd, angle_kp,angle_kd)
+	ApplyGain(&gain_search1,3.5f,0.01f,0.06f,0.002f,0.003f,0.00f,0.005f,0.0f);
+
+/*	gain_search1.vel_kp = 3.5f;		//3.5f
 	gain_search1.vel_ki = 0.01f;	//0.01f
 	gain_search1.omega_kp = 0.06f;	//0.2f
 	gain_search1.omega_ki = 0.002f;	//0.01f
-	gain_search1.wall_kp = 0.006f;	//0.004f
+	gain_search1.wall_kp = 0.003f;	//0.004f
 	gain_search1.wall_kd = 0.00f;
 	gain_search1.angle_kp = 0.005f;
 	gain_search1.angle_kd = 0.0f;
-
+*/
 	SetParams(&params_search1);
 	SetGain(&gain_search1);
 

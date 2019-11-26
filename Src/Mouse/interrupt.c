@@ -37,26 +37,28 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(MF.FLAG.VCTRL){
 				if(MF.FLAG.DECL)
 				{
-					center.vel_target -= center.accel * 0.001;
+					center.vel_target -= params_now.accel * 0.001;
 					if(center.vel_target < center.velocity_min) center.vel_target = center.velocity_min;
 				}
 				else if(MF.FLAG.ACCL)
 				{
-					center.vel_target += center.accel * 0.001;
+					center.vel_target += params_now.accel * 0.001;
 					if(center.vel_target > center.velocity_max)		center.vel_target = center.velocity_max;
 				}
 			}
 			//====回転加速処理====
 			if(MF.FLAG.WCTRL){
 				if(MF.FLAG.WDECL){
+					buff = buff | 0x04;
 					center.omega_target -= center.omega_accel * 0.001;
 					if(center.omega_target < center.velocity_min)	center.omega_target = center.velocity_min;
 				}
 				else if(MF.FLAG.WACCL){
+					buff = buff | 0x04;
 					center.omega_target += center.omega_accel * 0.001;
 					if(center.omega_target > center.omega_max)	center.omega_target = center.omega_max;
 				}else{
-//					FailCheck();
+					FailCheck();
 				}
 			}
 
@@ -77,18 +79,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			break;
 		case 2:
-			if(wall_fr.val > wall_fr.threshold)	buff = buff | 0x10;
+/*			if(wall_fr.val > wall_fr.threshold)	buff = buff | 0x10;
 			if(wall_ff.val > wall_ff.threshold)	buff = buff | 0x04;
 			if(wall_fl.val > wall_fl.threshold)	buff = buff | 0x01;
-
+*/
 			if(wall_r.val > wall_r.threshold)	{
-				buff = buff | 0x08;
+//				buff = buff | 0x08;
 				wall_gain_fix_r = 0.80f;
 			}else{
 				wall_gain_fix_r = 0.80f;
 			}
 			if(wall_l.val > wall_l.threshold)	{
-				buff = buff | 0x02;
+//				buff = buff | 0x02;
 				wall_gain_fix_l = 0.80f;
 			}else{
 				wall_gain_fix_l = 0.80f;
@@ -145,10 +147,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				wall_r.diff = wall_r.dif - wall_r.pre;
 
 				if(SREF_MIN_L < wall_l.dif && wall_l.dif < SREF_MAX_L){
+					buff = buff | 0x03;
 					wall_l.out = wall_gain_fix_l * gain_search1.wall_kp * wall_l.dif;
 					wall_l.out += gain_search1.wall_kd * wall_l.diff;
 				}
 				if(SREF_MIN_R < wall_r.dif && wall_r.dif < SREF_MAX_R){
+					buff = buff | 0x18;
 					wall_r.out = wall_gain_fix_r * gain_search1.wall_kp * wall_r.dif;
 					wall_r.out += gain_search1.wall_kd * wall_r.diff;
 				}
@@ -229,11 +233,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				test4[utsutsu_time] = wall_l.val;
 */
 //				Translation
-				test1[utsutsu_time] = center.distance;
+/*				test1[utsutsu_time] = center.distance;
 				test2[utsutsu_time] = center.omega_rad;
 				test3[utsutsu_time] = center.vel_target;
 				test4[utsutsu_time] = center.velocity;
-
+*/
 //				Revolution
 /*				test1[utsutsu_time] = center.omega_rad;
 				test2[utsutsu_time] = center.omega_dir * center.omega_target;
@@ -241,11 +245,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				test4[utsutsu_time] = center.distance;
 */
 //				Slalom
-/*				test1[utsutsu_time] = center.omega_dir * center.omega_target;
+				test1[utsutsu_time] = center.omega_dir * center.omega_target;
 				test2[utsutsu_time] = center.omega_rad;
-				test3[utsutsu_time] = center.vel_target;
-				test4[utsutsu_time] = center.velocity;
-*/
+				test3[utsutsu_time] = center.angle;
+				test4[utsutsu_time] = center.omega_accel;
+
 			}
 			break;
 		}

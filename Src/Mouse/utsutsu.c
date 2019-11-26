@@ -21,11 +21,13 @@ void UtsutsuSystem()
 	utsutsu_time = 0;
 
 	HalfSectionAccel(GET_WALL_OFF);
+	HalfSectionAccel(GET_WALL_OFF);
+	DriveAccel(SET_MM+ONE_MM);
 	utsutsu_time = 0;
-	BigSlalomL180();
+	BigSlalomR90();
 	HalfSectionDecel();
-*/
-	StopTimer();
+
+*/	StopTimer();
 	DisableMotor();
 
 	printf("----Start Utsutsu System----\n");
@@ -56,7 +58,7 @@ void UtsutsuSystem()
 			SearchOneSection(GOAL_LENGTH);
 			goal_x = goal_y = 0;
 			WaitMs(100);
-			SearchOneSection(1);
+			SearchOneSection(RETURN_GOAL_LENGTH);
 
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
@@ -72,7 +74,7 @@ void UtsutsuSystem()
 
 			SearchContinuous(GOAL_LENGTH);
 			goal_x = goal_y = 0;
-			SearchContinuous(1);
+			SearchContinuous(RETURN_GOAL_LENGTH);
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
@@ -85,19 +87,27 @@ void UtsutsuSystem()
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
-			StartWaiting();
-			FirstAction();
+	  		MakeStepMap(GOAL_LENGTH);
+	  		MakeRoute_NESW();
 
-			goal_x = goal_y = 0;
+/*	  		route[0] = STRAIGHT;
+	  		route[1] = STRAIGHT;
+	  		route[2] = TURN_RIGHT;
+	  		route[3] = TURN_RIGHT;
+	  		route[4] = STRAIGHT;
+	  		route[5] = TURN_LEFT;
+	  		route[6] = STRAIGHT;
+	  		route[7] = STRAIGHT;
+	  		route[8] = STRAIGHT;
+*/
 
-			goal_x = GOAL_X;
-			goal_y = GOAL_Y;
+	  		MakePass();
+	  		ShowPass();
 
-			Spin180();									//180度回転
-			UpdateDirection(DIR_SPIN_180);
-			break;
+	  		break;
 
 	  	  case 4:
+	  		MelodyKurenai();
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
 
@@ -105,7 +115,8 @@ void UtsutsuSystem()
 			FirstAction();
 
 			SearchSlalom(GOAL_LENGTH);
-			goal_x = goal_y = 0;
+			goal_x = 0;
+			goal_y = 0;
 			SearchSlalom(RETURN_GOAL_LENGTH);
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
@@ -118,6 +129,27 @@ void UtsutsuSystem()
 			//////////////////////////////////
 
 		case 5:
+			MelodyNatsumatsuri();
+
+			//Make Wall Gain smaller
+			ApplyGain(&gain_search1,3.5f,0.01f,0.06f,0.002f,0.0005f,0.00f,0.005f,0.0f);
+
+			goal_x = GOAL_X;
+			goal_y = GOAL_Y;
+
+			MakeStepMap(GOAL_LENGTH);						//歩数図の初期化
+			MakeRoute_NESW();
+			MakePass();
+			ShowPass();
+
+			StartWaiting();
+			FirstAction();
+			GyroInit();
+			SetMotionDirection(FORWARD);
+			StartTimer();
+
+			ReadPass();
+
 			break;
 
 		case 6:
@@ -137,6 +169,8 @@ void UtsutsuSystem()
 			break;
 
 		case 11:
+			MelodyRayearth();
+
 		    DriveTest(&mode);
 			WaitMs(100);
 			break;

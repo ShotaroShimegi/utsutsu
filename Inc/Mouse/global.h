@@ -21,23 +21,23 @@
  走行系
  ------------------------------------------------------------*/
 //----About Run----
-#define ROT_ANGLE_R90 -90			//Target Angle [degree]
-#define	ROT_ANGLE_L90 90
-#define ROT_ANGLE_180 180
-#define SET_MM 62					//Distance for Set Positiopn 54
+#define ROT_ANGLE_R90 -90.0f			//Target Angle [degree]
+#define	ROT_ANGLE_L90 90.0f
+#define ROT_ANGLE_180 180.0f
+#define SET_MM 62.0f				//Distance for Set Positiopn 54
 
 #define CENTER_TIME 350
 #define ROT_TIME 355
 #define ROT180_TIME 500
 
-#define GYRO_FIX 16.4			//Gain for Convert Gyro Value to Physical Unit，ジャイロデータシート参照
-#define KW 0.01744				//Pi/180　degree -> radian に変換する定数
-#define KWP 57.471				//radisn -> degree Convert Value
+#define GYRO_FIX 16.4f	 		//Gain for Convert Gyro Value to Physical Unit，ジャイロデータシート参照
+#define ACCEL_FIX 2048.0f
+#define KW 0.01744f				//Pi/180　degree -> radian に変換する定数
+#define KWP 57.295f				//radian -> degree Convert Value
 
-//----DC走行関連----
-#define HALF_MM 90
-#define ONE_MM 180
-#define STOP_OFF_MM 0
+//----Section Size----
+#define HALF_MM 90.0f
+#define ONE_MM 2.0f*HALF_MM
 
 //----Constante Variable for Calculate ----
 #define RADIUS_WHEEL_mm 12.25f
@@ -50,18 +50,18 @@
 #define MASS 0.1f
 #define VOLT_BAT 7.4f
 
-
 /*------------------------------------------------------------
  センサ系
  ------------------------------------------------------------*/
 //----Sensor Threshoud----
 #define WALL_BASE_F 150
-#define WALL_BASE_L 120	//150
-#define WALL_BASE_R 70 //100
+#define WALL_BASE_L 120		//150
+#define WALL_BASE_R 70 		//100
 #define WALL_OFF 100
 
 #define WALL_TURN_VALUE 120
-#define WALL_OFFSET 30
+#define SLALOM_OFFSET_BEFORE 500
+#define SLALOM_OFFSET_AFTER 250
 #define WALL_START 300
 
 //----Sensor Control for Threshoud----
@@ -75,9 +75,9 @@
  ------------------------------------------------------------*/
 
 //----Goal Node----
-#define GOAL_X 6
-#define GOAL_Y 9
-#define GOAL_LENGTH 1
+#define GOAL_X 1
+#define GOAL_Y 0
+#define GOAL_LENGTH 2
 #define RETURN_GOAL_LENGTH 1
 
 #ifndef __MOUSE_FLAGS__

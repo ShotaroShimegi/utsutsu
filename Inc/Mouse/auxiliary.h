@@ -78,9 +78,10 @@
 	void ResetDistance(void);
 	void CheckBattery(void);
 
-	void CalculateNormalParams(params *instance, float,float);
+	void CalculateNormalParams(params *instance,float,float,float);
 	void CalculateBigParams(params *instance,float,float);
-	void AssignOffsetParams(params *instance, uint8_t,uint8_t,uint8_t,uint8_t,uint8_t,uint8_t);
+	void ApplyOffsetParams(params *instance, uint8_t,uint8_t,uint8_t,uint8_t,uint8_t,uint8_t);
+	void ApplyGain(gain *instance, float,float,float,float,float,float,float,float);
 
 	void FailSafe(void);
 	void FailCheck(void);

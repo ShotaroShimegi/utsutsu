@@ -37,7 +37,7 @@ void EncoderGyroTest()
 	while(1){
 //		totalR_mm += -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi * (dif_pulse_r % 4096) / 4096;
 //		totalL_mm += -DIA_WHEEL_mm * (DIA_PINI_mm / DIA_SQUR_mm) * 2 * Pi * (dif_pulse_l % 4096) / 4096;
-		printf("R_dist:%4lf L_dist%4lf Gyro:%4lf \n",encoder_r.distance,encoder_l.distance,center.angle);
+		printf("R_dist:%4lf L_dist%4lf Omega:%4lf Accel;%4lf \n",encoder_r.distance,encoder_l.distance,center.angle,center.accel);
 		WaitMs(500);
 	}
 
@@ -135,12 +135,16 @@ int16_t GetEncoderRight(void)
 
 void UpdateGyro(void)
 {
-	center.omega_deg = ReadGyro() - gyro_base;
+	center.omega_deg = ReadGyroOmegaZ() - gyro_omega_base;
 	center.omega_rad = center.omega_deg * KW;
 	center.angle += (center.omega_deg + center.pre_omega_deg) * 0.5 * 0.001;
 	center.pre_omega_deg = center.omega_deg;
 
+
+	center.accel = ReadGyroAccelX() - gyro_accel_base;
 }
+
+
 void UpdateEncoder(void)
 {
 	encoder_r.pulse = GetEncoderRight();
@@ -198,13 +202,13 @@ void CenterStructureInit(gravity *instance)
 	instance->velocity = 0;
 	instance->velocity_dir = 0;
 	instance->vel_target = 0;
-	instance->omega_deg = 0;
-	instance->omega_target = 0;
-	instance->pre_omega_deg = 0;
-	instance->omega_rad = 0;
+	instance->omega_deg = 0.0f;
+	instance->omega_target = 0.0f;
+	instance->pre_omega_deg = 0.0f;
+	instance->omega_rad = 0.0f;
 	instance->omega_dir = 0;
-	instance->distance = 0;
-	instance->angle = 0;
+	instance->distance = 0.0f;
+	instance->angle = 0.0f;
 	instance->pre_angle = 0.0f;
 	instance->angle_target = 0.0f;
 }

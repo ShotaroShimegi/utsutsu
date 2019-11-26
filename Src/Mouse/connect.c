@@ -3,7 +3,6 @@
 void GyroInit(void)
 {
 	uint8_t who_am_i = ReadByte(WHO_AM_I);
-	uint8_t i = 0;
 	printf("Who am I ? -> 0x%x\n", who_am_i);
 
 	if(who_am_i != GYRO_CORREST_REACTION){
@@ -27,32 +26,50 @@ void GyroInit(void)
 	WriteByte(ACCEL_CONFIG,0x18);
 	HAL_Delay(10);
 
-	for(i=0;i<100;i++){
-		gyro_base += ReadGyro();
-		HAL_Delay(1);
-	}
-		gyro_base = gyro_base * 0.01;
+	GetOmegaOffset(100);
+	GetAccelOffset(100);
+
+	printf("omega_base: %4lf,accel_base: %4lf\n",gyro_omega_base,gyro_accel_base);
+
+	center.angle = 0.0f;
+	center.angle_target = 0.0f;
+
 }
 
-float ReadGyro(void){
+float ReadGyroOmegaZ(void){
 	int16_t omega_raw_z;
-	float omega;
+	float real_omega;
 	omega_raw_z = (int16_t)(ReadByte(GYRO_ZOUT_H) << 8 | ReadByte(GYRO_ZOUT_L));	//0x47が上位，0x48が下位の16bitデータでジャイロ値を取得
-	omega = (float)(omega_raw_z / GYRO_FIX);
-	return omega;
+	real_omega = (float)(omega_raw_z / GYRO_FIX);
+	return real_omega;
 }
 
-float ReadAccelYaw(void){
-	return 0.0f;
+float ReadGyroAccelX(void){
+	int16_t accel_raw_x;
+	float real_accel;
+	accel_raw_x = (int16_t)(ReadByte(ACCEL_XOUT_H) << 8 | ReadByte(ACCEL_XOUT_L));	//0x47が上位，0x48が下位の16bitデータでジャイロ値を取得
+	real_accel = (float)(accel_raw_x / ACCEL_FIX);
+	return real_accel;
 }
 
-void GetGyroOffset(uint16_t num){
+void GetOmegaOffset(uint16_t num){
 	float gyro_offset = 0;
 	int i;
 
 	for(i=0;i<num;i++){
-		gyro_offset += ReadGyro();
+		gyro_offset += ReadGyroOmegaZ();
 		WaitMs(1);
 	}
-	gyro_base = gyro_offset / num;
+	gyro_omega_base = gyro_offset / (float)num;
+}
+
+void GetAccelOffset(uint16_t num){
+	float gyro_offset = 0;
+	int i;
+
+	for(i=0;i<num;i++){
+		gyro_offset += ReadGyroAccelX();
+		WaitMs(1);
+	}
+	gyro_accel_base = gyro_offset / (float)num;
 }

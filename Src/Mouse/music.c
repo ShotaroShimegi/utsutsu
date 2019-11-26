@@ -74,6 +74,34 @@ void MelodyMrLawrence()
 	Melody(d7,100);
 	Melody(c7,100);
 	Melody(a6,100);
+}
+
+void MelodyNatsumatsuri()
+{
+	Melody(d6,200);
+	Melody(f6,200);
+	Melody(g6,200);
+	Melody(f6,100);
+	Melody(g6,100);
+	Melody(a6,200);
+	Melody(c6,200);
+	Melody(d6,200);
+
+}
+
+void MelodyKurenai(void){
+	Melody(c7,300);
+	WaitMs(10);
+	Melody(c7,100);
+	Melody(b6,100);
+	Melody(c7,300);
+	WaitMs(10);
+	Melody(d6,100);
+	Melody(e7,300);
+	Melody(d7,100);
+	Melody(c7,100);
+	Melody(b6,300);
+
 
 }
 

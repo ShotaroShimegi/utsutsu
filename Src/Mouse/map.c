@@ -96,14 +96,14 @@ void UpdatePosition()
 	printf("x: %d, y: %d, DIR: %x\n",MOUSE.X,MOUSE.Y,MOUSE.DIR);
 }
 
-void ConfRoute_NESW()
+void ConfRoute_NESW(uint8_t goal_size)
 {
 	//----壁情報書き込み----
 	WriteMap();
 
 	//----最短経路上に壁があれば進路変更----
 	if(wall_info & route[r_cnt]){
-		MakeStepMap(GOAL_LENGTH);							//歩数マップを更新
+		MakeStepMap(goal_size);							//歩数マップを更新
 		MakeRoute_NESW();									//最短経路を更新
 		r_cnt = 0;											//経路カウンタを0に
 	}

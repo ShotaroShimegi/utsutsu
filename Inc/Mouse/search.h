@@ -9,6 +9,14 @@
 #define GOAL_OK 0
 #define GOAL_FAIL 1
 
+//----Pass Action Number----
+#define R90 -1
+#define L90 -2
+#define BIG_R90 -3
+#define BIG_L90 -4
+#define BIG_R180 -5
+#define BIG_L180 -6
+
 /*============================================================
 		関数プロトタイプ宣言
 ============================================================*/
@@ -20,5 +28,6 @@
 	uint8_t CheckGoal(uint8_t,uint8_t,uint8_t);
 	void MakePass(void);
 	void ReadPass(void);
+	void ShowPass(void);
 
 #endif /* SEARCH_H_ */
