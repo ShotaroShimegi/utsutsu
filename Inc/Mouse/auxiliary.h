@@ -43,7 +43,12 @@
 		params params_now;
 		gain gain_now;
 		params params_search1;
+		params params_short1;
+		params params_short2;
+
 		gain gain_search1;
+		gain gain_short1;
+		gain gain_short2;
 
 		volatile float test1[MEMORY];
 		volatile float test2[MEMORY];
@@ -52,9 +57,15 @@
 
 	#else
 		extern params params_now;
+		extern params params_short1;
+		extern params params_short2;
+
 		extern gain gain_now;
 		extern params params_search1;
 		extern gain gain_search1;
+		extern gain gain_short1;
+		extern gain gain_short2;
+
 		extern volatile float test1[MEMORY];
 		extern volatile float test2[MEMORY];
 		extern volatile float test3[MEMORY];

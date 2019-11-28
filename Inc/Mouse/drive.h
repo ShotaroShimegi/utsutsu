@@ -46,7 +46,6 @@ typedef struct{
 	volatile uint16_t utsutsu_time, ms_time;
 	volatile float accel_time,omega_accel_time;
 	volatile float big90_omega_accel_time,big180_omega_accel_time;
-
 	volatile float Kvolt,Kxr;				//加速度計算するための電流定数，距離変換のための定数
 
 #else
@@ -95,7 +94,6 @@ typedef struct{
 	void BigSlalomL90();
 	void BigSlalomR180();
 	void BigSlalomL180();
-	void GoStraightTrapezoid(uint16_t,float,float);
 
 	void DriveTest(uint8_t *mode);
 	void PIDStructureInit(pid_control *);

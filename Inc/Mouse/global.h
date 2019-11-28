@@ -60,14 +60,14 @@
 #define WALL_OFF 100
 
 #define WALL_TURN_VALUE 120
-#define SLALOM_OFFSET_BEFORE 500
-#define SLALOM_OFFSET_AFTER 250
+#define SLALOM_OFFSET_BEFORE 600
+#define SLALOM_OFFSET_AFTER 230
 #define WALL_START 300
 
 //----Sensor Control for Threshoud----
-#define SREF_MIN_L 0
+#define SREF_MIN_L 6
 #define SREF_MAX_L 4000
-#define SREF_MIN_R 0
+#define SREF_MIN_R 6
 #define SREF_MAX_R 4000
 
 /*------------------------------------------------------------
@@ -75,8 +75,8 @@
  ------------------------------------------------------------*/
 
 //----Goal Node----
-#define GOAL_X 1
-#define GOAL_Y 0
+#define GOAL_X 7
+#define GOAL_Y 7
 #define GOAL_LENGTH 2
 #define RETURN_GOAL_LENGTH 1
 

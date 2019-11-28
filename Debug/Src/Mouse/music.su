@@ -5,4 +5,5 @@ music.c:34:6:MelodyUrara	8	static
 music.c:56:6:MelodyMrLawrence	8	static
 music.c:79:6:MelodyNatsumatsuri	8	static
 music.c:92:6:MelodyKurenai	8	static
-music.c:108:6:Melody	48	static
+music.c:106:6:MelodyYamato	8	static
+music.c:119:6:Melody	48	static

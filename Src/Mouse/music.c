@@ -101,8 +101,19 @@ void MelodyKurenai(void){
 	Melody(d7,100);
 	Melody(c7,100);
 	Melody(b6,300);
+}
 
+void MelodyYamato(){
+	Melody(e6,100);
+	WaitMs(10);
+	Melody(e6,200);
+	Melody(f6,100);
+	Melody(e6,200);
+	Melody(c6,200);
 
+	Melody(f6,400);
+	Melody(e6,400);
+	Melody(d6,400);
 }
 
 void Melody(uint32_t hz, uint32_t ms)

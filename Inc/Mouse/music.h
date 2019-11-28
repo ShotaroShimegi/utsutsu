@@ -58,6 +58,7 @@ void MelodyUrara(void);
 void MelodyGoal(void);
 void MelodyNatsumatsuri(void);
 void MelodyKurenai(void);
+void MelodyYamato(void);
 
 void Melody(uint32_t,uint32_t);
 

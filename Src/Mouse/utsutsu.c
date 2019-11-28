@@ -6,6 +6,7 @@ void UtsutsuSystem()
 	uint16_t i = 0;
 
 	DisableMotor();
+
 	MelodySummer();
 //	StartWaiting();
 
@@ -90,17 +91,6 @@ void UtsutsuSystem()
 	  		MakeStepMap(GOAL_LENGTH);
 	  		MakeRoute_NESW();
 
-/*	  		route[0] = STRAIGHT;
-	  		route[1] = STRAIGHT;
-	  		route[2] = TURN_RIGHT;
-	  		route[3] = TURN_RIGHT;
-	  		route[4] = STRAIGHT;
-	  		route[5] = TURN_LEFT;
-	  		route[6] = STRAIGHT;
-	  		route[7] = STRAIGHT;
-	  		route[8] = STRAIGHT;
-*/
-
 	  		MakePass();
 	  		ShowPass();
 
@@ -131,8 +121,17 @@ void UtsutsuSystem()
 		case 5:
 			MelodyNatsumatsuri();
 
-			//Make Wall Gain smaller
-			ApplyGain(&gain_search1,3.5f,0.01f,0.06f,0.002f,0.0005f,0.00f,0.005f,0.0f);
+			//***Make Parameter***//
+			//----	CalculateNormalParams(&params_Structure,big_velocity,velocity,accel)
+			CalculateNormalParams(&params_short1,1.0f,0.40f,4.0f);
+			CalculateBigParams(&params_short1, 0.40f, 4.0f);
+			//----  AssignOffsetParams(&params_search1, turn90_before, turn90_after, big90_before, big90_after, big180_before, big180_after);
+			ApplyOffsetParams(&params_short1,30,50,47,68,23,70);
+			//---- ApplyGain(gain,vel_kp,vel_ki,omega_kp,omega_ki,wall_kp,wall_kd, angle_kp,angle_kd)
+			ApplyGain(&gain_short1,3.5f,0.01f,0.06f,0.002f,0.003f,0.00f,0.005f,0.0f);
+
+			SetParams(&params_short1);
+			SetGain(&gain_short1);
 
 			goal_x = GOAL_X;
 			goal_y = GOAL_Y;
@@ -140,7 +139,36 @@ void UtsutsuSystem()
 			MakeStepMap(GOAL_LENGTH);						//歩数図の初期化
 			MakeRoute_NESW();
 			MakePass();
-			ShowPass();
+//			ShowPass();
+
+			StartWaiting();
+			FirstAction();
+			GyroInit();
+			SetMotionDirection(FORWARD);
+			StartTimer();
+			ReadPass();
+			break;
+
+		case 6:
+			MelodyYamato();
+			//***Make Parameter***//
+			//----	CalculateNormalParams(&params_Structure,big_velocity,velocity,accel)
+			CalculateNormalParams(&params_short2,2.0f,0.80f, 4.0f);
+			CalculateBigParams(&params_short2, 0.80f, 4.0f);
+			//----  AssignOffsetParams(&params_search1, turn90_before, turn90_after, big90_before, big90_after, big180_before, big180_after);
+			ApplyOffsetParams(&params_short2,25,40,43,60,30,90);
+			//---- ApplyGain(gain,vel_kp,vel_ki,omega_kp,omega_ki,wall_kp,wall_kd, angle_kp,angle_kd)
+			ApplyGain(&gain_short2,3.5f,0.01f,0.06f,0.002f,0.001f,0.00f,0.005f,0.0f);
+
+			SetParams(&params_short2);
+			SetGain(&gain_short2);
+
+			goal_x = GOAL_X;
+			goal_y = GOAL_Y;
+
+			MakeStepMap(GOAL_LENGTH);						//歩数図の初期化
+			MakeRoute_NESW();
+			MakePass();
 
 			StartWaiting();
 			FirstAction();
@@ -152,14 +180,9 @@ void UtsutsuSystem()
 
 			break;
 
-		case 6:
-			SetMotionDirection(FORWARD);
-			StartTimer();
-			utsutsu_time = 0;
-			HalfSectionAccel(GET_WALL_ON);
-			HalfSectionDecel();
-			StopTimer();
+		case 7:
 			break;
+
 
 		case 10:
 			printf("Wall Data Output\n");

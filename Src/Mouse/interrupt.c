@@ -49,19 +49,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			//====回転加速処理====
 			if(MF.FLAG.WCTRL){
 				if(MF.FLAG.WDECL){
-					buff = buff | 0x04;
 					center.omega_target -= center.omega_accel * 0.001;
 					if(center.omega_target < center.velocity_min)	center.omega_target = center.velocity_min;
 				}
 				else if(MF.FLAG.WACCL){
-					buff = buff | 0x04;
 					center.omega_target += center.omega_accel * 0.001;
 					if(center.omega_target > center.omega_max)	center.omega_target = center.omega_max;
 				}else{
 					FailCheck();
 				}
 			}
-
 			break;
 
 		case 1:
@@ -83,23 +80,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(wall_ff.val > wall_ff.threshold)	buff = buff | 0x04;
 			if(wall_fl.val > wall_fl.threshold)	buff = buff | 0x01;
 */
-			if(wall_r.val > wall_r.threshold)	{
-//				buff = buff | 0x08;
-				wall_gain_fix_r = 0.80f;
+			if(wall_r.val > wall_r.threshold )	{
+				wall_gain_fix_r = 1.00f;
 			}else{
-				wall_gain_fix_r = 0.80f;
+				wall_gain_fix_r = 1.2f;
 			}
 			if(wall_l.val > wall_l.threshold)	{
-//				buff = buff | 0x02;
-				wall_gain_fix_l = 0.80f;
+				wall_gain_fix_l = 1.0f;
 			}else{
-				wall_gain_fix_l = 0.80f;
+				wall_gain_fix_l = 1.2f;
 			}
-
-			LedDisplay(&buff);
 			UpdateEncoder();
 			UpdateGyro();
-
 
 			if(MF.FLAG.WCTRL)
 			{
@@ -245,12 +237,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				test4[utsutsu_time] = center.distance;
 */
 //				Slalom
-				test1[utsutsu_time] = center.omega_dir * center.omega_target;
+/*				test1[utsutsu_time] = center.omega_dir * center.omega_target;
 				test2[utsutsu_time] = center.omega_rad;
 				test3[utsutsu_time] = center.angle;
 				test4[utsutsu_time] = center.omega_accel;
-
-			}
+*/			}
 			break;
 		}
 		tp = (tp+1) % 4;
