@@ -72,7 +72,7 @@ typedef struct{
 	void SetMotionDirection(uint8_t);
 
 	//====Basic Function====
-	void DriveAccel(float);
+	void DriveAccel(float,uint8_t);
 	void DriveDecel(float, unsigned char);
 	void DriveSpin(float);
 	void DriveSlalom(int16_t);

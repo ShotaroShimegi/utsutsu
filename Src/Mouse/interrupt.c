@@ -134,10 +134,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(MF.FLAG.CTRL && (center.vel_target > 0.1f)){
 				wall_l.dif = wall_l.val - wall_l.base;
 				wall_r.dif = wall_r.val - wall_r.base;
-
 				wall_l.diff = wall_l.dif - wall_l.pre;
 				wall_r.diff = wall_r.dif - wall_r.pre;
-
 				if(SREF_MIN_L < wall_l.dif && wall_l.dif < SREF_MAX_L){
 					buff = buff | 0x03;
 					wall_l.out = wall_gain_fix_l * gain_search1.wall_kp * wall_l.dif;
@@ -151,10 +149,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 				if(wall_r.out > 0.1f) wall_r.out = 0.1f;
 				if(wall_l.out > 0.1f) wall_l.out = 0.1f;
-
 				wall_l.pre = wall_l.dif;
 				wall_r.pre = wall_r.dif;
-
+				wall_ff.pre = wall_ff.val;
 			}else {
 				wall_r.out = 0;
 				wall_l.out = 0;
@@ -162,7 +159,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			break;
 		case 3:
 			if(MF.FLAG.ACTRL && (center.vel_target > 0.1f)){
-				angle_out = (center.angle_target - center.angle) * gain_now.angle_kp + (center.angle - center.pre_angle) * gain_now.angle_kd;
+				angle_out = gain_now.angle_kp*(center.angle_target - center.angle) + gain_now.angle_kd*(center.angle - center.pre_angle);
 				center.pre_angle = center.angle;
 			}else{
 				angle_out = 0.0f;
@@ -216,14 +213,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			if(utsutsu_time >= MEMORY - 1){
 				utsutsu_time = MEMORY - 1;
-			}else{
+			}else if(MF.FLAG.SCND == 1)
+			{
 //Wall Sensor
 				utsutsu_time++;
-/*				test1[utsutsu_time] = wall_r.val;
-				test2[utsutsu_time] = wall_r.out;
-				test3[utsutsu_time] = wall_l.out;
-				test4[utsutsu_time] = wall_l.val;
-*/
+				test1[utsutsu_time] = center.distance;
+				test2[utsutsu_time] = wall_r.val;
+				test3[utsutsu_time] = wall_l.val;
+				test4[utsutsu_time] = wall_l.out;
+
 //				Translation
 /*				test1[utsutsu_time] = center.distance;
 				test2[utsutsu_time] = center.omega_rad;

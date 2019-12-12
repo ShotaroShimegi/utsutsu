@@ -1,9 +1,11 @@
 #include <Mouse/global.h>
+#include"tim.h"
 
 void UtsutsuSystem()
 {
 	uint8_t mode = 0;
 	uint16_t i = 0;
+	TIM_OC_InitTypeDef sConfigOC;
 
 	DisableMotor();
 
@@ -121,15 +123,6 @@ void UtsutsuSystem()
 		case 5:
 			MelodyNatsumatsuri();
 
-			//***Make Parameter***//
-			//----	CalculateNormalParams(&params_Structure,big_velocity,velocity,accel)
-			CalculateNormalParams(&params_short1,1.0f,0.40f,4.0f);
-			CalculateBigParams(&params_short1, 0.40f, 4.0f);
-			//----  AssignOffsetParams(&params_search1, turn90_before, turn90_after, big90_before, big90_after, big180_before, big180_after);
-			ApplyOffsetParams(&params_short1,30,50,47,68,23,70);
-			//---- ApplyGain(gain,vel_kp,vel_ki,omega_kp,omega_ki,wall_kp,wall_kd, angle_kp,angle_kd)
-			ApplyGain(&gain_short1,3.5f,0.01f,0.06f,0.002f,0.003f,0.00f,0.005f,0.0f);
-
 			SetParams(&params_short1);
 			SetGain(&gain_short1);
 
@@ -151,14 +144,6 @@ void UtsutsuSystem()
 
 		case 6:
 			MelodyYamato();
-			//***Make Parameter***//
-			//----	CalculateNormalParams(&params_Structure,big_velocity,velocity,accel)
-			CalculateNormalParams(&params_short2,2.0f,0.80f, 4.0f);
-			CalculateBigParams(&params_short2, 0.80f, 4.0f);
-			//----  AssignOffsetParams(&params_search1, turn90_before, turn90_after, big90_before, big90_after, big180_before, big180_after);
-			ApplyOffsetParams(&params_short2,25,40,43,60,30,90);
-			//---- ApplyGain(gain,vel_kp,vel_ki,omega_kp,omega_ki,wall_kp,wall_kd, angle_kp,angle_kd)
-			ApplyGain(&gain_short2,3.5f,0.01f,0.06f,0.002f,0.001f,0.00f,0.005f,0.0f);
 
 			SetParams(&params_short2);
 			SetGain(&gain_short2);
@@ -181,6 +166,24 @@ void UtsutsuSystem()
 			break;
 
 		case 7:
+			sConfigOC.OCMode = TIM_OCMODE_PWM1;
+			sConfigOC.Pulse = (uint16_t)(1000 * 0.50f);
+
+			sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+			sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+			sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+			sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+			sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+
+			HAL_TIM_PWM_ConfigChannel(&htim11,&sConfigOC,TIM_CHANNEL_1);
+
+			StartWaiting();
+
+			HAL_TIM_PWM_Start(&htim11,TIM_CHANNEL_1);
+
+			while(1);
+
+
 			break;
 
 

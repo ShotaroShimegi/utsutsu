@@ -23,6 +23,10 @@
 		uint8_t big180_before;
 		uint8_t big180_after;
 
+		//angle offset parameter
+		float R90_offset;
+		float L90_offset;
+
 	} params;
 
 	typedef struct{
@@ -91,7 +95,7 @@
 
 	void CalculateNormalParams(params *instance,float,float,float);
 	void CalculateBigParams(params *instance,float,float);
-	void ApplyOffsetParams(params *instance, uint8_t,uint8_t,uint8_t,uint8_t,uint8_t,uint8_t);
+	void ApplyOffsetParams(params *instance, uint8_t,uint8_t,uint8_t,uint8_t,uint8_t,uint8_t,float,float);
 	void ApplyGain(gain *instance, float,float,float,float,float,float,float,float);
 
 	void FailSafe(void);

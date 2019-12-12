@@ -113,13 +113,15 @@ void SetParams(params *instance)
 	params_now.big180_before = instance->big180_before;
 	params_now.big180_after = instance->big180_after;
 
+	params_now.R90_offset = instance->R90_offset;
+	params_now.L90_offset = instance->L90_offset;
+
 	center.velocity_max = instance->vel_max;
 	center.omega_max = instance->omega_max;
 	center.velocity_min = 0.0f;
 
 	accel_time = params_now.vel_max / params_now.accel;		//Time for Straight Accel
 //	omega_accel_time = accel_time / 3;
-
 }
 
 void SetGain(gain *instance)
@@ -158,9 +160,9 @@ void LedDisplay(uint8_t *led)
 void ResetDistance()
 {
 	/* Initialize Distance */
-	encoder_r.distance = 0;
-	encoder_l.distance = 0;
-	center.distance = 0;
+	encoder_r.distance = 0.0f;
+	encoder_l.distance = 0.0f;
+	center.distance = 0.0f;
 
 	/* Initialize Integral Variable  */
 	encoder_r.sum = 0;
@@ -211,10 +213,9 @@ void CalculateBigParams(params *instance,float velocity,float accel)
 	instance->big90_omega_accel = 2.0f * instance->big90_omega_max / time_180mm;
 	instance->big180_omega_max = 2.5f / (1.0f + 2.5f) * 2.0f * Pi / time_360mm;
 	instance->big180_omega_accel =2.0f * instance->big180_omega_max / time_360mm;
-
 }
 
-void ApplyOffsetParams(params *instance, uint8_t turn90_before,uint8_t turn90_after,uint8_t big90_before,uint8_t big90_after,uint8_t big180_before,uint8_t big180_after)
+void ApplyOffsetParams(params *instance, uint8_t turn90_before,uint8_t turn90_after,uint8_t big90_before,uint8_t big90_after,uint8_t big180_before,uint8_t big180_after,float R90_offset, float L90_offset)
 {
 	instance->TURN90_before = turn90_before;
 	instance->TURN90_after = turn90_after;
@@ -222,6 +223,9 @@ void ApplyOffsetParams(params *instance, uint8_t turn90_before,uint8_t turn90_af
 	instance->big90_after = big90_after;
 	instance->big180_before = big180_before;
 	instance->big180_after = big180_after;
+
+	instance->R90_offset = R90_offset;
+	instance->L90_offset = L90_offset;
 }
 
 void ApplyGain(gain *instance, float vel_kp,float vel_ki, float omega_kp,float omega_ki,float wall_kp,float wall_kd, float angle_kp, float angle_kd){
@@ -253,11 +257,9 @@ void FailSafe(void)
 void FailCheck(void)
 {
 	float dif_angle;
-
 	dif_angle = center.angle - center.angle_target;
 
-	if((dif_angle > 20.0f) || (dif_angle < -20.0f)){
-		MelodySummer();
+	if((dif_angle > FAIL_ANGLE) || (dif_angle < -FAIL_ANGLE)){
 		FailSafe();
 	}else if((center.accel > 14.0f) && (MF.FLAG.SCND == 1)){
 		FailSafe();

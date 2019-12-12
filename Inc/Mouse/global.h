@@ -60,9 +60,15 @@
 #define WALL_OFF 100
 
 #define WALL_TURN_VALUE 120
-#define SLALOM_OFFSET_BEFORE 600
+#define SLALOM_OFFSET_BEFORE 450
 #define SLALOM_OFFSET_AFTER 230
+#define FRONT_WALL_CONTROL 270
 #define WALL_START 300
+
+#define FRONT_CONTROL_FLAG 0
+#define FIX_GAIN 1.0f
+
+#define FAIL_ANGLE 30.0f
 
 //----Sensor Control for Threshoud----
 #define SREF_MIN_L 6
@@ -75,8 +81,8 @@
  ------------------------------------------------------------*/
 
 //----Goal Node----
-#define GOAL_X 7
-#define GOAL_Y 7
+#define GOAL_X 1
+#define GOAL_Y 8
 #define GOAL_LENGTH 2
 #define RETURN_GOAL_LENGTH 1
 
@@ -97,7 +103,7 @@ typedef union {
 		uint8_t WCTRL :1;		//回転制御フラグ(B9)
 		uint8_t FAIL :1;		//フェイルセーフフラグ(B10)
 		uint8_t ACTRL :1;		//予備フラグ(B11)
-		uint8_t RESV12 :1;		//予備フラグ(B12)
+		uint8_t FRONT :1;		//予備フラグ(B12)
 		uint8_t RESV13 :1;		//予備フラグ(B13)
 		uint8_t RESV14 :1;		//予備フラグ(B14)
 		uint8_t RESV15 :1;		//予備フラグ(B15)

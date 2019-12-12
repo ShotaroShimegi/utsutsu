@@ -208,7 +208,7 @@ void MakeRoute_NESW()
 			m_temp >>= 4;										//上位4bitを使うので4bit分右にシフトさせる
 		}
 
-		//----北を見る----
+/*		//----北を見る----
 		if(!(m_temp & 0x08) && (step_map[y+1][x] < m_step)){		//北側に壁が無く、現在地より小さい歩数マップ値であれば
 			route[i] = (0x00 - MOUSE.DIR) & 0x03;					//route配列に進行方向を記録
 			m_step = step_map[y+1][x];								//最大歩数マップ値を更新
@@ -219,6 +219,20 @@ void MakeRoute_NESW()
 			route[i] = (0x01 - MOUSE.DIR) & 0x03;					//route配列に進行方向を記録
 			m_step = step_map[y][x+1];								//最大歩数マップ値を更新
 			x++;													//東に進んだのでX座標をインクリメント
+		}
+
+*/
+		//----東を見る----
+		if(!(m_temp & 0x04) && (step_map[y][x+1] < m_step)){	//東側に壁が無く、現在地より小さい歩数マップ値であれば
+					route[i] = (0x01 - MOUSE.DIR) & 0x03;					//route配列に進行方向を記録
+					m_step = step_map[y][x+1];								//最大歩数マップ値を更新
+					x++;													//東に進んだのでX座標をインクリメント
+		}
+		//----北を見る----
+		else if(!(m_temp & 0x08) && (step_map[y+1][x] < m_step)){		//北側に壁が無く、現在地より小さい歩数マップ値であれば
+			route[i] = (0x00 - MOUSE.DIR) & 0x03;					//route配列に進行方向を記録
+			m_step = step_map[y+1][x];								//最大歩数マップ値を更新
+			y++;													//北に進んだのでY座標をインクリメント
 		}
 		//----南を見る----
 		else if(!(m_temp & 0x02) && (step_map[y-1][x] < m_step)){	//南側に壁が無く、現在地より小さい歩数マップ値であれば

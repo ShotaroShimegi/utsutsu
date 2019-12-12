@@ -1,7 +1,7 @@
 search.c:9:6:SearchOneSection	16	static
 search.c:72:6:SearchContinuous	24	static
 search.c:173:6:SearchSlalom	24	static
-search.c:267:9:CheckGoal	24	static
-search.c:305:6:MakePass	24	static
-search.c:465:6:ReadPass	16	static
-search.c:531:6:ShowPass	16	static
+search.c:280:9:CheckGoal	24	static
+search.c:318:6:MakePass	24	static
+search.c:478:6:ReadPass	16	static
+search.c:545:6:ShowPass	16	static

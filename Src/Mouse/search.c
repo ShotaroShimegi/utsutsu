@@ -100,7 +100,7 @@ void SearchContinuous(uint8_t goal_length)
 	if(goal_x == 0 && goal_y == 0){
 
 	}else{
-		DriveAccel(SET_MM);
+		DriveAccel(SET_MM,0);
 	}
 	SetMotionDirection(FORWARD);
 	HalfSectionAccel(GET_WALL_ON);;
@@ -140,7 +140,7 @@ void SearchContinuous(uint8_t goal_length)
 					FixPosition(0);
 					fix_flag = 0;
 				}
-				DriveAccel(HALF_MM);
+				DriveAccel(HALF_MM,0);
 				GetWallData();
 				break;
 
@@ -173,6 +173,7 @@ void SearchContinuous(uint8_t goal_length)
 void SearchSlalom(uint8_t goal_length)
 {
 	uint8_t fix_flag = 0;
+//	uint8_t buff = 0x00;
 
 	if(MF.FLAG.SEARCH == 1)	InitializeMap();
 
@@ -203,7 +204,7 @@ void SearchSlalom(uint8_t goal_length)
 	if(goal_x == 0 && goal_y == 0){
 
 	}else{
-		DriveAccel(SET_MM);
+		DriveAccel(SET_MM,0);
 	}
 	SetMotionDirection(FORWARD);
 	HalfSectionAccel(GET_WALL_ON);
@@ -215,16 +216,25 @@ void SearchSlalom(uint8_t goal_length)
 	do{
 		switch(route[r_cnt++]){								//route配列によって進行を決定。経路カウンタを進める
 			case STRAIGHT:
+//				buff = 0x00;
+//				LedDisplay(&buff);
+
 				GoOneSectionContinuous();                                //このプログラムには無い関数、他のプログラムと比べて類似の関数を探してピッタリなのを作れ　標
 				break;
 
 			case TURN_RIGHT:
+//				buff = 0x10;
+//				LedDisplay(&buff);
+
 				SlalomR90();
 				UpdateDirection(DIR_SPIN_R90);
 				SetMotionDirection(FORWARD);
 				break;
 
 			case TURN_BACK:
+//			buff = 0x11;
+//				LedDisplay(&buff);
+
 				if(wall_ff.val > WALL_TURN_VALUE){
 					fix_flag = 1;
 				}
@@ -239,10 +249,13 @@ void SearchSlalom(uint8_t goal_length)
 					fix_flag = 0;
 				}
 				SetMotionDirection(FORWARD);
-				HalfSectionAccel(GET_WALL_ON);;
+				HalfSectionAccel(GET_WALL_ON);
 				break;
 
 			case TURN_LEFT:
+//				buff = 0x01;
+//				LedDisplay(&buff);
+
 				SlalomL90();
 				UpdateDirection(DIR_SPIN_L90);
 				SetMotionDirection(FORWARD);
@@ -466,9 +479,10 @@ void ReadPass(void)
 {
 	uint16_t i = 0;
 	uint8_t buff;
+	utsutsu_time = 0;
 
 	MF.FLAG.CTRL = 1;
-	DriveAccel(SET_MM);
+	DriveAccel(SET_MM,FRONT_CONTROL_FLAG);
 
 	while(i != pass_end_count){
 		if(pass[i] > 0)	{
@@ -521,10 +535,10 @@ void ReadPass(void)
 
 	HalfSectionDecel();
 	printf("PASS END\n");
-	MelodyGoal();
-
 	DisableMotor();
 	StopTimer();
+
+	MelodyGoal();
 
 }
 

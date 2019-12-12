@@ -22,7 +22,7 @@
 void HalfSectionAccel(uint8_t wall_read)
 {
 	MF.FLAG.CTRL = 1;
-	DriveAccel(HALF_MM);
+	DriveAccel(HALF_MM, MF.FLAG.SCND);
 	if(wall_read) {
 		GetWallData();
 	}
@@ -63,20 +63,21 @@ void SlalomR90()
 {
 	float fix_gain = 0.0f;
 
-	if(wall_ff.val > SLALOM_OFFSET_BEFORE)	fix_gain = 0.5f;
+	if(wall_ff.val > SLALOM_OFFSET_BEFORE)	fix_gain = FIX_GAIN;
 	else									fix_gain = 1.0f;
 
 	MF.FLAG.CTRL = 1;
 	SetMotionDirection(FORWARD);
-	DriveAccel(fix_gain * params_now.TURN90_before);
+	DriveAccel(params_now.TURN90_before,0);
 	MF.FLAG.CTRL = 0;
+
 	DriveSlalom(-90);
 
-	if(wall_ff.val > SLALOM_OFFSET_AFTER)	fix_gain = 0.5f;
+	if(wall_ff.val > SLALOM_OFFSET_AFTER)	fix_gain = FIX_GAIN;
 	else									fix_gain = 1.0f;
 
 	MF.FLAG.CTRL = 1;
-	DriveAccel(fix_gain * params_now.TURN90_after);
+	DriveAccel(params_now.TURN90_after,FRONT_CONTROL_FLAG);
 	GetWallData();
 
 }
@@ -95,20 +96,20 @@ void SlalomL90(void)
 {
 	float fix_gain = 0.0f;
 
-	if(wall_ff.val > SLALOM_OFFSET_BEFORE)	fix_gain = 0.5f;
+	if(wall_ff.val > SLALOM_OFFSET_BEFORE)	fix_gain = FIX_GAIN;
 	else									fix_gain = 1.0f;
 
 	MF.FLAG.CTRL = 1;
 	SetMotionDirection(FORWARD);
-	DriveAccel(fix_gain * params_now.TURN90_before);
+	DriveAccel(params_now.TURN90_before,0);
 	MF.FLAG.CTRL = 0;
 	DriveSlalom(90);
 
-	if(wall_ff.val > SLALOM_OFFSET_AFTER)	fix_gain = 0.5f;
+	if(wall_ff.val > SLALOM_OFFSET_AFTER)	fix_gain = 0.75f;
 	else									fix_gain = 1.0f;
 
 	MF.FLAG.CTRL = 1;
-	DriveAccel(fix_gain * params_now.TURN90_after);
+	DriveAccel(params_now.TURN90_after,FRONT_CONTROL_FLAG);
 	GetWallData();
 
 }
@@ -117,11 +118,11 @@ void BigSlalomR90()
 {
 	MF.FLAG.CTRL = 1;
 	SetMotionDirection(FORWARD);
-	DriveAccel(params_now.big90_before);
+	DriveAccel(params_now.big90_before,FRONT_CONTROL_FLAG);
 	MF.FLAG.CTRL = 0;
 	DriveSlalomFree(-90,params_now.big90_omega_max, params_now.big90_omega_accel, big90_omega_accel_time);
 	MF.FLAG.CTRL = 1;
-	DriveAccel(params_now.big90_after);
+	DriveAccel(params_now.big90_after,0);
 	GetWallData();
 }
 
@@ -129,11 +130,11 @@ void BigSlalomL90()
 {
 	MF.FLAG.CTRL = 1;
 	SetMotionDirection(FORWARD);
-	DriveAccel(params_now.big90_before);
+	DriveAccel(params_now.big90_before,FRONT_CONTROL_FLAG);
 	MF.FLAG.CTRL = 0;
 	DriveSlalomFree(90,params_now.big90_omega_max, params_now.big90_omega_accel, big90_omega_accel_time);
 	MF.FLAG.CTRL = 1;
-	DriveAccel(params_now.big90_after);
+	DriveAccel(params_now.big90_after,0);
 	GetWallData();
 }
 
@@ -141,11 +142,11 @@ void BigSlalomR180()
 {
 	MF.FLAG.CTRL = 1;
 	SetMotionDirection(FORWARD);
-	DriveAccel(params_now.big180_before);
+	DriveAccel(params_now.big180_before,FRONT_CONTROL_FLAG);
 	MF.FLAG.CTRL = 0;
 	DriveSlalomFree(-180,params_now.big180_omega_max, params_now.big180_omega_accel, big180_omega_accel_time);
 	MF.FLAG.CTRL = 1;
-	DriveAccel(params_now.big180_after);
+	DriveAccel(params_now.big180_after,0);
 	GetWallData();
 }
 
@@ -153,11 +154,11 @@ void BigSlalomL180()
 {
 	MF.FLAG.CTRL = 1;
 	SetMotionDirection(FORWARD);
-	DriveAccel(params_now.big180_before);
+	DriveAccel(params_now.big180_before,FRONT_CONTROL_FLAG);
 	MF.FLAG.CTRL = 0;
 	DriveSlalomFree(180,params_now.big180_omega_max, params_now.big180_omega_accel, big180_omega_accel_time);
 	MF.FLAG.CTRL = 1;
-	DriveAccel(params_now.big180_after);
+	DriveAccel(params_now.big180_after,0);
 	GetWallData();
 }
 
@@ -178,7 +179,7 @@ void FixPosition(uint8_t flag)
 	ResetDistance();
 
 	center.velocity_max = 0.20f;
-	DriveAccel(-(SET_MM * 0.7f));
+	DriveAccel(-(SET_MM * 0.7f),0);
 	DriveDecel(-(SET_MM * 0.7f),1);
 	center.velocity_max = params_now.vel_max;
 
@@ -188,15 +189,15 @@ void FixPosition(uint8_t flag)
 	SetMotionDirection(FORWARD);
 	MF.FLAG.CTRL = 1;
 	if(flag == 0){
-		DriveAccel(SET_MM);
+		DriveAccel(SET_MM,0);
 	}else{
-		DriveAccel(SET_MM * 0.5f);
+		DriveAccel(SET_MM * 0.5f,0);
 		DriveDecel(SET_MM * 0.5f,1);
 	}
 
 }
 
-void DriveAccel(float dist)
+void DriveAccel(float dist,uint8_t front_ctrl_flag)
 {
 	float ics = center.distance;
 
@@ -208,8 +209,8 @@ void DriveAccel(float dist)
 	MF.FLAG.ACCL = 1;
 	MF.FLAG.DECL = 0;
 
-//	if(dist > 0)	MF.FLAG.ACTRL = 0;
-//	else 			MF.FLAG.ACTRL = 0;
+	if(dist > 0)	MF.FLAG.ACTRL = 0;
+	else 			MF.FLAG.ACTRL = 0;
 
 	center.omega_target = 0;
 	center.velocity_max = params_now.vel_max;
@@ -218,10 +219,16 @@ void DriveAccel(float dist)
 	StartMotion();
 	//----走行----
 	if(dist >= 0.0f){
-		while(center.distance < ics + dist);
+		while(center.distance < ics + dist){
+			if((front_ctrl_flag == 1) && ((wall_ff.val+wall_ff.pre)*0.5 > FRONT_WALL_CONTROL)){
+				break;
+			}
+		}
+
 	} else{
 		while(center.distance > ics + dist);
 	}
+	center.vel_target = params_now.vel_max;
 }
 
 void DriveDecel(float dist, unsigned char rs)
@@ -233,8 +240,8 @@ void DriveDecel(float dist, unsigned char rs)
 	MF.FLAG.WCTRL = 1;
 	MF.FLAG.VCTRL = 1;
 
-	if(dist > 0)MF.FLAG.ACTRL = 0;
-	else MF.FLAG.ACTRL = 0;
+//	if(dist > 0)MF.FLAG.ACTRL = 0;
+//	else MF.FLAG.ACTRL = 0;
 
 	MF.FLAG.WDECL = 0;
 	MF.FLAG.WACCL = 0;
@@ -255,12 +262,14 @@ void DriveDecel(float dist, unsigned char rs)
 	}else{
 		while((center.distance + offset) > (dist + ics));
 	}
-		if(rs){
+		if(rs == 1){
 			MF.FLAG.CTRL = 0;
 			MF.FLAG.ACCL = 0;
 			MF.FLAG.DECL = 1;
-			while(center.vel_target != 0.0f);
-			WaitMs(300);
+			while((center.distance + offset) < (dist + ics)){
+				if(center.vel_target == 0.0f) break;
+			}
+			WaitMs(100);
 			MF.FLAG.WCTRL = 0;
 			MF.FLAG.VCTRL = 0;
 			StopMotion();
@@ -344,8 +353,14 @@ void DriveSlalom(int16_t theta)
 	MF.FLAG.WACCL = 1;
 	MF.FLAG.WDECL = 0;
 
-	if(theta > 0)		center.omega_dir = 1;	//Left Turn
-	else if(theta < 0)	center.omega_dir = -1;	//Right Turn
+	if(theta > 0)	{
+		center.omega_dir = 1;	//Left Turn
+		offset_fix = params_now.L90_offset;
+	}
+	else if(theta < 0)	{
+		center.omega_dir = -1;	//Right Turn
+		offset_fix = params_now.R90_offset;
+	}
 
 	center.omega_accel = params_now.omega_accel;
 	StartMotion();
@@ -354,19 +369,19 @@ void DriveSlalom(int16_t theta)
 
 	if(center.omega_dir == 1)					//Left Turn
 	{
-		while(center.angle + offset < ics + theta - offset_fix);
+		while(center.angle + offset < center.angle_target + theta - offset_fix);
 		MF.FLAG.WACCL = 0;
 		MF.FLAG.WDECL = 1;
-		while(center.angle < ics + theta - offset_fix){
+		while(center.angle < center.angle_target + theta - offset_fix){
 			if(center.omega_target == 0) break;
 		}
 	}
 	else if(center.omega_dir == -1)			//Right Turn
 	{
-		while(center.angle - offset > ics + theta + offset_fix);
+		while(center.angle - offset > center.angle_target + theta + offset_fix);
 		MF.FLAG.WACCL = 0;
 		MF.FLAG.WDECL = 1;
-		while(center.angle > ics + theta + offset_fix)
+		while(center.angle > center.angle_target + theta + offset_fix)
 		{
 			if(center.omega_target == 0) break;
 		}
@@ -434,6 +449,7 @@ void DriveTrapezoid(float distance,float vel_max,float vel_min, float accel)
 	float ics = center.distance;
 	float vel_dif;
 	float offset;
+	uint8_t max_flag = 0;
 
 	MF.FLAG.VCTRL = 1;
 	MF.FLAG.WCTRL = 1;
@@ -449,13 +465,14 @@ void DriveTrapezoid(float distance,float vel_max,float vel_min, float accel)
 	offset += 10;
 	center.omega_target = 0;
 
-	if(2.0f*offset > distance || 2.0f*ONE_MM > distance)	{
+	if(2.0f*offset > distance || 1.5f*ONE_MM > distance)	{
 		//Change Max Speed
 		center.velocity_max = vel_min;
 		center.velocity_min = 0.0f;
 	}else{
 		center.velocity_max = vel_max;
 		center.velocity_min = 0.0f;
+		max_flag = 1;
 	}
 
 	StartMotion();
@@ -468,12 +485,19 @@ void DriveTrapezoid(float distance,float vel_max,float vel_min, float accel)
 				offset += 1000 * vel_min * vel_dif / accel;
 				offset += 10;
 			}
+
+			if(wall_ff.val > FRONT_WALL_CONTROL){
+				break;
+			}
 		}
-		center.velocity_min = vel_min;
-		MF.FLAG.ACCL = 0;
-		MF.FLAG.DECL = 1;
+		if(max_flag == 1)	{
+			center.velocity_min = vel_min;
+			MF.FLAG.ACCL = 0;
+			MF.FLAG.DECL = 1;
+		}
 		while(center.distance < ics + distance){
-			if(center.vel_target == center.velocity_min) break;
+			if(wall_ff.val > FRONT_WALL_CONTROL)		break;
+			if((max_flag == 1) &&( center.vel_target == center.velocity_min)) break;
 		}
 	} else{
 		while(center.distance > ics + distance);
@@ -654,7 +678,7 @@ void DriveTest(uint8_t *mode)
 				SetMotionDirection(FORWARD);
 				utsutsu_time = 0;
 				MF.FLAG.CTRL = 1;
-				DriveAccel(HALF_MM + SET_MM);
+				DriveAccel(HALF_MM + SET_MM,0);
 				DriveTrapezoid(HALF_MM * 4,params_now.big_vel_max,params_now.vel_max,params_now.accel);
 				DriveDecel(HALF_MM,1);
 				break;

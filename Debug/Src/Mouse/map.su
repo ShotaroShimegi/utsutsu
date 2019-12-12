@@ -5,7 +5,7 @@ map.c:99:6:ConfRoute_NESW	16	static
 map.c:112:6:UpdateDirection	16	static
 map.c:117:6:MakeStepMap	24	static
 map.c:184:6:MakeRoute_NESW	16	static
-map.c:262:6:ConvertMapIntoWall	16	static
-map.c:278:6:PrintWallData	16	static
-map.c:313:6:PrintHorizontalWallData	16	static
-map.c:322:6:PrintVerticalWallData	16	static
+map.c:276:6:ConvertMapIntoWall	16	static
+map.c:292:6:PrintWallData	16	static
+map.c:327:6:PrintHorizontalWallData	16	static
+map.c:336:6:PrintVerticalWallData	16	static
