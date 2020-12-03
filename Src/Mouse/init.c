@@ -32,16 +32,22 @@ void VariableInit(void)
 	//----  AssignOffsetParams(&params_search1, turn90_before, turn90_after, big90_before, big90_after, big180_before, big180_after);
 	ApplyOffsetParams(&params_short1,30,30,47,68,23,70,0.0f,0.0f);
 	//---- ApplyGain(gain,vel_kp,vel_ki,omega_kp,omega_ki,wall_kp,wall_kd, angle_kp,angle_kd)
-	ApplyGain(&gain_short1,3.5f,0.01f,0.06f,0.002f,0.003f,0.00f,0.005f,0.0f);
+	ApplyGain(&gain_short1,3.5f,0.01f,
+				0.06f,0.002f,0.003f,0.00f,
+				0.005f,0.0f);
 
 //***Make Second Parameter***//
 	//----	CalculateNormalParams(&params_Structure,big_velocity,velocity,accel)
 	CalculateNormalParams(&params_short2,2.0f,0.80f, 4.0f);
 	CalculateBigParams(&params_short2, 0.80f, 4.0f);
 	//----  AssignOffsetParams(&params_search1, turn90_before, turn90_after, big90_before, big90_after, big180_before, big180_after);
-	ApplyOffsetParams(&params_short2,25,60,43,60,30,90,10.0f,0.0f);
+	ApplyOffsetParams(&params_short2,25,60,
+						43,60,30,90,
+						10.0f,0.0f);
 	//---- ApplyGain(gain,vel_kp,vel_ki,omega_kp,omega_ki,wall_kp,wall_kd, angle_kp,angle_kd)
-	ApplyGain(&gain_short2,3.5f,0.01f,0.06f,0.002f,0.005f,0.00f,0.10f,0.0f);
+	ApplyGain(&gain_short2,3.5f,0.01f,
+				0.06f,0.002f,0.005f,0.00f,
+				0.10f,0.0f);
 
 	SetParams(&params_search1);
 	SetGain(&gain_search1);

@@ -54,13 +54,13 @@ void SearchOneSection(uint8_t goal_length)
 
 		}
 
-		GoOneSectionStop();									//前進する
+		GoOneSectionStop();
 		UpdatePosition();									//マイクロマウス内部位置情報でも前進処理
 		ConfRoute_NESW(goal_length);						//最短経路で進行可能か判定
 
 //	}while((MOUSE.X != goal_x) || (MOUSE.Y != goal_y));
 	}while(CheckGoal(MOUSE.X,MOUSE.Y,goal_length));
-															//現在座標とgoal座標が等しくなるまで実行
+
 	WaitMs(200);											//スタートでは***2秒以上***停止しなくてはならない
 	MelodyGoal();
 	Spin180();												//180度回転

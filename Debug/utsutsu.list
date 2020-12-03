@@ -27,23 +27,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  000201dc  2**0
                   CONTENTS, READONLY
- 12 .debug_info   000244b8  00000000  00000000  0002020c  2**0
+ 12 .debug_info   0002448c  00000000  00000000  0002020c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_abbrev 00004560  00000000  00000000  000446c4  2**0
+ 13 .debug_abbrev 00004537  00000000  00000000  00044698  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_aranges 00001500  00000000  00000000  00048c28  2**3
+ 14 .debug_aranges 000014f8  00000000  00000000  00048bd0  2**3
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_ranges 000012e8  00000000  00000000  0004a128  2**3
+ 15 .debug_ranges 000012e0  00000000  00000000  0004a0c8  2**3
                   CONTENTS, READONLY, DEBUGGING
- 16 .debug_macro  000249a9  00000000  00000000  0004b410  2**0
+ 16 .debug_macro  000249a9  00000000  00000000  0004b3a8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 17 .debug_line   000155be  00000000  00000000  0006fdb9  2**0
+ 17 .debug_line   000155bf  00000000  00000000  0006fd51  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    000c7233  00000000  00000000  00085377  2**0
+ 18 .debug_str    000c7223  00000000  00000000  00085310  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  0014c5aa  2**0
+ 19 .comment      0000007b  00000000  00000000  0014c533  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00006340  00000000  00000000  0014c628  2**2
+ 20 .debug_frame  00006318  00000000  00000000  0014c5b0  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -12184,15 +12184,15 @@ void ResetDistance()
  8004f14:	b490      	push	{r4, r7}
  8004f16:	af00      	add	r7, sp, #0
 	/* Initialize Distance */
-	encoder_r.distance = 0;
+	encoder_r.distance = 0.0f;
  8004f18:	4b0e      	ldr	r3, [pc, #56]	; (8004f54 <ResetDistance+0x40>)
  8004f1a:	f04f 0200 	mov.w	r2, #0
  8004f1e:	611a      	str	r2, [r3, #16]
-	encoder_l.distance = 0;
+	encoder_l.distance = 0.0f;
  8004f20:	4b0d      	ldr	r3, [pc, #52]	; (8004f58 <ResetDistance+0x44>)
  8004f22:	f04f 0200 	mov.w	r2, #0
  8004f26:	611a      	str	r2, [r3, #16]
-	center.distance = 0;
+	center.distance = 0.0f;
  8004f28:	4b0c      	ldr	r3, [pc, #48]	; (8004f5c <ResetDistance+0x48>)
  8004f2a:	f04f 0200 	mov.w	r2, #0
  8004f2e:	635a      	str	r2, [r3, #52]	; 0x34
@@ -12987,13 +12987,11 @@ void HalfSectionAccel(uint8_t wall_read)
  800557e:	4618      	mov	r0, r3
  8005580:	ed9f 0a07 	vldr	s0, [pc, #28]	; 80055a0 <HalfSectionAccel+0x40>
  8005584:	f000 faac 	bl	8005ae0 <DriveAccel>
-	if(wall_read) {
+	if(wall_read) 	GetWallData();
  8005588:	79fb      	ldrb	r3, [r7, #7]
  800558a:	2b00      	cmp	r3, #0
  800558c:	d001      	beq.n	8005592 <HalfSectionAccel+0x32>
-		GetWallData();
  800558e:	f004 f863 	bl	8009658 <GetWallData>
-	}
 }
  8005592:	bf00      	nop
  8005594:	3708      	adds	r7, #8
@@ -13847,9 +13845,6 @@ void DriveDecel(float dist, unsigned char rs)
  8005c4e:	f043 0301 	orr.w	r3, r3, #1
  8005c52:	7053      	strb	r3, [r2, #1]
 
-//	if(dist > 0)MF.FLAG.ACTRL = 0;
-//	else MF.FLAG.ACTRL = 0;
-
 	MF.FLAG.WDECL = 0;
  8005c54:	4a66      	ldr	r2, [pc, #408]	; (8005df0 <DriveDecel+0x1c4>)
  8005c56:	7813      	ldrb	r3, [r2, #0]
@@ -14285,8 +14280,6 @@ void DriveSpin(float theta)
  8006020:	f7fb f912 	bl	8001248 <HAL_Delay>
 	StopMotion();
  8006024:	f000 fc18 	bl	8006858 <StopMotion>
-
-
 }
  8006028:	bf00      	nop
  800602a:	3710      	adds	r7, #16
@@ -15003,6 +14996,7 @@ void DriveTrapezoid(float distance,float vel_max,float vel_min, float accel)
 
 	StartMotion();
  800666a:	f000 f8bb 	bl	80067e4 <StartMotion>
+
 	//----Go Forward----
 	if(distance >= 0.0f){
  800666e:	edd7 7a03 	vldr	s15, [r7, #12]
@@ -16271,11 +16265,11 @@ void VariableInit(void)
  8006f6c:	801a      	strh	r2, [r3, #0]
 	goal_x = GOAL_X;
  8006f6e:	4b46      	ldr	r3, [pc, #280]	; (8007088 <VariableInit+0x2ac>)
- 8006f70:	2201      	movs	r2, #1
+ 8006f70:	2203      	movs	r2, #3
  8006f72:	801a      	strh	r2, [r3, #0]
 	goal_y = GOAL_Y;
  8006f74:	4b45      	ldr	r3, [pc, #276]	; (800708c <VariableInit+0x2b0>)
- 8006f76:	2208      	movs	r2, #8
+ 8006f76:	2200      	movs	r2, #0
  8006f78:	801a      	strh	r2, [r3, #0]
 	InitializeMap();
  8006f7a:	f000 fe1d 	bl	8007bb8 <InitializeMap>
@@ -16769,7 +16763,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  8007388:	200f      	movs	r0, #15
  800738a:	f002 faab 	bl	80098e4 <Tim6WaitUs>
 
-			wall_r.val = GetADC(&hadc1,ADC_CHANNEL_1);
+			wall_r.val 	= 	GetADC(&hadc1,ADC_CHANNEL_1);
  800738e:	2101      	movs	r1, #1
  8007390:	4817      	ldr	r0, [pc, #92]	; (80073f0 <HAL_TIM_PeriodElapsedCallback+0x328>)
  8007392:	f002 fc09 	bl	8009ba8 <GetADC>
@@ -16777,7 +16771,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  8007398:	461a      	mov	r2, r3
  800739a:	4b1c      	ldr	r3, [pc, #112]	; (800740c <HAL_TIM_PeriodElapsedCallback+0x344>)
  800739c:	601a      	str	r2, [r3, #0]
-			wall_fl.val = GetADC(&hadc1,ADC_CHANNEL_5);
+			wall_fl.val = 	GetADC(&hadc1,ADC_CHANNEL_5);
  800739e:	2105      	movs	r1, #5
  80073a0:	4813      	ldr	r0, [pc, #76]	; (80073f0 <HAL_TIM_PeriodElapsedCallback+0x328>)
  80073a2:	f002 fc01 	bl	8009ba8 <GetADC>
@@ -16805,14 +16799,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(wall_ff.val > wall_ff.threshold)	buff = buff | 0x04;
 			if(wall_fl.val > wall_fl.threshold)	buff = buff | 0x01;
 */
-			if(wall_r.val > wall_r.threshold )	{
+			if(wall_r.val > wall_r.threshold )	wall_gain_fix_r = 1.00f;
  80073c4:	4b11      	ldr	r3, [pc, #68]	; (800740c <HAL_TIM_PeriodElapsedCallback+0x344>)
  80073c6:	681b      	ldr	r3, [r3, #0]
  80073c8:	4a10      	ldr	r2, [pc, #64]	; (800740c <HAL_TIM_PeriodElapsedCallback+0x344>)
  80073ca:	8a12      	ldrh	r2, [r2, #16]
  80073cc:	4293      	cmp	r3, r2
  80073ce:	d921      	bls.n	8007414 <HAL_TIM_PeriodElapsedCallback+0x34c>
-				wall_gain_fix_r = 1.00f;
  80073d0:	f04f 537e 	mov.w	r3, #1065353216	; 0x3f800000
  80073d4:	63bb      	str	r3, [r7, #56]	; 0x38
  80073d6:	e01f      	b.n	8007418 <HAL_TIM_PeriodElapsedCallback+0x350>
@@ -16831,27 +16824,24 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  8007408:	20008798 	.word	0x20008798
  800740c:	2000869c 	.word	0x2000869c
  8007410:	200086b0 	.word	0x200086b0
-			}else{
-				wall_gain_fix_r = 1.2f;
+			else								wall_gain_fix_r = 1.2f;
  8007414:	4b8b      	ldr	r3, [pc, #556]	; (8007644 <HAL_TIM_PeriodElapsedCallback+0x57c>)
  8007416:	63bb      	str	r3, [r7, #56]	; 0x38
-			}
-			if(wall_l.val > wall_l.threshold)	{
+
+			if(wall_l.val > wall_l.threshold)	wall_gain_fix_l = 1.0f;
  8007418:	4b8b      	ldr	r3, [pc, #556]	; (8007648 <HAL_TIM_PeriodElapsedCallback+0x580>)
  800741a:	681b      	ldr	r3, [r3, #0]
  800741c:	4a8a      	ldr	r2, [pc, #552]	; (8007648 <HAL_TIM_PeriodElapsedCallback+0x580>)
  800741e:	8a12      	ldrh	r2, [r2, #16]
  8007420:	4293      	cmp	r3, r2
  8007422:	d903      	bls.n	800742c <HAL_TIM_PeriodElapsedCallback+0x364>
-				wall_gain_fix_l = 1.0f;
  8007424:	f04f 537e 	mov.w	r3, #1065353216	; 0x3f800000
  8007428:	637b      	str	r3, [r7, #52]	; 0x34
  800742a:	e001      	b.n	8007430 <HAL_TIM_PeriodElapsedCallback+0x368>
-			}else{
-				wall_gain_fix_l = 1.2f;
+			else								wall_gain_fix_l = 1.2f;
  800742c:	4b85      	ldr	r3, [pc, #532]	; (8007644 <HAL_TIM_PeriodElapsedCallback+0x57c>)
  800742e:	637b      	str	r3, [r7, #52]	; 0x34
-			}
+
 			UpdateEncoder();
  8007430:	f002 fb20 	bl	8009a74 <UpdateEncoder>
 			UpdateGyro();
@@ -17242,6 +17232,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  8007814:	4b52      	ldr	r3, [pc, #328]	; (8007960 <HAL_TIM_PeriodElapsedCallback+0x898>)
  8007816:	4a55      	ldr	r2, [pc, #340]	; (800796c <HAL_TIM_PeriodElapsedCallback+0x8a4>)
  8007818:	60da      	str	r2, [r3, #12]
+
 				wall_l.pre = wall_l.dif;
  800781a:	4b51      	ldr	r3, [pc, #324]	; (8007960 <HAL_TIM_PeriodElapsedCallback+0x898>)
  800781c:	f9b3 2006 	ldrsh.w	r2, [r3, #6]
@@ -17258,6 +17249,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  8007832:	b21a      	sxth	r2, r3
  8007834:	4b4e      	ldr	r3, [pc, #312]	; (8007970 <HAL_TIM_PeriodElapsedCallback+0x8a8>)
  8007836:	811a      	strh	r2, [r3, #8]
+
 			}else {
 				wall_r.out = 0;
 				wall_l.out = 0;
@@ -17319,7 +17311,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  80078b8:	62bb      	str	r3, [r7, #40]	; 0x28
 			}
 
-			duty_left = vel_ctrl_L.out - omega_control.out - wall_r.out + wall_l.out  - angle_out;
+			duty_left 	= vel_ctrl_L.out - omega_control.out - wall_r.out + wall_l.out  - angle_out;
  80078ba:	4b25      	ldr	r3, [pc, #148]	; (8007950 <HAL_TIM_PeriodElapsedCallback+0x888>)
  80078bc:	ed93 7a04 	vldr	s14, [r3, #16]
  80078c0:	4b2d      	ldr	r3, [pc, #180]	; (8007978 <HAL_TIM_PeriodElapsedCallback+0x8b0>)
@@ -17334,7 +17326,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  80078de:	edd7 7a0a 	vldr	s15, [r7, #40]	; 0x28
  80078e2:	ee77 7a67 	vsub.f32	s15, s14, s15
  80078e6:	edc7 7a0b 	vstr	s15, [r7, #44]	; 0x2c
-			duty_right = vel_ctrl_R.out + omega_control.out + wall_r.out - wall_l.out + angle_out;
+			duty_right 	= vel_ctrl_R.out + omega_control.out + wall_r.out - wall_l.out + angle_out;
  80078ea:	4b18      	ldr	r3, [pc, #96]	; (800794c <HAL_TIM_PeriodElapsedCallback+0x884>)
  80078ec:	ed93 7a04 	vldr	s14, [r3, #16]
  80078f0:	4b21      	ldr	r3, [pc, #132]	; (8007978 <HAL_TIM_PeriodElapsedCallback+0x8b0>)
@@ -19873,7 +19865,7 @@ void SearchOneSection(uint8_t goal_length)
 
 		}
 
-		GoOneSectionStop();									//前進する
+		GoOneSectionStop();
  8008b4a:	f7fc fd3d 	bl	80055c8 <GoOneSectionStop>
 		UpdatePosition();									//マイクロマウス内部位置情報でも前進処理
  8008b4e:	f7ff f9c7 	bl	8007ee0 <UpdatePosition>
@@ -19896,7 +19888,7 @@ void SearchOneSection(uint8_t goal_length)
  8008b6e:	4603      	mov	r3, r0
  8008b70:	2b00      	cmp	r3, #0
  8008b72:	d1ae      	bne.n	8008ad2 <SearchOneSection+0x3e>
-															//現在座標とgoal座標が等しくなるまで実行
+
 	WaitMs(200);											//スタートでは***2秒以上***停止しなくてはならない
  8008b74:	20c8      	movs	r0, #200	; 0xc8
  8008b76:	f7fb ffc9 	bl	8004b0c <WaitMs>
@@ -22654,11 +22646,11 @@ void UtsutsuSystem()
 	  	  case 1:
 			goal_x = GOAL_X;
  8009e3c:	4b87      	ldr	r3, [pc, #540]	; (800a05c <UtsutsuSystem+0x340>)
- 8009e3e:	2201      	movs	r2, #1
+ 8009e3e:	2203      	movs	r2, #3
  8009e40:	801a      	strh	r2, [r3, #0]
 			goal_y = GOAL_Y;
  8009e42:	4b87      	ldr	r3, [pc, #540]	; (800a060 <UtsutsuSystem+0x344>)
- 8009e44:	2208      	movs	r2, #8
+ 8009e44:	2200      	movs	r2, #0
  8009e46:	801a      	strh	r2, [r3, #0]
 
 			StartWaiting();
@@ -22666,7 +22658,7 @@ void UtsutsuSystem()
 			FirstAction();
  8009e4c:	f7fa ff44 	bl	8004cd8 <FirstAction>
 			SearchOneSection(GOAL_LENGTH);
- 8009e50:	2002      	movs	r0, #2
+ 8009e50:	2001      	movs	r0, #1
  8009e52:	f7fe fe1f 	bl	8008a94 <SearchOneSection>
 			goal_x = goal_y = 0;
  8009e56:	4b82      	ldr	r3, [pc, #520]	; (800a060 <UtsutsuSystem+0x344>)
@@ -22685,11 +22677,11 @@ void UtsutsuSystem()
 
 			goal_x = GOAL_X;
  8009e70:	4b7a      	ldr	r3, [pc, #488]	; (800a05c <UtsutsuSystem+0x340>)
- 8009e72:	2201      	movs	r2, #1
+ 8009e72:	2203      	movs	r2, #3
  8009e74:	801a      	strh	r2, [r3, #0]
 			goal_y = GOAL_Y;
  8009e76:	4b7a      	ldr	r3, [pc, #488]	; (800a060 <UtsutsuSystem+0x344>)
- 8009e78:	2208      	movs	r2, #8
+ 8009e78:	2200      	movs	r2, #0
  8009e7a:	801a      	strh	r2, [r3, #0]
 			break;
  8009e7c:	e14b      	b.n	800a116 <UtsutsuSystem+0x3fa>
@@ -22698,11 +22690,11 @@ void UtsutsuSystem()
 	  	  case 2:
 			goal_x = GOAL_X;
  8009e7e:	4b77      	ldr	r3, [pc, #476]	; (800a05c <UtsutsuSystem+0x340>)
- 8009e80:	2201      	movs	r2, #1
+ 8009e80:	2203      	movs	r2, #3
  8009e82:	801a      	strh	r2, [r3, #0]
 			goal_y = GOAL_Y;
  8009e84:	4b76      	ldr	r3, [pc, #472]	; (800a060 <UtsutsuSystem+0x344>)
- 8009e86:	2208      	movs	r2, #8
+ 8009e86:	2200      	movs	r2, #0
  8009e88:	801a      	strh	r2, [r3, #0]
 
 			StartWaiting();
@@ -22711,7 +22703,7 @@ void UtsutsuSystem()
  8009e8e:	f7fa ff23 	bl	8004cd8 <FirstAction>
 
 			SearchContinuous(GOAL_LENGTH);
- 8009e92:	2002      	movs	r0, #2
+ 8009e92:	2001      	movs	r0, #1
  8009e94:	f7fe fe88 	bl	8008ba8 <SearchContinuous>
 			goal_x = goal_y = 0;
  8009e98:	4b71      	ldr	r3, [pc, #452]	; (800a060 <UtsutsuSystem+0x344>)
@@ -22726,11 +22718,11 @@ void UtsutsuSystem()
  8009ea8:	f7fe fe7e 	bl	8008ba8 <SearchContinuous>
 			goal_x = GOAL_X;
  8009eac:	4b6b      	ldr	r3, [pc, #428]	; (800a05c <UtsutsuSystem+0x340>)
- 8009eae:	2201      	movs	r2, #1
+ 8009eae:	2203      	movs	r2, #3
  8009eb0:	801a      	strh	r2, [r3, #0]
 			goal_y = GOAL_Y;
  8009eb2:	4b6b      	ldr	r3, [pc, #428]	; (800a060 <UtsutsuSystem+0x344>)
- 8009eb4:	2208      	movs	r2, #8
+ 8009eb4:	2200      	movs	r2, #0
  8009eb6:	801a      	strh	r2, [r3, #0]
 
 			Spin180();
@@ -22746,15 +22738,15 @@ void UtsutsuSystem()
 	  	  case 3:
 			goal_x = GOAL_X;
  8009ec8:	4b64      	ldr	r3, [pc, #400]	; (800a05c <UtsutsuSystem+0x340>)
- 8009eca:	2201      	movs	r2, #1
+ 8009eca:	2203      	movs	r2, #3
  8009ecc:	801a      	strh	r2, [r3, #0]
 			goal_y = GOAL_Y;
  8009ece:	4b64      	ldr	r3, [pc, #400]	; (800a060 <UtsutsuSystem+0x344>)
- 8009ed0:	2208      	movs	r2, #8
+ 8009ed0:	2200      	movs	r2, #0
  8009ed2:	801a      	strh	r2, [r3, #0]
 
 	  		MakeStepMap(GOAL_LENGTH);
- 8009ed4:	2002      	movs	r0, #2
+ 8009ed4:	2001      	movs	r0, #1
  8009ed6:	f7fe f887 	bl	8007fe8 <MakeStepMap>
 	  		MakeRoute_NESW();
  8009eda:	f7fe f9b3 	bl	8008244 <MakeRoute_NESW>
@@ -22772,11 +22764,11 @@ void UtsutsuSystem()
  8009ee8:	f7fe fd08 	bl	80088fc <MelodyKurenai>
 			goal_x = GOAL_X;
  8009eec:	4b5b      	ldr	r3, [pc, #364]	; (800a05c <UtsutsuSystem+0x340>)
- 8009eee:	2201      	movs	r2, #1
+ 8009eee:	2203      	movs	r2, #3
  8009ef0:	801a      	strh	r2, [r3, #0]
 			goal_y = GOAL_Y;
  8009ef2:	4b5b      	ldr	r3, [pc, #364]	; (800a060 <UtsutsuSystem+0x344>)
- 8009ef4:	2208      	movs	r2, #8
+ 8009ef4:	2200      	movs	r2, #0
  8009ef6:	801a      	strh	r2, [r3, #0]
 
 			StartWaiting();
@@ -22785,7 +22777,7 @@ void UtsutsuSystem()
  8009efc:	f7fa feec 	bl	8004cd8 <FirstAction>
 
 			SearchSlalom(GOAL_LENGTH);
- 8009f00:	2002      	movs	r0, #2
+ 8009f00:	2001      	movs	r0, #1
  8009f02:	f7fe ff51 	bl	8008da8 <SearchSlalom>
 			goal_x = 0;
  8009f06:	4b55      	ldr	r3, [pc, #340]	; (800a05c <UtsutsuSystem+0x340>)
@@ -22800,11 +22792,11 @@ void UtsutsuSystem()
  8009f14:	f7fe ff48 	bl	8008da8 <SearchSlalom>
 			goal_x = GOAL_X;
  8009f18:	4b50      	ldr	r3, [pc, #320]	; (800a05c <UtsutsuSystem+0x340>)
- 8009f1a:	2201      	movs	r2, #1
+ 8009f1a:	2203      	movs	r2, #3
  8009f1c:	801a      	strh	r2, [r3, #0]
 			goal_y = GOAL_Y;
  8009f1e:	4b50      	ldr	r3, [pc, #320]	; (800a060 <UtsutsuSystem+0x344>)
- 8009f20:	2208      	movs	r2, #8
+ 8009f20:	2200      	movs	r2, #0
  8009f22:	801a      	strh	r2, [r3, #0]
 
 			Spin180();									//180度回転
@@ -22832,15 +22824,15 @@ void UtsutsuSystem()
 
 			goal_x = GOAL_X;
  8009f44:	4b45      	ldr	r3, [pc, #276]	; (800a05c <UtsutsuSystem+0x340>)
- 8009f46:	2201      	movs	r2, #1
+ 8009f46:	2203      	movs	r2, #3
  8009f48:	801a      	strh	r2, [r3, #0]
 			goal_y = GOAL_Y;
  8009f4a:	4b45      	ldr	r3, [pc, #276]	; (800a060 <UtsutsuSystem+0x344>)
- 8009f4c:	2208      	movs	r2, #8
+ 8009f4c:	2200      	movs	r2, #0
  8009f4e:	801a      	strh	r2, [r3, #0]
 
 			MakeStepMap(GOAL_LENGTH);						//歩数図の初期化
- 8009f50:	2002      	movs	r0, #2
+ 8009f50:	2001      	movs	r0, #1
  8009f52:	f7fe f849 	bl	8007fe8 <MakeStepMap>
 			MakeRoute_NESW();
  8009f56:	f7fe f975 	bl	8008244 <MakeRoute_NESW>
@@ -22877,15 +22869,15 @@ void UtsutsuSystem()
 
 			goal_x = GOAL_X;
  8009f8a:	4b34      	ldr	r3, [pc, #208]	; (800a05c <UtsutsuSystem+0x340>)
- 8009f8c:	2201      	movs	r2, #1
+ 8009f8c:	2203      	movs	r2, #3
  8009f8e:	801a      	strh	r2, [r3, #0]
 			goal_y = GOAL_Y;
  8009f90:	4b33      	ldr	r3, [pc, #204]	; (800a060 <UtsutsuSystem+0x344>)
- 8009f92:	2208      	movs	r2, #8
+ 8009f92:	2200      	movs	r2, #0
  8009f94:	801a      	strh	r2, [r3, #0]
 
 			MakeStepMap(GOAL_LENGTH);						//歩数図の初期化
- 8009f96:	2002      	movs	r0, #2
+ 8009f96:	2001      	movs	r0, #1
  8009f98:	f7fe f826 	bl	8007fe8 <MakeStepMap>
 			MakeRoute_NESW();
  8009f9c:	f7fe f952 	bl	8008244 <MakeRoute_NESW>

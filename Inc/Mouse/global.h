@@ -81,9 +81,9 @@
  ------------------------------------------------------------*/
 
 //----Goal Node----
-#define GOAL_X 1
-#define GOAL_Y 8
-#define GOAL_LENGTH 2
+#define GOAL_X 3
+#define GOAL_Y 0
+#define GOAL_LENGTH 1
 #define RETURN_GOAL_LENGTH 1
 
 #ifndef __MOUSE_FLAGS__

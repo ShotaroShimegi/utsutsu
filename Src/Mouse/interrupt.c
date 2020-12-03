@@ -67,8 +67,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			Tim6WaitUs(AD_WAIT_US);
 
-			wall_r.val = GetADC(&hadc1,ADC_CHANNEL_1);
-			wall_fl.val = GetADC(&hadc1,ADC_CHANNEL_5);
+			wall_r.val 	= 	GetADC(&hadc1,ADC_CHANNEL_1);
+			wall_fl.val = 	GetADC(&hadc1,ADC_CHANNEL_5);
 
 			HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin,RESET);
 			HAL_GPIO_WritePin(LED_FL_GPIO_Port, LED_FL_Pin,RESET);
@@ -80,16 +80,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(wall_ff.val > wall_ff.threshold)	buff = buff | 0x04;
 			if(wall_fl.val > wall_fl.threshold)	buff = buff | 0x01;
 */
-			if(wall_r.val > wall_r.threshold )	{
-				wall_gain_fix_r = 1.00f;
-			}else{
-				wall_gain_fix_r = 1.2f;
-			}
-			if(wall_l.val > wall_l.threshold)	{
-				wall_gain_fix_l = 1.0f;
-			}else{
-				wall_gain_fix_l = 1.2f;
-			}
+			if(wall_r.val > wall_r.threshold )	wall_gain_fix_r = 1.00f;
+			else								wall_gain_fix_r = 1.2f;
+
+			if(wall_l.val > wall_l.threshold)	wall_gain_fix_l = 1.0f;
+			else								wall_gain_fix_l = 1.2f;
+
 			UpdateEncoder();
 			UpdateGyro();
 
@@ -149,9 +145,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 				if(wall_r.out > 0.1f) wall_r.out = 0.1f;
 				if(wall_l.out > 0.1f) wall_l.out = 0.1f;
+
 				wall_l.pre = wall_l.dif;
 				wall_r.pre = wall_r.dif;
 				wall_ff.pre = wall_ff.val;
+
 			}else {
 				wall_r.out = 0;
 				wall_l.out = 0;
@@ -165,8 +163,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				angle_out = 0.0f;
 			}
 
-			duty_left = vel_ctrl_L.out - omega_control.out - wall_r.out + wall_l.out  - angle_out;
-			duty_right = vel_ctrl_R.out + omega_control.out + wall_r.out - wall_l.out + angle_out;
+			duty_left 	= vel_ctrl_L.out - omega_control.out - wall_r.out + wall_l.out  - angle_out;
+			duty_right 	= vel_ctrl_R.out + omega_control.out + wall_r.out - wall_l.out + angle_out;
 
 			if(duty_left < 0){
 				duty_left = -duty_left;
@@ -255,6 +253,3 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 }
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
-
-}

@@ -23,9 +23,7 @@ void HalfSectionAccel(uint8_t wall_read)
 {
 	MF.FLAG.CTRL = 1;
 	DriveAccel(HALF_MM, MF.FLAG.SCND);
-	if(wall_read) {
-		GetWallData();
-	}
+	if(wall_read) 	GetWallData();
 }
 
 void HalfSectionDecel()
@@ -240,9 +238,6 @@ void DriveDecel(float dist, unsigned char rs)
 	MF.FLAG.WCTRL = 1;
 	MF.FLAG.VCTRL = 1;
 
-//	if(dist > 0)MF.FLAG.ACTRL = 0;
-//	else MF.FLAG.ACTRL = 0;
-
 	MF.FLAG.WDECL = 0;
 	MF.FLAG.WACCL = 0;
 	MF.FLAG.ACCL = 1;
@@ -330,8 +325,6 @@ void DriveSpin(float theta)
 	omega_control.i_out = 0;
 	HAL_Delay(100);
 	StopMotion();
-
-
 }
 
 void DriveSlalom(int16_t theta)
@@ -476,6 +469,7 @@ void DriveTrapezoid(float distance,float vel_max,float vel_min, float accel)
 	}
 
 	StartMotion();
+
 	//----Go Forward----
 	if(distance >= 0.0f){
 		while(center.distance + offset < ics + distance){
